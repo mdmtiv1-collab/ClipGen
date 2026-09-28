@@ -254,168 +254,183 @@ export default function ProjectDashboard({
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-          {displayedProjects.map(proj => {
-            const isEditingTitle = editingTitleId === proj.id;
-            const isGerando = proj.status === 'gerando';
-            const isRevisao = proj.status === 'revisao';
-            const isReady = proj.status === 'pronto';
+        <div className="space-y-3">
+          {/* Select all checkbox matching VibeCut */}
+          <div className="flex items-center gap-2 text-xs text-[#92978F] pt-0.5">
+            <div className="w-3.5 h-3.5 rounded border border-[#3b424d] bg-[#15181c] flex items-center justify-center cursor-pointer hover:border-[#C5F955]/50 transition-colors">
+              <Check className="w-2.5 h-2.5 text-[#C5F955] opacity-0 hover:opacity-50" />
+            </div>
+            <span>Selecionar todos da página ({displayedProjects.length})</span>
+          </div>
 
-            return (
-              <div
-                key={proj.id}
-                onClick={() => handleCardClick(proj)}
-                className="bg-[#15181c] border border-[#21252b] hover:border-[#2f353d] rounded-xl overflow-hidden transition-all cursor-pointer group flex flex-col relative"
-              >
-                {/* Thumbnail Preview with Duration badge */}
-                <div className="relative aspect-[9/14] bg-[#0c0e10] overflow-hidden flex items-center justify-center">
-                  {proj.thumbnailUrl ? (
-                    <img
-                      src={`${API_BASE}${proj.thumbnailUrl}`}
-                      alt={proj.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  ) : proj.baseVideo?.url ? (
-                    <video
-                      src={`${API_BASE}${proj.baseVideo.url}#t=1`}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      muted
-                      preload="metadata"
-                    />
-                  ) : (
-                    <FileVideo className="w-12 h-12 text-[#3b4866]" />
-                  )}
+          {/* Compact VibeCut Proportional Card Grid */}
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(140px,160px))] gap-3">
+            {displayedProjects.map(proj => {
+              const isEditingTitle = editingTitleId === proj.id;
+              const isGerando = proj.status === 'gerando';
+              const isRevisao = proj.status === 'revisao';
+              const isReady = proj.status === 'pronto';
 
-                  {/* Gradient Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#111315] via-transparent to-black/30 pointer-events-none" />
-
-                  {/* Top Status Badge */}
-                  <div className="absolute top-3 left-3">
-                    {isGerando && (
-                      <span className="text-[11px] font-medium px-2.5 py-1 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 backdrop-blur-md flex items-center gap-1.5 animate-pulse">
-                        <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-ping" />
-                        <span>Transcrevendo...</span>
-                      </span>
-                    )}
-                    {isRevisao && (
-                      <span className="text-[11px] font-medium px-2.5 py-1 rounded-full bg-[#C5F955]/15 text-[#C5F955] border border-[#C5F955]/25 backdrop-blur-md">
-                        Para revisar
-                      </span>
-                    )}
-                    {isReady && (
-                      <span className="text-[11px] font-medium px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/25 backdrop-blur-md">
-                        Pronto
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Duration Badge bottom-right */}
-                  <div className="absolute bottom-3 right-3 px-2 py-0.5 rounded-md bg-black/80 backdrop-blur-md text-xs font-mono font-medium text-[#F5F5F0]">
-                    {proj.durationFormatted || '0:20'}
-                  </div>
-
-                  {/* Bottom Progress Bar if Generating (VibeCut frame_85s) */}
-                  {isGerando && (
-                    <div className="absolute bottom-0 inset-x-0 h-1.5 bg-black/60 overflow-hidden">
-                      <div
-                        className="h-full bg-[#C5F955] transition-all duration-500"
-                        style={{ width: `${proj.progress || 15}%` }}
+              return (
+                <div
+                  key={proj.id}
+                  onClick={() => handleCardClick(proj)}
+                  className="w-full max-w-[160px] bg-[#15181c] border border-[#21252b] hover:border-[#38414e] rounded-xl overflow-hidden transition-all cursor-pointer group flex flex-col relative shadow-md hover:shadow-xl hover:-translate-y-0.5"
+                >
+                  {/* Thumbnail Preview with Duration badge */}
+                  <div className="relative aspect-[9/16] bg-[#0c0e10] overflow-hidden flex items-center justify-center">
+                    {proj.thumbnailUrl ? (
+                      <img
+                        src={`${API_BASE}${proj.thumbnailUrl}`}
+                        alt={proj.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
-                    </div>
-                  )}
-
-                  {/* Play Hover Button */}
-                  {!isGerando && (
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/25">
-                      <div className="w-11 h-11 rounded-full bg-[#C5F955] text-[#111315] flex items-center justify-center scale-95 group-hover:scale-100 transition-transform">
-                        <Play className="w-4 h-4 fill-[#111315] ml-0.5" />
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Card Info & Actions */}
-                <div className="p-4 space-y-3 flex-1 flex flex-col justify-between">
-                  <div>
-                    {isEditingTitle ? (
-                      <div className="flex items-center gap-1.5" onClick={e => e.stopPropagation()}>
-                        <input
-                          type="text"
-                          value={editTitleValue}
-                          onChange={e => setEditTitleValue(e.target.value)}
-                          className="flex-1 px-2.5 py-1 rounded-lg bg-[#111315] border border-[#C5F955] text-xs text-[#F5F5F0] focus:outline-none"
-                          autoFocus
-                        />
-                        <button
-                          type="button"
-                          onClick={(e) => handleSaveTitle(proj.id, e)}
-                          className="p-1 rounded-lg bg-[#C5F955] text-[#111315]"
-                        >
-                          <Check className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
+                    ) : proj.baseVideo?.url ? (
+                      <video
+                        src={`${API_BASE}${proj.baseVideo.url}#t=1`}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        muted
+                        preload="metadata"
+                      />
                     ) : (
-                      <div className="flex items-center justify-between gap-2">
-                        <h4 className="text-sm font-medium text-[#F5F5F0] truncate flex-1" title={proj.title}>
-                          {proj.title}
-                        </h4>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setEditingTitleId(proj.id);
-                            setEditTitleValue(proj.title);
-                          }}
-                          className="text-[#92978F] hover:text-[#F5F5F0] transition-colors p-1"
-                          title="Renomear"
-                        >
-                          <Edit2 className="w-3.5 h-3.5" />
-                        </button>
+                      <FileVideo className="w-8 h-8 text-[#3b4866]" />
+                    )}
+
+                    {/* Gradient Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#111315]/80 via-transparent to-black/25 pointer-events-none" />
+
+                    {/* Checkbox top-left (VibeCut style) */}
+                    <div className="absolute top-2 left-2 w-3.5 h-3.5 rounded border border-white/30 bg-black/40 backdrop-blur-sm flex items-center justify-center pointer-events-none">
+                      <div className="w-1.5 h-1.5 rounded-sm bg-transparent" />
+                    </div>
+
+                    {/* Duration Badge bottom-right (VibeCut style) */}
+                    <div className="absolute bottom-2 right-2 px-1.5 py-0.5 rounded bg-black/80 backdrop-blur-sm text-[10px] font-mono font-medium text-white/90">
+                      {proj.durationFormatted || '0:20'}
+                    </div>
+
+                    {/* Progress Bar if generating */}
+                    {isGerando && (
+                      <div className="absolute bottom-0 inset-x-0 h-1 bg-black/60 overflow-hidden">
+                        <div
+                          className="h-full bg-[#C5F955] transition-all duration-500"
+                          style={{ width: `${proj.progress || 15}%` }}
+                        />
                       </div>
                     )}
 
-                    <div className="flex items-center justify-between text-xs text-[#92978F] mt-1.5 font-normal">
-                      <span>{new Date(proj.createdAt).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}</span>
-                      <span>{proj.broll_segments?.length ? `${proj.broll_segments.length} cenas` : (isGerando ? `${proj.progress || 10}%` : '0 cenas')}</span>
+                    {/* Play Hover Button */}
+                    {!isGerando && (
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/25">
+                        <div className="w-8 h-8 rounded-full bg-[#C5F955] text-[#111315] flex items-center justify-center scale-90 group-hover:scale-100 transition-transform shadow-lg">
+                          <Play className="w-3.5 h-3.5 fill-[#111315] ml-0.5" />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Card Info & Actions */}
+                  <div className="p-2.5 space-y-1.5 flex-1 flex flex-col justify-between">
+                    <div>
+                      {/* Title */}
+                      {isEditingTitle ? (
+                        <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
+                          <input
+                            type="text"
+                            value={editTitleValue}
+                            onChange={e => setEditTitleValue(e.target.value)}
+                            className="flex-1 px-1.5 py-0.5 rounded bg-[#111315] border border-[#C5F955] text-[11px] text-[#F5F5F0] focus:outline-none"
+                            autoFocus
+                          />
+                          <button
+                            type="button"
+                            onClick={(e) => handleSaveTitle(proj.id, e)}
+                            className="p-1 rounded bg-[#C5F955] text-[#111315]"
+                          >
+                            <Check className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-between gap-1">
+                          <h4 className="text-xs font-medium text-[#F5F5F0] truncate flex-1 leading-tight" title={proj.title}>
+                            {proj.title}
+                          </h4>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setEditingTitleId(proj.id);
+                              setEditTitleValue(proj.title);
+                            }}
+                            className="text-[#92978F] hover:text-[#F5F5F0] transition-colors p-0.5 shrink-0"
+                            title="Renomear"
+                          >
+                            <Edit2 className="w-3 h-3" />
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Status badge matching VibeCut */}
+                      <div className="mt-1">
+                        {isGerando ? (
+                          <span className="text-[10px] font-medium text-purple-400 flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-ping shrink-0" />
+                            <span className="truncate">Gerando...</span>
+                          </span>
+                        ) : isRevisao ? (
+                          <span className="text-[10px] font-medium text-[#C5F955]">
+                            Aguardando revisão
+                          </span>
+                        ) : (
+                          <span className="text-[10px] font-medium text-emerald-400">
+                            Concluído
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Format and Date */}
+                      <div className="text-[10px] text-[#92978F] truncate mt-0.5 font-normal">
+                        <span>{proj.template === 'vsl' ? 'VSL' : 'Direct Response'} · {new Date(proj.createdAt).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}</span>
+                      </div>
+                    </div>
+
+                    {/* Card Bottom Buttons: Aprovar/Revisar + Trash */}
+                    <div className="pt-1.5 border-t border-[#1f2328] flex items-center justify-between gap-1.5">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleCardClick(proj);
+                        }}
+                        className="flex-1 py-1 px-2 rounded-md bg-[#C5F955]/15 hover:bg-[#C5F955]/25 text-[#C5F955] border border-[#C5F955]/25 text-[11px] font-medium flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                      >
+                        {isGerando ? (
+                          <>
+                            <Loader2 className="w-3 h-3 animate-spin" />
+                            <span>Progresso</span>
+                          </>
+                        ) : (
+                          <>
+                            <CheckCircle2 className="w-3 h-3" />
+                            <span>{isReady ? 'Abrir' : 'Aprovar'}</span>
+                          </>
+                        )}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={(e) => handleDelete(proj.id, e)}
+                        className="p-1 rounded-md bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 transition-colors cursor-pointer"
+                        title="Excluir"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
                     </div>
                   </div>
-
-                  {/* Card Bottom Buttons: Revisar/Abrir + Trash */}
-                  <div className="pt-2.5 border-t border-[#1f2328] flex items-center justify-between gap-2">
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleCardClick(proj);
-                      }}
-                      className="flex-1 py-1.5 px-3 rounded-lg bg-[#C5F955]/10 hover:bg-[#C5F955]/20 text-[#C5F955] border border-[#C5F955]/20 text-xs font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-                    >
-                      {isGerando ? (
-                        <>
-                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                          <span>Ver progresso</span>
-                        </>
-                      ) : (
-                        <>
-                          <CheckCircle2 className="w-3.5 h-3.5" />
-                          <span>{isReady ? 'Abrir' : 'Revisar'}</span>
-                        </>
-                      )}
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={(e) => handleDelete(proj.id, e)}
-                      className="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 transition-colors cursor-pointer"
-                      title="Excluir"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       )}
 
