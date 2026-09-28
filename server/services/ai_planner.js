@@ -215,8 +215,19 @@ function buildRuleBasedPlan(transcript, selectedCategories = [], template = 'dir
   cutPoints.push(Number(duration.toFixed(2)));
 
   // Transitions list matching VibeCut:
-  // Corte seco, Fade, Flash branco, Zoom punch, Whip lateral, Blur, Glitch, Flare
-  const transitionTypes = ['zoom_punch', 'corte_seco', 'whip_lateral', 'flash_branco', 'fade', 'blur', 'glitch', 'flare'];
+  // Corte seco, Fade, Flash branco, Zoom punch, Whip lateral, Blur, Glitch, Glare
+  const transitionTypes = ['zoom_punch', 'corte_seco', 'whip_lateral', 'flash_branco', 'fade', 'blur', 'glitch', 'glare'];
+  const transitionDefaultSound = {
+    corte_seco: 'padrao',
+    fade: 'swoosh',
+    flash_branco: 'camera_flash',
+    zoom_punch: 'impact_sub',
+    whip_lateral: 'whip_snap',
+    blur: 'whoosh_deep',
+    glitch: 'glitch_sfx',
+    glare: 'optic_glare',
+    flare: 'optic_glare'
+  };
   const zoomModes = ['sem_efeito', 'zoom_in', 'zoom_out', 'zoom_punch'];
 
   const segments = [];
@@ -287,8 +298,8 @@ function buildRuleBasedPlan(transcript, selectedCategories = [], template = 'dir
       transition: {
         type: transitionType,
         direction: (i % 2 === 0) ? 'esquerda' : 'direita',
-        sound: 'whip',
-        volume: 100
+        sound: transitionDefaultSound[transitionType] || 'padrao',
+        volume: 80
       },
       texture: {
         grain: i % 4 === 0,
@@ -448,8 +459,8 @@ async function generateEditingPlan({ transcript, selectedCategories, template, d
           transition: {
             type: raw.transition || 'zoom_punch',
             direction: i % 2 === 0 ? 'esquerda' : 'direita',
-            sound: 'whip',
-            volume: 100
+            sound: transitionDefaultSound[raw.transition] || 'impact_sub',
+            volume: 80
           },
           texture: { grain: i % 4 === 0, flash: false },
           subtitlePosition: 'automatica',

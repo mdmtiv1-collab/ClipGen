@@ -97,19 +97,20 @@ const TRANSITIONS_GRID = [
 ];
 
 const TRANSITION_SOUNDS = [
-  { id: 'padrao', label: 'Padrão (sem som)' },
-  { id: 'camera_flash', label: 'Flash Fotográfico (Câmera)' },
-  { id: 'impact_sub', label: 'Impacto Sub (Punch)' },
-  { id: 'whip_snap', label: 'Whip Snap (Chicote)' },
+  { id: 'padrao', label: 'Padrão (Sem som)' },
+  { id: 'camera_flash', label: 'Flash Fotográfico (Câmera Shutter)' },
+  { id: 'impact_sub', label: 'Impacto Sub 808 (Zoom Punch)' },
+  { id: 'whip_snap', label: 'Chicote Seco (Whip Snap)' },
+  { id: 'optic_glare', label: 'Brilho Óptico (Glare Shimmer)' },
+  { id: 'glitch_sfx', label: 'Glitch Digital (Bitcrush)' },
+  { id: 'whoosh_deep', label: 'Whoosh Profundo (Blur)' },
   { id: 'whoosh_fast', label: 'Whoosh Rápido' },
-  { id: 'whoosh_deep', label: 'Whoosh Profundo' },
-  { id: 'swoosh', label: 'Swoosh Cinematográfico' },
-  { id: 'glitch_sfx', label: 'Glitch Digital' },
+  { id: 'swoosh', label: 'Swoosh Cinematográfico (Fade)' },
   { id: 'pop', label: 'Pop Moderno' },
-  { id: 'riser', label: 'Riser Impacto' }
+  { id: 'riser', label: 'Riser de Tensão' }
 ];
 
-// Cada transição tem seu som nativo característico (ex: Flash branco -> Flash Fotográfico)
+// Cada transição tem seu som nativo característico e perfeitamente sintonizado
 const TRANSITION_DEFAULT_SOUND = {
   corte_seco: 'padrao',
   fade: 'swoosh',
@@ -118,7 +119,8 @@ const TRANSITION_DEFAULT_SOUND = {
   whip_lateral: 'whip_snap',
   blur: 'whoosh_deep',
   glitch: 'glitch_sfx',
-  glare: 'camera_flash'
+  glare: 'optic_glare',
+  flare: 'optic_glare'
 };
 
 // Gerador PCM WAV puro em memória para reprodução 100% instantânea e livre de bloqueios de áudio
@@ -165,89 +167,104 @@ function generatePcmWav(fn, duration = 0.28, sampleRate = 22050) {
   }
 }
 
-// Pre-renderização imediata dos efeitos sonoros em cache de Data URI
+// Pre-renderização imediata de 10 perfis acústicos radicais e inconfundíveis em Data URI
 const SOUND_DATA_URIS = {};
 if (typeof window !== 'undefined') {
   try {
-    // 1. Som característico de Flash Fotográfico (shutter snap + high discharge shimmer)
+    // 1. Flash Fotográfico: Shutter mecânico duplo (click + clack) + chiado estroboscópico de descarga
     SOUND_DATA_URIS['camera_flash'] = generatePcmWav((t) => {
-      const click = t < 0.03 ? (Math.random() * 2 - 1) * Math.exp(-t * 120) * 1.9 : 0;
-      const freq = 2400 * Math.exp(-t * 16);
-      const tone = Math.sin(2 * Math.PI * freq * t) * Math.exp(-t * 22);
-      const noise = (Math.random() * 2 - 1) * Math.exp(-t * 14) * 0.55;
-      return click * 0.85 + tone * 0.7 + noise * 0.45;
-    }, 0.28);
-
-    // 2. Impacto Sub (Zoom Punch - chest-thumping punch transient + sub bass)
-    SOUND_DATA_URIS['impact_sub'] = generatePcmWav((t) => {
-      const transient = t < 0.02 ? (Math.random() * 2 - 1) * 1.6 : 0;
-      const freq = 160 * Math.exp(-t * 8) + 40;
-      const sub = Math.sin(2 * Math.PI * freq * t) * Math.exp(-t * 8);
-      return transient * 0.6 + sub * 1.4;
+      const click = t < 0.02 ? (Math.random() * 2 - 1) * Math.exp(-t * 200) * 1.8 : 0;
+      const clack = (t > 0.035 && t < 0.065) ? (Math.random() * 2 - 1) * Math.sin(2 * Math.PI * 1800 * t) * Math.exp(-(t - 0.035) * 140) * 1.2 : 0;
+      const sizzle = t > 0.015 ? (Math.random() * 2 - 1) * Math.sin(2 * Math.PI * 3400 * t) * Math.exp(-t * 14) * 0.7 : 0;
+      return click + clack + sizzle;
     }, 0.32);
 
-    // 3. Whip Snap (Chicote seco rápido com cauda aérea)
+    // 2. Impacto Sub (Zoom Punch): Transiente soco 808 + sub-grave pesado descendo para 42Hz
+    SOUND_DATA_URIS['impact_sub'] = generatePcmWav((t) => {
+      const punch = t < 0.025 ? (Math.random() * 2 - 1) * Math.exp(-t * 120) * 1.6 : 0;
+      const freq = 180 * Math.exp(-t * 9) + 42;
+      const sub = Math.sin(2 * Math.PI * freq * t) * Math.exp(-t * 7);
+      const warmHarmonic = Math.sin(2 * Math.PI * (freq * 2) * t) * 0.35 * Math.exp(-t * 8);
+      return punch * 0.5 + sub * 1.35 + warmHarmonic;
+    }, 0.38);
+
+    // 3. Whip Snap (Chicote Seco): Voo rápido de ar seguido por estalo abrasivo violento
     SOUND_DATA_URIS['whip_snap'] = generatePcmWav((t) => {
-      const snap = t < 0.02 ? (Math.random() * 2 - 1) * 2.2 : 0;
-      const freq = 2200 * Math.exp(-t * 30);
-      const tail = Math.sin(2 * Math.PI * freq * t) * Math.exp(-t * 22);
-      return snap * 0.9 + tail * 0.6;
-    }, 0.18);
+      const air = t < 0.04 ? (Math.random() * 2 - 1) * Math.pow(t / 0.04, 2) * 0.45 : 0;
+      const dt = t - 0.04;
+      const crack = (dt >= 0 && dt < 0.02) ? (Math.random() * 2 - 1) * Math.exp(-dt * 350) * 2.3 : 0;
+      const tail = dt >= 0 ? Math.sin(2 * Math.PI * 2900 * dt) * Math.exp(-dt * 26) * 0.55 : 0;
+      return air + crack + tail;
+    }, 0.20);
 
-    // 4. Whoosh Rápido
-    SOUND_DATA_URIS['whoosh_fast'] = generatePcmWav((t, dur) => {
-      const norm = t / dur;
-      const env = Math.sin(Math.PI * Math.pow(norm, 0.75));
-      const freq = 300 + 2200 * Math.sin(Math.PI * norm);
-      const noise = (Math.random() * 2 - 1) * 0.75;
-      const tone = Math.sin(2 * Math.PI * freq * t) * 0.25;
-      return (noise + tone) * env * 1.5;
-    }, 0.25);
+    // 4. Brilho Óptico (Glare Shimmer): Sino harmônico ressonante de cristal com tremolo cintilante
+    SOUND_DATA_URIS['optic_glare'] = generatePcmWav((t, dur) => {
+      const env = Math.sin(Math.PI * (t / dur));
+      const tone1 = Math.sin(2 * Math.PI * (1650 + 350 * (t / dur)) * t);
+      const tone2 = Math.sin(2 * Math.PI * (2450 - 250 * (t / dur)) * t);
+      const shimmer = Math.sin(2 * Math.PI * 3300 * t) * (Math.sin(2 * Math.PI * 18 * t) * 0.5 + 0.5);
+      const air = (Math.random() * 2 - 1) * 0.2;
+      return (tone1 * 0.4 + tone2 * 0.4 + shimmer * 0.55 + air) * env * 1.25;
+    }, 0.40);
 
-    // 5. Whoosh Profundo (Blur)
+    // 5. Glitch Digital: Bitcrush quebrado com saltos rápidos de frequência em onda quadrada
+    SOUND_DATA_URIS['glitch_sfx'] = generatePcmWav((t) => {
+      const step = Math.floor(t * 36);
+      const freqs = [2100, 360, 1800, 130, 2400, 520, 1500, 90];
+      const freq = freqs[step % freqs.length];
+      const sq = Math.sin(2 * Math.PI * freq * t) > 0 ? 0.75 : -0.75;
+      const burst = (step % 3 === 0) ? (Math.random() * 2 - 1) * 0.6 : 0;
+      return (sq + burst) * Math.exp(-t * 7);
+    }, 0.26);
+
+    // 6. Whoosh Profundo (Blur): Onda de ar sub-atmosférica com ressonância grave
     SOUND_DATA_URIS['whoosh_deep'] = generatePcmWav((t, dur) => {
       const norm = t / dur;
       const env = Math.sin(Math.PI * norm);
-      const freq = 140 + 450 * Math.sin(Math.PI * norm);
-      const sub = Math.sin(2 * Math.PI * freq * t) * 0.75;
-      const noise = (Math.random() * 2 - 1) * 0.25;
-      return (sub + noise) * env * 1.6;
-    }, 0.35);
-
-    // 6. Swoosh Cinematográfico (Fade)
-    SOUND_DATA_URIS['swoosh'] = generatePcmWav((t, dur) => {
-      const norm = t / dur;
-      const env = Math.sin(Math.PI * Math.pow(norm, 0.8));
-      return (Math.random() * 2 - 1) * env * 1.4;
-    }, 0.35);
-
-    // 7. Glitch Digital
-    SOUND_DATA_URIS['glitch_sfx'] = generatePcmWav((t) => {
-      const step = Math.floor(t * 32);
-      const freqs = [920, 220, 1500, 160, 1200, 310, 700];
-      const freq = freqs[step % freqs.length];
-      const sq = Math.sin(2 * Math.PI * freq * t) > 0 ? 0.8 : -0.8;
+      const freq = 110 + 380 * Math.sin(Math.PI * norm);
+      const sub = Math.sin(2 * Math.PI * freq * t) * 0.85;
       const noise = (Math.random() * 2 - 1) * 0.35;
-      return (sq + noise) * Math.exp(-t * 9);
+      return (sub + noise) * env * 1.5;
+    }, 0.38);
+
+    // 7. Whoosh Rápido: Corte de vento aerodinâmico veloz
+    SOUND_DATA_URIS['whoosh_fast'] = generatePcmWav((t, dur) => {
+      const norm = t / dur;
+      const env = Math.sin(Math.PI * Math.pow(norm, 0.75));
+      const freq = 450 + 2600 * Math.sin(Math.PI * norm);
+      const noise = (Math.random() * 2 - 1) * 0.8;
+      const tone = Math.sin(2 * Math.PI * freq * t) * 0.2;
+      return (noise + tone) * env * 1.6;
     }, 0.22);
 
-    // 8. Pop Moderno
-    SOUND_DATA_URIS['pop'] = generatePcmWav((t) => {
-      const freq = 700 * Math.exp(-t * 24) + 90;
-      return Math.sin(2 * Math.PI * freq * t) * Math.exp(-t * 30) * 1.6;
-    }, 0.10);
+    // 8. Swoosh Cinematográfico (Fade): Transição suave e elegante sem estridência
+    SOUND_DATA_URIS['swoosh'] = generatePcmWav((t, dur) => {
+      const norm = t / dur;
+      const env = Math.sin(Math.PI * norm);
+      const noise = (Math.random() * 2 - 1) * env * 1.35;
+      const tone = Math.sin(2 * Math.PI * (350 + 600 * norm) * t) * env * 0.3;
+      return noise + tone;
+    }, 0.36);
 
-    // 9. Riser Impacto
+    // 9. Pop Moderno: Bubble pop agudo
+    SOUND_DATA_URIS['pop'] = generatePcmWav((t) => {
+      const freq = 850 * Math.exp(-t * 26) + 120;
+      return Math.sin(2 * Math.PI * freq * t) * Math.exp(-t * 32) * 1.8;
+    }, 0.12);
+
+    // 10. Riser Impacto: Subida de tensão com corte seco
     SOUND_DATA_URIS['riser'] = generatePcmWav((t, dur) => {
       const norm = t / dur;
       const freq = 120 + 850 * Math.pow(norm, 1.8);
       const saw = (2 * ((freq * t) % 1)) - 1;
-      return saw * Math.pow(norm, 0.8) * 1.0;
+      return saw * Math.pow(norm, 0.75) * 1.1;
     }, 0.38);
   } catch (e) {}
 }
 
 let _audioCtx = null;
+const _soundBuffers = {};
+
 function getAudioContext() {
   if (typeof window === 'undefined') return null;
   if (!_audioCtx) {
@@ -262,61 +279,145 @@ function getAudioContext() {
   return _audioCtx;
 }
 
+// Inicializa buffers Web Audio com latência zero
+function initSoundBuffers(ctx) {
+  if (!ctx || Object.keys(_soundBuffers).length > 0) return;
+  const sampleRate = ctx.sampleRate || 44100;
+
+  const createBuf = (duration, gen) => {
+    const numSamples = Math.floor(sampleRate * duration);
+    const buf = ctx.createBuffer(1, numSamples, sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < numSamples; i++) {
+      const t = i / sampleRate;
+      data[i] = Math.max(-1, Math.min(1, gen(t, duration, i)));
+    }
+    return buf;
+  };
+
+  try {
+    _soundBuffers['camera_flash'] = createBuf(0.32, (t) => {
+      const click = t < 0.02 ? (Math.random() * 2 - 1) * Math.exp(-t * 200) * 1.8 : 0;
+      const clack = (t > 0.035 && t < 0.065) ? (Math.random() * 2 - 1) * Math.sin(2 * Math.PI * 1800 * t) * Math.exp(-(t - 0.035) * 140) * 1.2 : 0;
+      const sizzle = t > 0.015 ? (Math.random() * 2 - 1) * Math.sin(2 * Math.PI * 3400 * t) * Math.exp(-t * 14) * 0.7 : 0;
+      return click + clack + sizzle;
+    });
+
+    _soundBuffers['impact_sub'] = createBuf(0.38, (t) => {
+      const punch = t < 0.025 ? (Math.random() * 2 - 1) * Math.exp(-t * 120) * 1.6 : 0;
+      const freq = 180 * Math.exp(-t * 9) + 42;
+      const sub = Math.sin(2 * Math.PI * freq * t) * Math.exp(-t * 7);
+      const warmHarmonic = Math.sin(2 * Math.PI * (freq * 2) * t) * 0.35 * Math.exp(-t * 8);
+      return punch * 0.5 + sub * 1.35 + warmHarmonic;
+    });
+
+    _soundBuffers['whip_snap'] = createBuf(0.20, (t) => {
+      const air = t < 0.04 ? (Math.random() * 2 - 1) * Math.pow(t / 0.04, 2) * 0.45 : 0;
+      const dt = t - 0.04;
+      const crack = (dt >= 0 && dt < 0.02) ? (Math.random() * 2 - 1) * Math.exp(-dt * 350) * 2.3 : 0;
+      const tail = dt >= 0 ? Math.sin(2 * Math.PI * 2900 * dt) * Math.exp(-dt * 26) * 0.55 : 0;
+      return air + crack + tail;
+    });
+
+    _soundBuffers['optic_glare'] = createBuf(0.40, (t, dur) => {
+      const env = Math.sin(Math.PI * (t / dur));
+      const tone1 = Math.sin(2 * Math.PI * (1650 + 350 * (t / dur)) * t);
+      const tone2 = Math.sin(2 * Math.PI * (2450 - 250 * (t / dur)) * t);
+      const shimmer = Math.sin(2 * Math.PI * 3300 * t) * (Math.sin(2 * Math.PI * 18 * t) * 0.5 + 0.5);
+      const air = (Math.random() * 2 - 1) * 0.2;
+      return (tone1 * 0.4 + tone2 * 0.4 + shimmer * 0.55 + air) * env * 1.25;
+    });
+
+    _soundBuffers['glitch_sfx'] = createBuf(0.26, (t) => {
+      const step = Math.floor(t * 36);
+      const freqs = [2100, 360, 1800, 130, 2400, 520, 1500, 90];
+      const freq = freqs[step % freqs.length];
+      const sq = Math.sin(2 * Math.PI * freq * t) > 0 ? 0.75 : -0.75;
+      const burst = (step % 3 === 0) ? (Math.random() * 2 - 1) * 0.6 : 0;
+      return (sq + burst) * Math.exp(-t * 7);
+    });
+
+    _soundBuffers['whoosh_deep'] = createBuf(0.38, (t, dur) => {
+      const norm = t / dur;
+      const env = Math.sin(Math.PI * norm);
+      const freq = 110 + 380 * Math.sin(Math.PI * norm);
+      const sub = Math.sin(2 * Math.PI * freq * t) * 0.85;
+      const noise = (Math.random() * 2 - 1) * 0.35;
+      return (sub + noise) * env * 1.5;
+    });
+
+    _soundBuffers['whoosh_fast'] = createBuf(0.22, (t, dur) => {
+      const norm = t / dur;
+      const env = Math.sin(Math.PI * Math.pow(norm, 0.75));
+      const freq = 450 + 2600 * Math.sin(Math.PI * norm);
+      const noise = (Math.random() * 2 - 1) * 0.8;
+      const tone = Math.sin(2 * Math.PI * freq * t) * 0.2;
+      return (noise + tone) * env * 1.6;
+    });
+
+    _soundBuffers['swoosh'] = createBuf(0.36, (t, dur) => {
+      const norm = t / dur;
+      const env = Math.sin(Math.PI * norm);
+      const noise = (Math.random() * 2 - 1) * env * 1.35;
+      const tone = Math.sin(2 * Math.PI * (350 + 600 * norm) * t) * env * 0.3;
+      return noise + tone;
+    });
+
+    _soundBuffers['pop'] = createBuf(0.12, (t) => {
+      const freq = 850 * Math.exp(-t * 26) + 120;
+      return Math.sin(2 * Math.PI * freq * t) * Math.exp(-t * 32) * 1.8;
+    });
+
+    _soundBuffers['riser'] = createBuf(0.38, (t, dur) => {
+      const norm = t / dur;
+      const freq = 120 + 850 * Math.pow(norm, 1.8);
+      const saw = (2 * ((freq * t) % 1)) - 1;
+      return saw * Math.pow(norm, 0.75) * 1.1;
+    });
+  } catch (e) {}
+}
+
 function playTransitionSound(soundId, volume = 0.8) {
   if (!soundId || soundId === 'padrao' || volume <= 0) return;
   const safeVol = Math.max(0.01, Math.min(1.0, volume));
 
-  // 1. Tenta reproduzir instantaneamente via HTML5 Audio usando o WAV sintetizado em memória
+  // Normaliza aliases e valores antigos
+  let cleanId = soundId;
+  if (cleanId === 'whip') cleanId = 'whip_snap';
+  if (cleanId === 'flare' || cleanId === 'glare') cleanId = 'optic_glare';
+  if (cleanId === 'punch') cleanId = 'impact_sub';
+  if (cleanId === 'camera') cleanId = 'camera_flash';
+
+  // 1. Toca instantaneamente via Web Audio AudioBuffer (latência 0ms)
+  const ctx = getAudioContext();
+  if (ctx) {
+    if (Object.keys(_soundBuffers).length === 0) {
+      initSoundBuffers(ctx);
+    }
+    const buf = _soundBuffers[cleanId];
+    if (buf) {
+      try {
+        const source = ctx.createBufferSource();
+        source.buffer = buf;
+        const gainNode = ctx.createGain();
+        gainNode.gain.setValueAtTime(safeVol, ctx.currentTime);
+        source.connect(gainNode);
+        gainNode.connect(ctx.destination);
+        source.start(0);
+        return;
+      } catch (e) {}
+    }
+  }
+
+  // 2. Fallback via HTML5 Audio usando o WAV sintetizado
   try {
-    const dataUri = SOUND_DATA_URIS[soundId];
+    const dataUri = SOUND_DATA_URIS[cleanId] || SOUND_DATA_URIS[soundId];
     if (dataUri) {
       const audio = new Audio(dataUri);
       audio.volume = safeVol;
-      const p = audio.play();
-      if (p !== undefined) {
-        p.catch(() => {
-          // Se o navegador rejeitou HTML5 Audio, tenta via Web Audio API
-          playWebAudioFallback(soundId, safeVol);
-        });
-      }
-      return;
+      audio.play().catch(() => {});
     }
   } catch (err) {}
-
-  // 2. Fallback Web Audio API
-  playWebAudioFallback(soundId, safeVol);
-}
-
-function playWebAudioFallback(soundId, volume = 0.8) {
-  try {
-    const ctx = getAudioContext();
-    if (!ctx) return;
-    const now = ctx.currentTime;
-    const gainNode = ctx.createGain();
-    gainNode.gain.setValueAtTime(volume, now);
-    gainNode.connect(ctx.destination);
-
-    const osc = ctx.createOscillator();
-    if (soundId === 'camera_flash') {
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(2400, now);
-      osc.frequency.exponentialRampToValueAtTime(500, now + 0.05);
-      gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
-    } else if (soundId === 'impact_sub') {
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(160, now);
-      osc.frequency.exponentialRampToValueAtTime(35, now + 0.35);
-      gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
-    } else {
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(450, now);
-      osc.frequency.exponentialRampToValueAtTime(150, now + 0.2);
-      gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
-    }
-    osc.connect(gainNode);
-    osc.start(now);
-    osc.stop(now + 0.3);
-  } catch (e) {}
 }
 
 export default function EditorView({
@@ -334,31 +435,38 @@ export default function EditorView({
   const transitionTimerRef = useRef(null);
 
   const triggerTransitionPreview = (type, sound, volume) => {
-    // Sempre determina o som característico da transição caso não especificado
-    const autoSound = sound && sound !== 'padrao' 
+    let cleanType = type || 'corte_seco';
+    if (cleanType === 'flare') cleanType = 'glare';
+
+    // Determina o som característico da transição caso não especificado
+    let autoSound = sound && sound !== 'padrao' 
       ? sound 
-      : (TRANSITION_DEFAULT_SOUND[type] || 'padrao');
+      : (TRANSITION_DEFAULT_SOUND[cleanType] || 'padrao');
+
+    if (autoSound === 'whip') autoSound = 'whip_snap';
+    if (autoSound === 'flare' || autoSound === 'glare') autoSound = 'optic_glare';
+    if (autoSound === 'punch') autoSound = 'impact_sub';
 
     if (autoSound && autoSound !== 'padrao') {
       playTransitionSound(autoSound, (volume ?? 80) / 100);
     }
 
-    if (type && type !== 'corte_seco') {
+    if (cleanType && cleanType !== 'corte_seco') {
       if (transitionTimerRef.current) clearTimeout(transitionTimerRef.current);
-      // Reinicia a animação imediatamente para que mesmo cliques repetidos disparem o efeito
-      setActiveTransitionVisual(null);
-      setTimeout(() => {
-        setActiveTransitionVisual(type);
-        transitionTimerRef.current = setTimeout(() => {
-          setActiveTransitionVisual(null);
-        }, 500);
-      }, 15);
+      // Objeto único com ID força o React a recriar o nó DOM e disparar animações CSS
+      setActiveTransitionVisual({
+        id: Date.now() + Math.random(),
+        type: cleanType
+      });
+      transitionTimerRef.current = setTimeout(() => {
+        setActiveTransitionVisual(null);
+      }, 520);
     }
   };
 
-  // Scene Segments State
-  const [segments, setSegments] = useState(
-    project.broll_segments && project.broll_segments.length > 0
+  // Scene Segments State with normalized transitions & distinct sounds
+  const [segments, setSegments] = useState(() => {
+    const raw = project.broll_segments && project.broll_segments.length > 0
       ? project.broll_segments
       : [
           {
@@ -379,13 +487,34 @@ export default function EditorView({
             brollFrameX: 0,
             brollFrameY: 0,
             zoom: 'sem_efeito',
-            transition: { type: 'zoom_punch', direction: 'esquerda', sound: 'whip', volume: 100 },
+            transition: { type: 'zoom_punch', direction: 'esquerda', sound: 'impact_sub', volume: 80 },
             texture: { grain: false, flash: false },
             subtitlePosition: 'automatica',
             label: 'Cena 1 (Hook): Tela Dividida'
           }
-        ]
-  );
+        ];
+
+    return raw.map((s, idx) => {
+      let tType = s.transition?.type || s.transitionType || (idx === 0 ? 'corte_seco' : 'zoom_punch');
+      if (tType === 'flare') tType = 'glare';
+      let tSound = s.transition?.sound || s.transitionSound;
+      if (!tSound || tSound === 'whip') {
+        tSound = TRANSITION_DEFAULT_SOUND[tType] || 'padrao';
+      } else if (tSound === 'flare' || tSound === 'glare') {
+        tSound = 'optic_glare';
+      } else if (tSound === 'punch') {
+        tSound = 'impact_sub';
+      }
+      return {
+        ...s,
+        transition: {
+          type: tType,
+          sound: tSound,
+          volume: s.transition?.volume ?? s.transitionVolume ?? 80
+        }
+      };
+    });
+  });
   const [selectedSegIndex, setSelectedSegIndex] = useState(0);
   const [inspectorTab, setInspectorTab] = useState('scene'); // 'scene' | 'global'
 
@@ -917,31 +1046,84 @@ export default function EditorView({
     pushState(nextSegs);
   };
 
-  // Delete Scene
+  // Delete Scene (VibeCut style: engloba o tempo e áudio da cena na cena anterior ou próxima)
   const handleDeleteScene = (idx, e) => {
-    e.stopPropagation();
+    if (e && e.stopPropagation) e.stopPropagation();
     if (segments.length <= 1) {
       alert('O anúncio precisa ter no mínimo 1 cena.');
       return;
     }
+
+    const deletedSeg = segments[idx];
     const nextSegs = segments.filter((_, i) => i !== idx);
-    let runningTime = 0;
-    const reindexed = nextSegs.map((s, i) => {
-      const sStart = runningTime;
-      const segDur = s.duration || (s.end - s.start) || 3.0;
-      const sEnd = sStart + segDur;
-      runningTime = sEnd;
-      return {
-        ...s,
-        index: i + 1,
-        start: parseFloat(sStart.toFixed(2)),
-        end: parseFloat(sEnd.toFixed(2)),
-        duration: parseFloat(segDur.toFixed(2))
-      };
-    });
+
+    if (idx > 0) {
+      // Engloba na cena anterior (idx - 1), estendendo o fim até o fim da cena excluída
+      const prev = nextSegs[idx - 1];
+      prev.end = deletedSeg.end;
+      prev.duration = parseFloat((prev.end - prev.start).toFixed(2));
+    } else {
+      // Se excluiu a primeira cena (idx === 0), a nova primeira cena começa em 0.0s
+      const first = nextSegs[0];
+      first.start = 0;
+      first.duration = parseFloat((first.end - 0).toFixed(2));
+    }
+
+    // Re-indexa as cenas mantendo intacta a linha do tempo contínua e sincronia de fala
+    const reindexed = nextSegs.map((s, i) => ({
+      ...s,
+      index: i + 1,
+      label: s.label?.replace(/Cena \d+/, `Cena ${i + 1}`) || `Cena ${i + 1}`
+    }));
+
     setSegments(reindexed);
-    setSelectedSegIndex(Math.max(0, idx - 1));
+    const newIdx = Math.max(0, Math.min(idx > 0 ? idx - 1 : 0, reindexed.length - 1));
+    setSelectedSegIndex(newIdx);
+    selectedSegIndexRef.current = newIdx;
     pushState(reindexed);
+  };
+
+  // Ajustar duração de uma cena específica (+/- segundos)
+  const handleAdjustSceneDuration = (idx, deltaSeconds) => {
+    const curSeg = segments[idx];
+    if (!curSeg) return;
+    const curDur = curSeg.duration || (curSeg.end - curSeg.start) || 3.0;
+    const newDur = Math.max(0.5, parseFloat((curDur + deltaSeconds).toFixed(2)));
+    if (newDur === curDur) return;
+
+    const nextSegs = segments.map(s => ({ ...s }));
+    const diff = parseFloat((newDur - curDur).toFixed(2));
+
+    // Se existe cena seguinte, ajusta a fronteira de corte entre a cena atual e a próxima (estilo VibeCut)
+    if (idx < nextSegs.length - 1) {
+      const nextDur = nextSegs[idx + 1].duration || (nextSegs[idx + 1].end - nextSegs[idx + 1].start);
+      if (nextDur - diff >= 0.5) {
+        // Ajuste no corte mantendo o tempo total do vídeo e da fala
+        nextSegs[idx].duration = newDur;
+        nextSegs[idx].end = parseFloat((nextSegs[idx].start + newDur).toFixed(2));
+        nextSegs[idx + 1].start = nextSegs[idx].end;
+        nextSegs[idx + 1].duration = parseFloat((nextSegs[idx + 1].end - nextSegs[idx + 1].start).toFixed(2));
+      } else {
+        // Se a próxima ficaria menor que 0.5s, desloca as demais mantendo duração mínima
+        nextSegs[idx].duration = newDur;
+        nextSegs[idx].end = parseFloat((nextSegs[idx].start + newDur).toFixed(2));
+        for (let j = idx + 1; j < nextSegs.length; j++) {
+          const d = Math.max(0.5, nextSegs[j].duration || (nextSegs[j].end - nextSegs[j].start));
+          nextSegs[j].start = nextSegs[j - 1].end;
+          nextSegs[j].end = parseFloat((nextSegs[j].start + d).toFixed(2));
+          nextSegs[j].duration = d;
+        }
+      }
+    } else {
+      // Última cena: ajusta o fim da cena e a duração total do vídeo
+      nextSegs[idx].duration = newDur;
+      nextSegs[idx].end = parseFloat((nextSegs[idx].start + newDur).toFixed(2));
+    }
+
+    const newTotalDuration = nextSegs[nextSegs.length - 1].end;
+    setDuration(newTotalDuration);
+    setSegments(nextSegs);
+    pushState(nextSegs);
   };
 
   // Available B-rolls from library
@@ -1628,7 +1810,15 @@ export default function EditorView({
               setIsHeadlineSelected(false);
               setIsEditingHeadlineInline(false);
             }}
-            className="relative aspect-[9/16] h-full max-h-[calc(100vh-268px)] bg-black rounded-2xl overflow-hidden border border-[#21252B] shadow-2xl flex flex-col justify-center items-center select-none"
+            className={`relative aspect-[9/16] h-full max-h-[calc(100vh-268px)] bg-black rounded-2xl overflow-hidden border border-[#21252B] shadow-2xl flex flex-col justify-center items-center select-none ${
+              activeTransitionVisual?.type === 'zoom_punch' ? 'player-zoom-punch-anim' : ''
+            } ${
+              activeTransitionVisual?.type === 'whip_lateral' ? 'player-whip-anim' : ''
+            } ${
+              activeTransitionVisual?.type === 'blur' ? 'player-blur-anim' : ''
+            } ${
+              activeTransitionVisual?.type === 'glitch' ? 'player-glitch-anim' : ''
+            }`}
           >
             {/* PERSISTENT SINGLE AVATAR VIDEO LAYER (NEVER UNMOUNTS) */}
             <div
@@ -1789,106 +1979,44 @@ export default function EditorView({
             )}
 
             {/* Visual Scene Transitions Overlay (Full Screen in Player, z-50 above everything) */}
-            <style>{`
-              @keyframes transitionFlashEffect {
-                0% { opacity: 1; }
-                25% { opacity: 0.95; }
-                100% { opacity: 0; }
-              }
-              @keyframes transitionFadeEffect {
-                0% { opacity: 1; }
-                100% { opacity: 0; }
-              }
-              @keyframes transitionZoomPunchEffect {
-                0% { transform: scale(1.3); filter: brightness(1.4); }
-                50% { transform: scale(1.1); filter: brightness(1.2); }
-                100% { transform: scale(1); filter: brightness(1); }
-              }
-              @keyframes transitionWhipEffect {
-                0% { transform: translateX(-100%); opacity: 1; }
-                100% { transform: translateX(100%); opacity: 0; }
-              }
-              @keyframes transitionGlitchEffect {
-                0% { opacity: 1; transform: translate(0); filter: invert(0.9) hue-rotate(90deg); }
-                25% { opacity: 0.9; transform: translate(-12px, 5px) skewX(8deg); filter: invert(1) contrast(200%); }
-                50% { opacity: 0.95; transform: translate(12px, -5px) skewX(-8deg); filter: hue-rotate(180deg) saturate(3); }
-                75% { opacity: 0.85; transform: translate(-6px, -3px); filter: invert(0.6); }
-                100% { opacity: 0; transform: translate(0); filter: none; }
-              }
-              @keyframes transitionGlareEffect {
-                0% { transform: translateX(-150%) skewX(-25deg); opacity: 1; }
-                100% { transform: translateX(250%) skewX(-25deg); opacity: 0; }
-              }
-              @keyframes transitionBlurEffect {
-                0% { backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); opacity: 1; }
-                100% { backdrop-filter: blur(0px); -webkit-backdrop-filter: blur(0px); opacity: 0; }
-              }
-            `}</style>
-
-            {activeTransitionVisual && (
-              <div className="absolute inset-0 pointer-events-none z-50 overflow-hidden">
-                {activeTransitionVisual === 'flash_branco' && (
-                  <div
-                    key={`trans-flash-${Date.now()}`}
-                    className="absolute inset-0 bg-white"
-                    style={{
-                      animation: 'transitionFlashEffect 0.45s cubic-bezier(0.1, 0.9, 0.2, 1) forwards'
-                    }}
-                  />
+            {activeTransitionVisual && activeTransitionVisual.type !== 'corte_seco' && (
+              <div
+                key={`trans-active-${activeTransitionVisual.id}`}
+                className="absolute inset-0 pointer-events-none z-50 overflow-hidden"
+              >
+                {activeTransitionVisual.type === 'flash_branco' && (
+                  <div className="absolute inset-0 bg-white transition-flash-anim flex items-center justify-center">
+                    <div className="w-[180%] h-[180%] rounded-full bg-white blur-3xl opacity-90" />
+                  </div>
                 )}
-                {activeTransitionVisual === 'fade' && (
-                  <div
-                    key={`trans-fade-${Date.now()}`}
-                    className="absolute inset-0 bg-black"
-                    style={{
-                      animation: 'transitionFadeEffect 0.45s ease-in-out forwards'
-                    }}
-                  />
+                {activeTransitionVisual.type === 'fade' && (
+                  <div className="absolute inset-0 bg-black transition-fade-anim" />
                 )}
-                {activeTransitionVisual === 'blur' && (
-                  <div
-                    key={`trans-blur-${Date.now()}`}
-                    className="absolute inset-0 bg-white/10"
-                    style={{
-                      animation: 'transitionBlurEffect 0.45s ease-out forwards'
-                    }}
-                  />
+                {activeTransitionVisual.type === 'blur' && (
+                  <div className="absolute inset-0 transition-blur-anim bg-white/5" />
                 )}
-                {activeTransitionVisual === 'glare' && (
-                  <div
-                    key={`trans-glare-${Date.now()}`}
-                    className="absolute inset-y-0 w-3/4 bg-gradient-to-r from-transparent via-white to-transparent"
-                    style={{
-                      animation: 'transitionGlareEffect 0.5s ease-in-out forwards'
-                    }}
-                  />
+                {activeTransitionVisual.type === 'glare' && (
+                  <div className="absolute inset-0 flex items-center justify-center transition-glare-sweep-anim">
+                    <div className="w-[260%] h-28 bg-gradient-to-r from-transparent via-white to-transparent rotate-[25deg] blur-[2px] shadow-[0_0_90px_#ffffff]" />
+                    <div className="absolute w-44 h-44 rounded-full bg-[#C5F955] blur-2xl opacity-60" />
+                  </div>
                 )}
-                {activeTransitionVisual === 'glitch' && (
-                  <div
-                    key={`trans-glitch-${Date.now()}`}
-                    className="absolute inset-0 bg-[#C5F955]/20 mix-blend-color-dodge"
-                    style={{
-                      animation: 'transitionGlitchEffect 0.4s steps(4) forwards'
-                    }}
-                  />
+                {activeTransitionVisual.type === 'glitch' && (
+                  <div className="absolute inset-0 transition-glitch-anim bg-[#C5F955]/20 mix-blend-color-dodge flex flex-col justify-around">
+                    <div className="h-4 bg-white/50 translate-x-5" />
+                    <div className="h-6 bg-cyan-400/40 -translate-x-6" />
+                    <div className="h-3 bg-fuchsia-500/40 translate-x-7" />
+                    <div className="h-8 bg-white/40 -translate-x-4" />
+                  </div>
                 )}
-                {activeTransitionVisual === 'whip_lateral' && (
-                  <div
-                    key={`trans-whip-${Date.now()}`}
-                    className="absolute inset-y-0 w-full bg-gradient-to-r from-black/80 via-white to-black/80 shadow-2xl"
-                    style={{
-                      animation: 'transitionWhipEffect 0.35s cubic-bezier(0.2, 1, 0.3, 1) forwards'
-                    }}
-                  />
+                {activeTransitionVisual.type === 'whip_lateral' && (
+                  <div className="absolute inset-y-0 w-full transition-whip-bar-anim bg-gradient-to-r from-black/80 via-white to-black/80 shadow-2xl" />
                 )}
-                {activeTransitionVisual === 'zoom_punch' && (
-                  <div
-                    key={`trans-zoom-${Date.now()}`}
-                    className="absolute inset-0 ring-8 ring-white/50 bg-white/10"
-                    style={{
-                      animation: 'transitionZoomPunchEffect 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards'
-                    }}
-                  />
+                {activeTransitionVisual.type === 'zoom_punch' && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="absolute inset-0 bg-white/20 transition-punch-flash-anim" />
+                    <div className="w-36 h-36 rounded-full border-4 border-white transition-zoom-ring-anim" />
+                  </div>
                 )}
               </div>
             )}
@@ -2135,17 +2263,37 @@ export default function EditorView({
             {/* TAB 1: CENA CONTROLS (Matching media_1790290780519.png) */}
             {inspectorTab === 'scene' && (
               <div className="space-y-4">
-                {/* Scene Duration and Header */}
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-[#F5F5F0]">
-                    {currentMode === 'broll-full' ? 'B-roll' : currentMode === 'split-screen' ? 'Dividida' : currentMode === 'avatar-overlay' ? 'Recorte' : 'Avatar'}
-                  </span>
-                  <span className="text-xs text-[#92978F] font-mono">
-                    {activeSegment?.start?.toFixed(1) || '0.0'} - {activeSegment?.end?.toFixed(1) || '3.5'}
-                  </span>
-                  <span className="px-2 py-0.5 rounded bg-[#181B20] border border-[#282C34] text-[10px] text-[#C5F955] font-mono font-bold">
-                    {(activeSegment?.duration || 3.5).toFixed(1)} s
-                  </span>
+                {/* Scene Duration and Header with +/- buttons */}
+                <div className="flex items-center justify-between pb-1.5 border-b border-[#21252B]">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-[#F5F5F0]">
+                      {currentMode === 'broll-full' ? 'B-roll' : currentMode === 'split-screen' ? 'Dividida' : currentMode === 'avatar-overlay' ? 'Recorte' : 'Avatar'}
+                    </span>
+                    <span className="text-[11px] text-[#92978F] font-mono">
+                      {(activeSegment?.start || 0).toFixed(1)}s - {(activeSegment?.end || 3.5).toFixed(1)}s
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => handleAdjustSceneDuration(selectedSegIndex, -0.5)}
+                      className="px-2 py-0.5 rounded-lg bg-[#181B20] hover:bg-[#282C34] border border-[#282C34] text-[10px] font-mono text-[#92978F] hover:text-white transition-colors cursor-pointer"
+                      title="Diminuir duração da cena (-0.5s)"
+                    >
+                      -0.5s
+                    </button>
+                    <span className="px-2 py-0.5 rounded-lg bg-[#181B20] border border-[#C5F955]/30 text-[11px] text-[#C5F955] font-mono font-bold">
+                      {(activeSegment?.duration || 3.5).toFixed(1)}s
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleAdjustSceneDuration(selectedSegIndex, 0.5)}
+                      className="px-2 py-0.5 rounded-lg bg-[#181B20] hover:bg-[#282C34] border border-[#282C34] text-[10px] font-mono text-[#C5F955] hover:bg-[#C5F955]/10 transition-colors cursor-pointer"
+                      title="Aumentar duração da cena (+0.5s)"
+                    >
+                      +0.5s
+                    </button>
+                  </div>
                 </div>
 
                 {/* LEGENDA DESTA CENA Textarea */}
@@ -3553,7 +3701,7 @@ export default function EditorView({
                       type="button"
                       onClick={(e) => handleDeleteScene(idx, e)}
                       className="hover:text-rose-400 p-0.5 transition-colors cursor-pointer"
-                      title="Excluir cena"
+                      title="Excluir cena (engloba na cena anterior)"
                     >
                       <Trash2 className="w-2.5 h-2.5" />
                     </button>
@@ -3580,7 +3728,7 @@ export default function EditorView({
 
                   {/* Duration Badge */}
                   <span className="absolute bottom-0.5 right-1 px-1 rounded bg-black/80 font-mono text-[8px] text-[#F5F5F0]">
-                    {(seg.duration || 3.5).toFixed(1)}s
+                    {(seg.duration || (seg.end - seg.start) || 3.5).toFixed(1)}s
                   </span>
 
                   {/* Transition pill */}
@@ -3589,6 +3737,40 @@ export default function EditorView({
                       {seg.transition.type.replace('_', ' ')}
                     </span>
                   )}
+                </div>
+
+                {/* Scene Duration Adjuster (- / +) */}
+                <div 
+                  className="flex items-center justify-between my-0.5 px-1.5 py-0.5 rounded-lg bg-[#0E1012] border border-[#21252B]"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleAdjustSceneDuration(idx, -0.5);
+                    }}
+                    className="w-4 h-4 rounded bg-[#181B20] hover:bg-[#282C34] text-[#92978F] hover:text-[#F5F5F0] flex items-center justify-center transition-colors cursor-pointer active:scale-90"
+                    title="Diminuir tempo da cena (-0.5s)"
+                  >
+                    <Minus className="w-2.5 h-2.5" />
+                  </button>
+
+                  <span className="text-[10px] font-mono font-bold text-[#C5F955] select-none">
+                    {(seg.duration || (seg.end - seg.start) || 3.5).toFixed(1)}s
+                  </span>
+
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleAdjustSceneDuration(idx, 0.5);
+                    }}
+                    className="w-4 h-4 rounded bg-[#181B20] hover:bg-[#282C34] text-[#92978F] hover:text-[#F5F5F0] flex items-center justify-center transition-colors cursor-pointer active:scale-90"
+                    title="Aumentar tempo da cena (+0.5s)"
+                  >
+                    <Plus className="w-2.5 h-2.5" />
+                  </button>
                 </div>
 
                 {/* Spoken Speech Snippet */}
