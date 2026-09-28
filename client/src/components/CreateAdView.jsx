@@ -120,6 +120,16 @@ const HEADLINE_ANGLES_DEF = [
 ];
 
 const NICHE_HOOKS = {
+  futebol: {
+    'dor-direta': 'Entrenas duro pero no se nota en la cancha?',
+    'pergunta-paradoxal': '¿De qué sirve el gimnasio si no se nota en tu fútbol?',
+    'novidade': 'Llegó el método que está transformando a futbolistas',
+    'historia-pessoal': 'Entrenaba sin estructura hasta que descubrí este error',
+    'curiosidade': 'El secreto de los pros para aguantar los 90 minutos',
+    'one-thing': 'Ajusta esto en tu rutina y mejora tu fútbol hoy',
+    'autoridade': 'El protocolo que preparadores de élite guardan en secreto',
+    'prova-social': 'Miles de futbolistas ya mejoraron su rendimiento'
+  },
   relacionamento: {
     'dor-direta': 'Dificuldade pra reconquistar o amor dela?',
     'pergunta-paradoxal': 'Você não precisa implorar atenção pra ter ela aos seus pés',
@@ -237,6 +247,9 @@ export default function CreateAdView({
   // Niche detection based on video title / uploaded product
   const detectedNiche = useMemo(() => {
     const lower = (videoName || '').toLowerCase();
+    if (lower.includes('futebol') || lower.includes('futbol') || lower.includes('football') || lower.includes('soccer') || lower.includes('futbolista') || lower.includes('jogador') || lower.includes('jugador') || lower.includes('cancha') || lower.includes('partido') || lower.includes('futforce')) {
+      return 'futebol';
+    }
     if (lower.includes('relaciona') || lower.includes('homem') || lower.includes('mulher') || lower.includes('namor') || lower.includes('casal') || lower.includes('casamento') || lower.includes('amor')) {
       return 'relacionamento';
     }

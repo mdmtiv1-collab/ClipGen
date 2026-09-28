@@ -1196,10 +1196,11 @@
           "confidence": 0.99847
         }
       ],
+      "language": "es",
       "segments": []
     },
     "headline": {
-      "text": "SEU TREINO NÃO MELHORA SEU FUTEBOL? MUDE AGORA!",
+      "text": "¿DE QUÉ SIRVE EL GIMNASIO SI NO SE NOTA EN LA CANCHA?",
       "style": "block",
       "bgColor": "#dc2626",
       "textColor": "#ffffff",

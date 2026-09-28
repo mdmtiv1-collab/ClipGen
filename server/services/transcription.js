@@ -2,6 +2,7 @@ const { exec } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 const { getSettings } = require('./settings_manager');
+const { detectLanguage } = require('./ai_planner');
 
 function extractAudio(videoPath, outputAudioPath) {
   return new Promise((resolve, reject) => {
@@ -42,8 +43,8 @@ async function transcribeWithAssemblyAI(audioPath, apiKey) {
   const { upload_url } = await uploadRes.json();
   console.log('[AssemblyAI] Upload concluído:', upload_url);
 
-  // 2. Solicitar transcrição em português com pontuação
-  console.log('[AssemblyAI] Solicitando transcrição em português com timestamps de palavras...');
+  // 2. Solicitar transcrição com detecção automática de idioma e pontuação
+  console.log('[AssemblyAI] Solicitando transcrição com detecção automática de idioma (es, pt, en)...');
   const transcriptRes = await fetch('https://api.assemblyai.com/v2/transcript', {
     method: 'POST',
     headers: {
@@ -52,7 +53,7 @@ async function transcribeWithAssemblyAI(audioPath, apiKey) {
     },
     body: JSON.stringify({
       audio_url: upload_url,
-      language_code: 'pt',
+      language_detection: true,
       punctuate: true,
       format_text: true,
       disfluencies: false
@@ -97,8 +98,10 @@ async function transcribeWithAssemblyAI(audioPath, apiKey) {
         };
       });
 
+      const detectedLang = data.language_code || detectLanguage(data.text || '');
       return {
         text: data.text || '',
+        language: detectedLang,
         words: formattedWords,
         segments: []
       };
@@ -137,8 +140,10 @@ async function transcribeWithGroq(audioPath, apiKey) {
   }
 
   const data = await res.json();
+  const detectedLang = data.language ? (data.language.toLowerCase().startsWith('es') ? 'es' : data.language.toLowerCase().startsWith('en') ? 'en' : 'pt') : detectLanguage(data.text || '');
   return {
     text: data.text,
+    language: detectedLang,
     words: data.words || [],
     segments: data.segments || []
   };

@@ -7,7 +7,7 @@ const multer = require('multer');
 const { getCategories, createCategory, getBrollsByCategory, BROLLS_DIR } = require('./services/library_manager');
 const { getSettings, saveSettings } = require('./services/settings_manager');
 const { transcribeVideo } = require('./services/transcription');
-const { generateEditingPlan, generateHeadlineAI } = require('./services/ai_planner');
+const { generateEditingPlan, generateHeadlineAI, detectLanguage } = require('./services/ai_planner');
 const { renderVideo } = require('./services/ffmpeg_renderer');
 const { removeSilenceFromVideo } = require('./services/silence_remover');
 const {
@@ -155,7 +155,8 @@ app.post('/api/headlines/generate', async (req, res) => {
   try {
     const { transcriptText, angle, videoTitle } = req.body;
     const headline = await generateHeadlineAI({ transcriptText, angle, videoTitle });
-    res.json({ success: true, headline });
+    const lang = detectLanguage(`${videoTitle || ''} ${transcriptText || ''}`);
+    res.json({ success: true, headline, language: lang });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -401,13 +402,17 @@ app.post('/api/projects/:id/replan', async (req, res) => {
     const transcript = proj.transcript || { words: [] };
     const duration = transcript.words?.[transcript.words.length - 1]?.end || proj.durationSec || 20.0;
 
+    // Se o cliente passar customHeadline explicitamente, respeita; caso contrário, recalcula no idioma do áudio
+    const customHeadline = req.body?.customHeadline || '';
+    const headlineType = req.body?.headlineType || proj.headlineType || 'pergunta_paradoxal';
+
     const plan = await generateEditingPlan({
       transcript,
       selectedCategories: proj.categories || [],
       template: proj.template || 'direct_response',
       duration,
-      headlineType: proj.headlineType || 'gancho_curto',
-      customHeadline: proj.headline?.text || '',
+      headlineType,
+      customHeadline,
       videoTitle: proj.title || 'Anúncio'
     });
 

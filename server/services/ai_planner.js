@@ -36,97 +36,373 @@ async function callOpenRouter(prompt, apiKey) {
 }
 
 /**
- * Detecta o nicho a partir do título do vídeo ou transcrição
+ * Detecta o idioma do texto (Espanhol, Português ou Inglês)
+ */
+function detectLanguage(text = '') {
+  if (!text || typeof text !== 'string') return 'pt';
+  const raw = text.toLowerCase();
+  
+  // 1. Caracteres tipográficos inconfundíveis do Espanhol
+  if (text.includes('¿') || text.includes('¡') || raw.includes('ñ')) {
+    return 'es';
+  }
+  
+  // 2. Caracteres tipográficos inconfundíveis do Português
+  if (raw.includes('ç') || raw.includes('ã') || raw.includes('õ')) {
+    return 'pt';
+  }
+  
+  // 3. Frequência de palavras exclusivas / stopwords
+  const tokens = raw.replace(/[^\w\sáéíóúâêîôûãõàèìòùäëïöüñç]/g, ' ')
+                    .split(/\s+/)
+                    .filter(Boolean);
+
+  let esScore = 0;
+  let ptScore = 0;
+  let enScore = 0;
+
+  const esExclusive = new Set([
+    'del', 'los', 'las', 'un', 'una', 'unos', 'unas', 'tu', 'tus', 'su', 'sus',
+    'pero', 'hacer', 'hace', 'haces', 'hacen', 'haciendo', 'hecho', 'este', 'estos', 'estas',
+    'gimnasio', 'entrenamiento', 'cancha', 'futbol', 'fútbol', 'futbolista', 'futbolistas',
+    'jugada', 'jugadas', 'partido', 'partidos', 'rutina', 'rutinas', 'campo',
+    'más', 'ayudarte', 'debería', 'deberia', 'tienes', 'tiene', 'tienen', 'tenemos',
+    'abres', 'sigues', 'sabes', 'sabe', 'objetivo', 'dentro', 'fuera', 'alguien',
+    'también', 'tambien', 'accede', 'empieza', 'mejorar', 'fuerza', 'potencia', 'clic',
+    'porque', 'cuando', 'siempre', 'ahora', 'después', 'despues', 'donde', 'hacia',
+    'mira', 'mismo', 'misma', 'mismos', 'mismas', 'puedes', 'puede', 'pueden', 'quieres'
+  ]);
+
+  const ptExclusive = new Set([
+    'você', 'voce', 'vocês', 'voces', 'vc', 'vcs', 'não', 'nao', 'pra', 'pro', 'pras', 'pros',
+    'do', 'da', 'dos', 'das', 'no', 'na', 'nos', 'nas', 'um', 'uma', 'uns', 'umas',
+    'seu', 'sua', 'seus', 'suas', 'mas', 'fazer', 'faz', 'fazem', 'fazendo', 'feito',
+    'academia', 'treino', 'treinos', 'treinar', 'futebol', 'jogador', 'jogadores',
+    'jogada', 'jogadas', 'jogo', 'jogos', 'rotina', 'rotinas', 'campo',
+    'mais', 'ajudar', 'ajuda', 'deveria', 'tem', 'temos', 'têm', 'tenham',
+    'abra', 'siga', 'sabe', 'sabem', 'alguém', 'alguem', 'também', 'tambem',
+    'acesse', 'comece', 'porque', 'por que', 'quando', 'sempre', 'agora', 'depois', 'onde',
+    'olha', 'mesmo', 'mesma', 'mesmos', 'mesmas', 'pode', 'podem', 'quer'
+  ]);
+
+  const enExclusive = new Set([
+    'the', 'and', 'you', 'your', 'yours', 'to', 'for', 'in', 'is', 'are', 'of', 'this',
+    'that', 'these', 'those', 'with', 'without', 'not', 'have', 'has', 'had', 'from',
+    'they', 'them', 'their', 'what', 'which', 'who', 'when', 'where', 'why', 'how',
+    'training', 'routine', 'better', 'now', 'click', 'more', 'just', 'like', 'about',
+    'can', 'could', 'would', 'should', 'make', 'doing', 'start', 'watch', 'video'
+  ]);
+
+  for (const token of tokens) {
+    if (esExclusive.has(token)) esScore += 2;
+    if (ptExclusive.has(token)) ptScore += 2;
+    if (enExclusive.has(token)) enScore += 2;
+  }
+
+  if (enScore > esScore && enScore > ptScore) return 'en';
+  if (esScore > ptScore) return 'es';
+  if (ptScore > esScore) return 'pt';
+
+  return 'pt';
+}
+
+/**
+ * Detecta o nicho a partir do título do vídeo ou transcrição (multilíngue)
  */
 function detectNiche(text = '') {
   const lower = text.toLowerCase();
-  if (lower.includes('relaciona') || lower.includes('homem') || lower.includes('mulher') || lower.includes('namor') || lower.includes('casal') || lower.includes('casamento') || lower.includes('conquista') || lower.includes('amor')) {
+  // Futebol / Esportes / Desempenho Atlético
+  if (lower.includes('futebol') || lower.includes('futbol') || lower.includes('football') || lower.includes('soccer') ||
+      lower.includes('futbolista') || lower.includes('jogador') || lower.includes('jugador') || lower.includes('cancha') ||
+      lower.includes('pelota') || lower.includes('chute') || lower.includes('chuteira') || lower.includes('partido') ||
+      lower.includes('futforce') || lower.includes('jogada') || lower.includes('pliometria')) {
+    return 'futebol';
+  }
+  // Relacionamento / Conquista
+  if (lower.includes('relaciona') || lower.includes('pareja') || lower.includes('homem') || lower.includes('hombre') ||
+      lower.includes('mulher') || lower.includes('mujer') || lower.includes('namor') || lower.includes('novio') ||
+      lower.includes('novia') || lower.includes('casal') || lower.includes('casamento') || lower.includes('matrimonio') ||
+      lower.includes('conquista') || lower.includes('amor') || lower.includes('ex')) {
     return 'relacionamento';
   }
-  if (lower.includes('emagrec') || lower.includes('dieta') || lower.includes('peso') || lower.includes('gordura') || lower.includes('treino') || lower.includes('barriga') || lower.includes('secar') || lower.includes('fit')) {
+  // Emagrecimento / Dieta / Fitness Geral
+  if (lower.includes('emagrec') || lower.includes('dieta') || lower.includes('peso') || lower.includes('gordura') ||
+      lower.includes('grasa') || lower.includes('bajar de peso') || lower.includes('perder peso') || lower.includes('barriga') ||
+      lower.includes('abdomen') || lower.includes('secar') || lower.includes('fit') || lower.includes('calorias') ||
+      lower.includes('metabolismo') || lower.includes('adelgazar')) {
     return 'emagrecimento';
   }
-  if (lower.includes('atracao') || lower.includes('atração') || lower.includes('mente') || lower.includes('manifest') || lower.includes('universo') || lower.includes('espiritual') || lower.includes('frequencia') || lower.includes('vibra')) {
+  // Lei da Atração / Espiritualidade / Prosperidade
+  if (lower.includes('atracao') || lower.includes('atração') || lower.includes('atraccion') || lower.includes('atracción') ||
+      lower.includes('mente') || lower.includes('manifest') || lower.includes('universo') || lower.includes('espiritual') ||
+      lower.includes('frequencia') || lower.includes('frecuencia') || lower.includes('vibra') || lower.includes('abundancia') ||
+      lower.includes('prosperidad') || lower.includes('prosperidade')) {
     return 'lei_da_atracao';
   }
-  if (lower.includes('dinheiro') || lower.includes('renda') || lower.includes('conta') || lower.includes('financeir') || lower.includes('salario') || lower.includes('lucro') || lower.includes('venda') || lower.includes('invest')) {
+  // Renda Extra / Finanças / Vendas
+  if (lower.includes('dinheiro') || lower.includes('dinero') || lower.includes('renda') || lower.includes('ingreso') ||
+      lower.includes('conta') || lower.includes('cuenta') || lower.includes('financeir') || lower.includes('financier') ||
+      lower.includes('salario') || lower.includes('sueldo') || lower.includes('lucro') || lower.includes('ganancia') ||
+      lower.includes('venda') || lower.includes('venta') || lower.includes('invest') || lower.includes('invers') ||
+      lower.includes('money') || lower.includes('salary')) {
     return 'renda_extra';
   }
   return 'geral';
 }
 
-const HEADLINES_BY_NICHE_AND_ANGLE = {
-  relacionamento: {
-    dor_direta: "DIFICULDADE PRA RECONQUISTAR O AMOR DELA?",
-    pergunta_paradoxal: "VOCÊ NÃO PRECISA IMPLORAR ATENÇÃO PRA TER ELA AOS SEUS PÉS",
-    novidade: "CHEGOU UM JEITO NOVO DE SALVAR RELACIONAMENTOS EM CRISE",
-    historia_pessoal: "EU PERDI O AMOR DA MINHA VIDA ATÉ ENTENDER ESSE ERRO BOBO",
-    curiosidade: "O TRUQUE PSICOLÓGICO SIMPLES QUE MUDA QUALQUER RELAÇÃO",
-    the_one_thing: "FAÇA ESSA ÚNICA PERGUNTA E NUNCA MAIS SOFRA POR AMOR",
-    autoridade: "O MÉTODO QUE TERAPEUTAS DE CASAL GUARDAM A SETE CHAVES",
-    prova_social: "MAIS DE 8.000 CASAIS JÁ SALVARAM A RELAÇÃO COM ESSE PADRÃO"
+const HEADLINES_BY_LANG_AND_NICHE = {
+  // ESPANHOL (ES)
+  es: {
+    futebol: {
+      dor_direta: "¿ENTRENAS DURO PERO NO SE NOTA EN LA CANCHA?",
+      pergunta_paradoxal: "¿DE QUÉ SIRVE EL GIMNASIO SI NO SE NOTA EN LA CANCHA?",
+      novidade: "LLEGÓ EL MÉTODO QUE ESTÁ TRANSFORMANDO A LOS FUTBOLISTAS",
+      historia_pessoal: "ENTRENABA SIN ESTRUCTURA HASTA QUE ENTENDÍ ESTE ERROR",
+      curiosidade: "EL SECRETO DE LOS PROS PARA AGUANTAR LOS 90 MINUTOS",
+      the_one_thing: "AJUSTA ESTO EN TU ENTRENAMIENTO Y DOMINA EL PARTIDO",
+      autoridade: "EL PROTOCOLO QUE PREPARADORES DE ÉLITE GUARDAN EN SECRETO",
+      prova_social: "MILES DE FUTBOLISTAS YA MEJORARON SU RENDIMIENTO"
+    },
+    relacionamento: {
+      dor_direta: "¿DIFICULTAD PARA RECUPERAR SU AMOR E INTERÉS?",
+      pergunta_paradoxal: "NO NECESITAS ROGAR ATENCIÓN PARA TENERLA A TUS PIES",
+      novidade: "LLEGÓ UNA FORMA TOTALMENTE NUEVA DE SALVAR TU RELACIÓN",
+      historia_pessoal: "PERDÍ AL AMOR DE MI VIDA HASTA QUE ENTENDÍ ESTE ERROR",
+      curiosidade: "EL TRUCO PSICOLÓGICO SIMPLE QUE CAMBIA CUALQUIER RELACIÓN",
+      the_one_thing: "HAZ ESTA ÚNICA PREGUNTA Y NUNCA MÁS SUFRAS POR AMOR",
+      autoridade: "EL MÉTODO QUE TERAPEUTAS DE PAREJA GUARDAN EN SECRETO",
+      prova_social: "MÁS DE 8.000 PAREJAS YA SALVARON SU RELACIÓN CON ESTO"
+    },
+    emagrecimento: {
+      dor_direta: "¿DIFICULTAD PARA QUEMAR LA GRASA LOCALIZADA?",
+      pergunta_paradoxal: "NO NECESITAS PASAR HAMBRE PARA SECAR EL ABDOMEN",
+      novidade: "LLEGÓ UN RITUAL MATUTINO QUE ACELERA LA QUEMA CELULAR",
+      historia_pessoal: "PESABA 94KG Y PENSABA QUE MI METABOLISMO ERA LENTO",
+      curiosidade: "EL TRUCO CASERO QUE HACE AL CUERPO QUEMAR GRASA DURMIENDO",
+      the_one_thing: "AJUSTA ESTA ÚNICA COMIDA Y TU CUERPO EMPIEZA A SECAR",
+      autoridade: "EL PROTOCOLO QUE MÉDICOS LLAMAN REVOLUCIÓN METABÓLICA",
+      prova_social: "MÁS DE 12.000 PERSONAS YA SECARON SU ABDOMEN CON ESTO"
+    },
+    lei_da_atracao: {
+      dor_direta: "¿DIFICULTAD PARA MANIFESTAR TUS MAYORES DESEOS?",
+      pergunta_paradoxal: "NO NECESITAS ESFORZARTE MÁS PARA ATRAER ABUNDANCIA",
+      novidade: "LA NUEVA FRECUENCIA QUE DESBLOQUEA PROSPERIDAD INMEDIATA",
+      historia_pessoal: "VIVÍA EN LA ESCASEZ HASTA ENTENDER ESTA FRECUENCIA SECRETA",
+      curiosidade: "EL CÓDIGO DE 3 MINUTOS QUE ATRAE DINERO INESPERADO",
+      the_one_thing: "REPITE ESTA FRASE AL DESPERTAR Y MIRA TODO CAMBIAR",
+      autoridade: "EL MÉTODO QUE FÍSICOS CUÁNTICOS LLAMAN LEY OCULTA",
+      prova_social: "MILES DE PERSONAS YA DESTRABARON SU VIDA CON ESTA FRECUENCIA"
+    },
+    renda_extra: {
+      dor_direta: "¿DIFICULTAD PARA QUE EL SUELDO ALCANCE A FIN DE MES?",
+      pergunta_paradoxal: "NO NECESITAS GANAR MÁS PARA QUE TE SOBRE DINERO",
+      novidade: "LLEGÓ UNA FORMA NUEVA Y AUTOMÁTICA DE ORGANIZAR TUS CUENTAS",
+      historia_pessoal: "GANABA BIEN Y VIVÍA EN NÚMEROS ROJOS CADA MES",
+      curiosidade: "EL TRUCO SIMPLE QUE HIZO RENDIR MI SUELDO TODO EL MES",
+      the_one_thing: "HAZ ESTO 1 VEZ POR SEMANA Y TUS FINANZAS SE ORGANIZAN",
+      autoridade: "EL MÉTODO QUE EXPERTOS LLAMAN EL FUTURO DE LAS FINANZAS",
+      prova_social: "MILES DE PERSONAS YA ORGANIZARON SUS CUENTAS CON ESTO"
+    },
+    geral: {
+      dor_direta: "¿CANSADO DE PERDER TIEMPO CON MÉTODOS QUE NO FUNCIONAN?",
+      pergunta_paradoxal: "NO NECESITAS ESFORZARTE MÁS PARA TENER MÁS RESULTADOS",
+      novidade: "LLEGÓ UNA FORMA TOTALMENTE NUEVA DE RESOLVER ESTO",
+      historia_pessoal: "ME EQUIVOQUÉ DURANTE AÑOS HASTA DESCUBRIR ESTE SECRETO",
+      curiosidade: "EL TRUCO SENCILLO QUE MUY POCOS SE ATREVEN A REVELAR",
+      the_one_thing: "HAZ SOLO ESTA ÚNICA COSA Y NOTA LA DIFERENCIA",
+      autoridade: "EL MÉTODO COMPROBADO POR LOS MAYORES EXPERTOS",
+      prova_social: "MILES DE PERSONAS YA COMPROBARON LA EFICACIA DE ESTO"
+    }
   },
-  emagrecimento: {
-    dor_direta: "DIFICULDADE PRA QUEIMAR A GORDURA LOCALIZADA?",
-    pergunta_paradoxal: "VOCÊ NÃO PRECISA PASSAR FOME PRA SECAR A BARRIGA",
-    novidade: "CHEGOU UM RITUAL MATINAL QUE ACELERA A QUEIMA CELULAR",
-    historia_pessoal: "EU PESAVA 94KG E ACHAVA QUE MEU METABOLISMO ERA LENTO",
-    curiosidade: "O TRUQUE BOBO QUE FAZ O CORPO QUEIMAR GORDURA DORMINDO",
-    the_one_thing: "AJUSTE ESSA ÚNICA REFEIÇÃO E SEU CORPO COMEÇA A SECAR",
-    autoridade: "O PROTOCOLO QUE MÉDICOS CHAMAM DE REVOLUÇÃO METABÓLICA",
-    prova_social: "MAIS DE 12.000 PESSOAS JÁ SECARAM A BARRIGA COM ISSO"
+
+  // PORTUGUÊS (PT)
+  pt: {
+    futebol: {
+      dor_direta: "TREINANDO DURO MAS NÃO SE NOTA NO CAMPO?",
+      pergunta_paradoxal: "VOCÊ NÃO PRECISA SE MATAR NA ACADEMIA PRA VOAR EM CAMPO",
+      novidade: "CHEGOU O MÉTODO QUE ESTÁ TRANSFORMANDO JOGADORES",
+      historia_pessoal: "EU TREINAVA SEM ESTRUTURA ATÉ ENTENDER ESSE ERRO BOBO",
+      curiosidade: "O SEGREDO DOS ATLETAS PRO PRA AGUANTAR OS 90 MINUTOS",
+      the_one_thing: "AJUSTE ISSO NO SEU TREINO E DOMINE QUALQUER PARTIDA",
+      autoridade: "O PROTOCOLO QUE PREPARADORES DE ELITE GUARDAM A SETE CHAVES",
+      prova_social: "MILHARES DE JOGADORES JÁ MELHORARAM SEU RENDIMENTO"
+    },
+    relacionamento: {
+      dor_direta: "DIFICULDADE PRA RECONQUISTAR O AMOR DELA?",
+      pergunta_paradoxal: "VOCÊ NÃO PRECISA IMPLORAR ATENÇÃO PRA TER ELA AOS SEUS PÉS",
+      novidade: "CHEGOU UM JEITO NOVO DE SALVAR RELACIONAMENTOS EM CRISE",
+      historia_pessoal: "EU PERDI O AMOR DA MINHA VIDA ATÉ ENTENDER ESSE ERRO BOBO",
+      curiosidade: "O TRUQUE PSICOLÓGICO SIMPLES QUE MUDA QUALQUER RELAÇÃO",
+      the_one_thing: "FAÇA ESSA ÚNICA PERGUNTA E NUNCA MAIS SOFRA POR AMOR",
+      autoridade: "O MÉTODO QUE TERAPEUTAS DE CASAL GUARDAM A SETE CHAVES",
+      prova_social: "MAIS DE 8.000 CASAIS JÁ SALVARAM A RELAÇÃO COM ESSE PADRÃO"
+    },
+    emagrecimento: {
+      dor_direta: "DIFICULDADE PRA QUEIMAR A GORDURA LOCALIZADA?",
+      pergunta_paradoxal: "VOCÊ NÃO PRECISA PASSAR FOME PRA SECAR A BARRIGA",
+      novidade: "CHEGOU UM RITUAL MATINAL QUE ACELERA A QUEIMA CELULAR",
+      historia_pessoal: "EU PESAVA 94KG E ACHAVA QUE MEU METABOLISMO ERA LENTO",
+      curiosidade: "O TRUQUE BOBO QUE FAZ O CORPO QUEIMAR GORDURA DORMINDO",
+      the_one_thing: "AJUSTE ESSA ÚNICA REFEIÇÃO E SEU CORPO COMEÇA A SECAR",
+      autoridade: "O PROTOCOLO QUE MÉDICOS CHAMAM DE REVOLUÇÃO METABÓLICA",
+      prova_social: "MAIS DE 12.000 PESSOAS JÁ SECARAM A BARRIGA COM ISSO"
+    },
+    lei_da_atracao: {
+      dor_direta: "DIFICULDADE PRA MANIFESTAR SEUS MAIORES DESEJOS?",
+      pergunta_paradoxal: "VOCÊ NÃO PRECISA SE ESFORÇAR MAIS PRA ATRAIR ABUNDÂNCIA",
+      novidade: "A NOVA FREQUÊNCIA QUE DESBLOQUEIA A PROSPERIDADE IMEDIATA",
+      historia_pessoal: "EU VIVIA NA ESCASSEZ ATÉ ENTENDER ESSA FREQUÊNCIA SECRETA",
+      curiosidade: "O CÓDIGO DE 3 MINUTOS QUE ATRAI DINHEIRO INESPERADO",
+      the_one_thing: "REPITA ESSA FRASE 1X AO ACORDAR E VEJA TUDO MUDAR",
+      autoridade: "O MÉTODO QUE FÍSICOS QUÂNTICOS CHAMAM DE LEI OCULTA",
+      prova_social: "MILHARES DE PESSOAS JÁ DESTRAVARAM A VIDA COM ESSA FREQUÊNCIA"
+    },
+    renda_extra: {
+      dor_direta: "DIFICULDADE PRA FAZER O SALÁRIO SOBRAR NO FINAL DO MÊS?",
+      pergunta_paradoxal: "VOCÊ NÃO PRECISA GANHAR MAIS PRA SOBRAR DINHEIRO",
+      novidade: "CHEGOU UM JEITO NOVO E AUTOMÁTICO DE ORGANIZAR AS CONTAS",
+      historia_pessoal: "EU GANHAVA BEM E VIVIA NO VERMELHO TODO SANTO MÊS",
+      curiosidade: "O TRUQUE BOBO QUE FEZ MEU SALÁRIO RENDER O MÊS INTEIRO",
+      the_one_thing: "FAÇA ISSO 1X POR SEMANA E AS CONTAS SE ORGANIZAM",
+      autoridade: "O MÉTODO QUE ESPECIALISTAS CHAMAM DE FUTURO DAS FINANÇAS",
+      prova_social: "MILHARES DE BRASILEIROS JÁ ORGANIZARAM AS CONTAS ASSIM"
+    },
+    geral: {
+      dor_direta: "CANSADO DE PERDER TEMPO COM MÉTODOS QUE NÃO FUNCIONAM?",
+      pergunta_paradoxal: "VOCÊ NÃO PRECISA SE ESFORÇAR MAIS PRA TER MAIS RESULTADOS",
+      novidade: "CHEGOU UMA FORMA TOTALMENTE NOVA DE RESOLVER ISSO",
+      historia_pessoal: "EU ERREI DURANTE ANOS ATÉ DESCOBRIR ESSE SEGREDO",
+      curiosidade: "O TRUQUE SIMPLES QUE POUCAS PESSOAS TÊM CORAGEM DE REVELAR",
+      the_one_thing: "FAÇA APENAS ESSA ÚNICA COISA E VEJA A DIFERENÇA",
+      autoridade: "O PADRÃO COMPROVADO PELOS MAIORES ESPECIALISTAS",
+      prova_social: "MILHARES DE PESSOAS JÁ COMPROVARAM A EFICÁCIA DISSO"
+    }
   },
-  lei_da_atracao: {
-    dor_direta: "DIFICULDADE PRA MANIFESTAR SEUS MAIORES DESEJOS?",
-    pergunta_paradoxal: "VOCÊ NÃO PRECISA SE ESFORÇAR MAIS PRA ATRAIR ABUNDÂNCIA",
-    novidade: "A NOVA FREQUÊNCIA QUE DESBLOQUEIA A PROSPERIDADE IMEDIATA",
-    historia_pessoal: "EU VIVIA NA ESCASSEZ ATÉ ENTENDER ESSA FREQUÊNCIA SECRETA",
-    curiosidade: "O CÓDIGO DE 3 MINUTOS QUE ATRAI DINHEIRO INESPERADO",
-    the_one_thing: "REPITA ESSA FRASE 1X AO ACORDAR E VEJA TUDO MUDAR",
-    autoridade: "O MÉTODO QUE FÍSICOS QUÂNTICOS CHAMAM DE LEI OCULTA",
-    prova_social: "MILHARES DE PESSOAS JÁ DESTRAVARAM A VIDA COM ESSA FREQUÊNCIA"
-  },
-  renda_extra: {
-    dor_direta: "DIFICULDADE PRA FAZER O SALÁRIO SOBRAR NO FINAL DO MÊS?",
-    pergunta_paradoxal: "VOCÊ NÃO PRECISA GANHAR MAIS PRA SOBRAR DINHEIRO",
-    novidade: "CHEGOU UM JEITO NOVO E AUTOMÁTICO DE ORGANIZAR AS CONTAS",
-    historia_pessoal: "EU GANHAVA BEM E VIVIA NO VERMELHO TODO SANTO MÊS",
-    curiosidade: "O TRUQUE BOBO QUE FEZ MEU SALÁRIO RENDER O MÊS INTEIRO",
-    the_one_thing: "FAÇA ISSO 1X POR SEMANA E AS CONTAS SE ORGANIZAM",
-    autoridade: "O MÉTODO QUE ESPECIALISTAS CHAMAM DE FUTURO DAS FINANÇAS",
-    prova_social: "MILHARES DE BRASILEIROS JÁ ORGANIZARAM AS CONTAS ASSIM"
-  },
-  geral: {
-    dor_direta: "CANSADO DE PERDER TEMPO COM MÉTODOS QUE NÃO FUNCIONAM?",
-    pergunta_paradoxal: "VOCÊ NÃO PRECISA SE ESFORÇAR MAIS PRA TER MAIS RESULTADOS",
-    novidade: "CHEGOU UMA FORMA TOTALMENTE NOVA DE RESOLVER ISSO",
-    historia_pessoal: "EU ERREI DURANTE ANOS ATÉ DESCOBRIR ESSE SEGREDO",
-    curiosidade: "O TRUQUE SIMPLES QUE POUCAS PESSOAS TÊM CORAGEM DE REVELAR",
-    the_one_thing: "FAÇA APENAS ESSA ÚNICA COISA E VEJA A DIFERENÇA",
-    autoridade: "O PADRÃO COMPROVADO PELOS MAIORES ESPECIALISTAS",
-    prova_social: "MILHARES DE PESSOAS JÁ COMPROVARAM A EFICÁCIA DISSO"
+
+  // INGLÊS (EN)
+  en: {
+    futebol: {
+      dor_direta: "TRAINING HARD BUT NOT SEEING IT ON THE PITCH?",
+      pergunta_paradoxal: "YOU DON'T NEED TO EXHAUST YOURSELF TO DOMINATE THE MATCH",
+      novidade: "THE NEW PROTOCOL TRANSFORMING SOCCER PLAYERS TODAY",
+      historia_pessoal: "I TRAINED FOR YEARS UNTIL I FIXED THIS ONE SIMPLE MISTAKE",
+      curiosidade: "THE PRO SECRET TO LASTING 90 FULL MINUTES AT MAX SPEED",
+      the_one_thing: "ADJUST THIS ONE ROUTINE AND TRANSFORM YOUR GAME TODAY",
+      autoridade: "THE TRAINING PROTOCOL PRO ATHLETIC TRAINERS KEEP SECRET",
+      prova_social: "THOUSANDS OF PLAYERS ALREADY BOOSTED THEIR PERFORMANCE"
+    },
+    relacionamento: {
+      dor_direta: "STRUGGLING TO RECONNECT WITH THE ONE YOU LOVE?",
+      pergunta_paradoxal: "YOU DON'T NEED TO BEG FOR ATTENTION TO WIN HER HEART",
+      novidade: "A BRAND NEW APPROACH TO SAVING RELATIONSHIPS IN CRISIS",
+      historia_pessoal: "I LOST THE LOVE OF MY LIFE UNTIL I UNDERSTOOD THIS MISTAKE",
+      curiosidade: "THE SIMPLE PSYCHOLOGICAL TRIGGER THAT CHANGES ANY RELATIONSHIP",
+      the_one_thing: "ASK THIS ONE QUESTION AND NEVER SUFFER IN LOVE AGAIN",
+      autoridade: "THE METHOD TOP COUPLES THERAPISTS KEEP BEHIND CLOSED DOORS",
+      prova_social: "OVER 8,000 COUPLES HAVE ALREADY SAVED THEIR RELATIONSHIP"
+    },
+    emagrecimento: {
+      dor_direta: "STRUGGLING TO BURN STUBBORN BELLY FAT?",
+      pergunta_paradoxal: "YOU DON'T NEED TO STARVE TO GET A FLAT STOMACH",
+      novidade: "THE MORNING RITUAL THAT ACCELERATES CELLULAR FAT BURN",
+      historia_pessoal: "I WEIGHED 210 LBS UNTIL I DISCOVERED THIS HIDDEN METABOLIC TRICK",
+      curiosidade: "THE SIMPLE BEDTIME TRICK THAT BURNS FAT WHILE YOU SLEEP",
+      the_one_thing: "FIX THIS ONE MEAL AND YOUR BODY STARTS BURNING FAT",
+      autoridade: "THE PROTOCOL DOCTORS CALL A METABOLIC BREAKTHROUGH",
+      prova_social: "OVER 12,000 PEOPLE ALREADY TRANSFORMED WITH THIS METHOD"
+    },
+    lei_da_atracao: {
+      dor_direta: "STRUGGLING TO MANIFEST YOUR DEEPEST GOALS?",
+      pergunta_paradoxal: "YOU DON'T NEED TO STRUGGLE TO ATTRACT REAL ABUNDANCE",
+      novidade: "THE HIDDEN FREQUENCY THAT UNLOCKS IMMEDIATE PROSPERITY",
+      historia_pessoal: "I LIVED IN SCARCITY UNTIL I DISCOVERED THIS FREQUENCY",
+      curiosidade: "THE 3-MINUTE CODE THAT ATTRACTS UNEXPECTED ABUNDANCE",
+      the_one_thing: "REPEAT THIS ONE PHRASE EVERY MORNING AND WATCH WHAT HAPPENS",
+      autoridade: "THE TECHNIQUE QUANTUM PHYSICISTS CALL THE HIDDEN LAW",
+      prova_social: "THOUSANDS OF PEOPLE HAVE ALREADY UNLOCKED THEIR LIFE"
+    },
+    renda_extra: {
+      dor_direta: "STRUGGLING TO MAKE YOUR MONEY LAST UNTIL MONTH'S END?",
+      pergunta_paradoxal: "YOU DON'T NEED A BIGGER SALARY TO SAVE MORE MONEY",
+      novidade: "THE AUTOMATED SYSTEM TO ORGANIZE YOUR FINANCES EFFORTLESSLY",
+      historia_pessoal: "I EARNED GOOD MONEY BUT WAS BROKE EVERY SINGLE MONTH",
+      curiosidade: "THE SIMPLE HABIT THAT MADE MY INCOME LAST ALL MONTH LONG",
+      the_one_thing: "DO THIS ONCE A WEEK AND YOUR ACCOUNTS STAY BALANCED",
+      autoridade: "THE FINANCIAL SYSTEM EXPERTS CALL THE FUTURE OF WEALTH",
+      prova_social: "THOUSANDS HAVE ALREADY TAKEN CONTROL OF THEIR MONEY"
+    },
+    geral: {
+      dor_direta: "TIRED OF WASTING TIME ON METHODS THAT NEVER WORK?",
+      pergunta_paradoxal: "YOU DON'T NEED TO WORK HARDER TO GET BETTER RESULTS",
+      novidade: "A COMPLETELY NEW WAY TO SOLVE THIS ONCE AND FOR ALL",
+      historia_pessoal: "I STRUGGLED FOR YEARS UNTIL I DISCOVERED THIS SECRET",
+      curiosidade: "THE SIMPLE TRUTH THAT VERY FEW EXPERTS ARE WILLING TO SHARE",
+      the_one_thing: "DO THIS ONE THING AND NOTICE THE DIFFERENCE IMMEDIATELY",
+      autoridade: "THE PROVEN FRAMEWORK BACKED BY TOP INDUSTRY LEADERS",
+      prova_social: "THOUSANDS OF PEOPLE HAVE ALREADY VERIFIED THESE RESULTS"
+    }
   }
 };
 
+// Aliases para compatibilidade retroativa
+const HEADLINES_BY_NICHE_AND_ANGLE = HEADLINES_BY_LANG_AND_NICHE.pt;
+
+/**
+ * Obtém a headline de fallback exata considerando idioma, nicho e ângulo
+ */
+function getFallbackHeadline(lang = 'pt', niche = 'geral', angle = 'pergunta_paradoxal') {
+  const normLang = (lang === 'es' || lang === 'en') ? lang : 'pt';
+  const langBank = HEADLINES_BY_LANG_AND_NICHE[normLang] || HEADLINES_BY_LANG_AND_NICHE.pt;
+  const nicheMap = langBank[niche] || langBank.geral;
+  
+  // Normalizar ângulo
+  let normAngle = (angle || 'pergunta_paradoxal').replace(/-/g, '_');
+  if (normAngle === 'one_thing') normAngle = 'the_one_thing';
+  if (normAngle === 'gancho_curto') normAngle = 'dor_direta';
+
+  return nicheMap[normAngle] || nicheMap.pergunta_paradoxal || nicheMap.dor_direta;
+}
+
 async function generateHeadlineAI({ transcriptText, videoTitle, angle = 'pergunta_paradoxal' }) {
   const combinedContext = `${videoTitle || ''} ${transcriptText || ''}`.trim();
+  const lang = detectLanguage(combinedContext);
   const niche = detectNiche(combinedContext);
   const settings = getSettings();
+
+  const langNames = {
+    es: 'Espanhol (Español)',
+    pt: 'Português (Portuguese)',
+    en: 'Inglês (English)'
+  };
+  const langName = langNames[lang] || 'Espanhol/Português';
   
   if (settings.geminiApiKey || settings.openRouterApiKey) {
     try {
       const prompt = `
-Você é o estrategista de copy Direct Response para anúncios de tráfego pago.
-Tema / Roteiro do produto: "${combinedContext}"
-Nicho detectado: "${niche}"
-Ângulo de abordagem: "${angle}" (ex: dor direta, pergunta paradoxal, novidade, história pessoal, curiosidade, the one thing, autoridade, prova social).
+Você é o estrategista de copy Direct Response para anúncios de tráfego pago de altíssima conversão.
+CONTEXTO DO ANÚNCIO:
+- Tema / Roteiro da fala: "${combinedContext}"
+- Nicho detectado: "${niche}"
+- Ângulo de abordagem: "${angle}" (ex: dor direta, pergunta paradoxal, novidade, história pessoal, curiosidade, the one thing, autoridade, prova social).
+- IDIOMA OBRIGATÓRIO: "${langName}" (${lang.toUpperCase()})
 
-IMPORTANTE: A headline DEVE ser 100% sobre o produto/tema específico acima (${niche}). Se o vídeo for sobre relacionamento, fale de relacionamento. Se for emagrecimento, fale de emagrecimento.
-Gere 1 headline forte em caixa alta (máximo 10 palavras), sem aspas, com gancho agressivo para os primeiros 3 segundos de retenção.
+*** REGRA CRÍTICA DE IDIOMA ***
+O áudio/copy deste vídeo está falado em ${langName}.
+A HEADLINE DEVE OBRIGATORIAMENTE ESTAR NO MESMO IDIOMA (${langName}).
+- Se o roteiro for em ESPANHOL (${lang === 'es' ? 'COMO É O CASO DESTE VÍDEO' : ''}), a headline DEVE ser 100% em ESPANHOL (ex: "¿ENTRENAS DURO PERO NO SE NOTA EN LA CANCHA?"). NUNCA gere em português!
+- Se o roteiro for em PORTUGUÊS, a headline DEVE ser em Português.
+- Se o roteiro for em INGLÊS, a headline DEVE ser em Inglês.
+
+REQUISITOS DA HEADLINE:
+1. Máximo 10 palavras.
+2. TOTALMENTE EM CAIXA ALTA (MAIÚSCULAS).
+3. Sem aspas ou emojis.
+4. Gancho ultra-agressivo para os primeiros 3 segundos de retenção de criativo pago.
+5. 100% sobre o nicho "${niche}" e coerente com as palavras da transcrição.
 
 Responda APENAS em JSON:
 {
-  "headline": "TEXTO DA HEADLINE EM MAIÚSCULAS"
+  "headline": "TEXTO DA HEADLINE NO IDIOMA ${lang.toUpperCase()}"
 }
 `;
       let aiResult;
@@ -136,16 +412,15 @@ Responda APENAS em JSON:
         aiResult = await callOpenRouter(prompt, settings.openRouterApiKey);
       }
       if (aiResult?.headline) {
-        return aiResult.headline;
+        return aiResult.headline.trim().toUpperCase();
       }
     } catch (err) {
-      console.warn('[Headline AI] Fallback to niche templates:', err.message);
+      console.warn('[Headline AI] Fallback to localized niche templates:', err.message);
     }
   }
 
-  // Fallback baseado no nicho exato
-  const nicheMap = HEADLINES_BY_NICHE_AND_ANGLE[niche] || HEADLINES_BY_NICHE_AND_ANGLE.geral;
-  return nicheMap[angle] || nicheMap.pergunta_paradoxal;
+  // Fallback baseado no idioma e nicho exatos
+  return getFallbackHeadline(lang, niche, angle);
 }
 
 function buildRuleBasedPlan(transcript, selectedCategories = [], template = 'direct_response', totalDuration, videoTitle = '') {
@@ -311,8 +586,10 @@ function buildRuleBasedPlan(transcript, selectedCategories = [], template = 'dir
     });
   }
 
-  const niche = detectNiche(`${videoTitle || ''} ${transcript?.text || ''}`);
-  const fallbackHeadline = (HEADLINES_BY_NICHE_AND_ANGLE[niche] || HEADLINES_BY_NICHE_AND_ANGLE.geral).pergunta_paradoxal;
+  const contextStr = `${videoTitle || ''} ${transcript?.text || ''}`;
+  const lang = detectLanguage(contextStr);
+  const niche = detectNiche(contextStr);
+  const fallbackHeadline = getFallbackHeadline(lang, niche, 'pergunta_paradoxal');
 
   return {
     headline: {
@@ -331,6 +608,16 @@ async function planWithOpenRouter({ transcript, availableBrolls, template, durat
   const apiKey = settings.openRouterApiKey;
   if (!apiKey) return null;
 
+  const contextStr = `${videoTitle || ''} ${transcript?.text || ''}`;
+  const lang = detectLanguage(contextStr);
+  const niche = detectNiche(contextStr);
+  const langNames = {
+    es: 'Espanhol (Español)',
+    pt: 'Português (Portuguese)',
+    en: 'Inglês (English)'
+  };
+  const langName = langNames[lang] || 'Espanhol/Português';
+
   const brollSummary = (availableBrolls || []).slice(0, 40).map(b => ({
     filename: b.filename,
     category: b.category
@@ -344,10 +631,19 @@ Contexto do vídeo:
 - Duração total: ${duration} segundos
 - Template: "${template}"
 - Ângulo de headline: "${angle}"
+- Nicho detectado: "${niche}"
+- IDIOMA OBRIGATÓRIO: "${langName}" (${lang.toUpperCase()})
 - B-rolls disponíveis: ${JSON.stringify(brollSummary)}
 
+*** REGRA CRÍTICA DE IDIOMA ***
+O vídeo está falado em ${langName}.
+A HEADLINE DEVE OBRIGATORIAMENTE ESTAR NO MESMO IDIOMA (${langName}).
+- Se o roteiro for em ESPANHOL, a headline DEVE ser 100% em ESPANHOL (ex: "¿ENTRENAS DURO PERO NO SE NOTA EN LA CANCHA?"). NUNCA gere em português!
+- Se o roteiro for em PORTUGUÊS, a headline DEVE ser em Português.
+- Se o roteiro for em INGLÊS, a headline DEVE ser em Inglês.
+
 REQUISITOS OBRIGATÓRIOS:
-1. "headline": Headline agressiva Direct Response em CAIXA ALTA (máximo 10 palavras), 100% coerente com o que é falado na transcrição.
+1. "headline": Headline agressiva Direct Response em CAIXA ALTA (máximo 10 palavras), 100% coerente com o tema E NO MESMO IDIOMA DA TRANSCRIÇÃO (${langName}).
 2. "scenes": Divida o vídeo em cenas contíguas cobrindo de 0.0 até exatamente ${duration} segundos (cada cena entre 2.5s e 4.5s de duração).
    - Cena 1 DEVE ser "dividida" (Hook com B-roll e Avatar).
    - As demais cenas alternam dinamicamente entre "avatar", "broll" e "dividida".
@@ -357,7 +653,7 @@ REQUISITOS OBRIGATÓRIOS:
 
 Responda APENAS em JSON no formato:
 {
-  "headline": "TEXTO DA HEADLINE EM MAIÚSCULAS",
+  "headline": "TEXTO DA HEADLINE NO IDIOMA ${lang.toUpperCase()}",
   "scenes": [
     {
       "start": 0.0,
@@ -408,6 +704,9 @@ async function generateEditingPlan({ transcript, selectedCategories, template, d
   }
 
   const effectiveDuration = duration || transcript?.words?.[transcript.words.length - 1]?.end || 20.0;
+  const contextStr = `${videoTitle || ''} ${transcript?.text || ''}`;
+  const lang = detectLanguage(contextStr);
+  const niche = detectNiche(contextStr);
   let plan = null;
 
   // 1. Tentar Planejamento Completo com OpenRouter AI
@@ -470,9 +769,10 @@ async function generateEditingPlan({ transcript, selectedCategories, template, d
       }
 
       if (validatedScenes.length >= 3) {
+        const fallbackHL = getFallbackHeadline(lang, niche, headlineType);
         plan = {
           headline: {
-            text: aiPlan.headline || 'CANSADA DE ESQUECER ITEM NO MERCADO?',
+            text: (aiPlan.headline && aiPlan.headline.trim()) ? aiPlan.headline.trim().toUpperCase() : fallbackHL,
             style: 'block',
             bgColor: '#dc2626',
             textColor: '#ffffff',
@@ -480,7 +780,7 @@ async function generateEditingPlan({ transcript, selectedCategories, template, d
           },
           broll_segments: validatedScenes
         };
-        console.log('[OpenRouter AI] Plano de edição montado com sucesso! Cenas:', validatedScenes.length);
+        console.log('[OpenRouter AI] Plano de edição montado com sucesso! Cenas:', validatedScenes.length, 'Idioma:', lang);
       }
     }
   } catch (err) {
@@ -510,6 +810,9 @@ async function generateEditingPlan({ transcript, selectedCategories, template, d
 module.exports = {
   generateEditingPlan,
   generateHeadlineAI,
+  detectLanguage,
   detectNiche,
+  getFallbackHeadline,
+  HEADLINES_BY_LANG_AND_NICHE,
   HEADLINES_BY_NICHE_AND_ANGLE
 };

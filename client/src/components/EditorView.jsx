@@ -537,11 +537,12 @@ export default function EditorView({
   });
   const [subtitlesPositionGlobal, setSubtitlesPositionGlobal] = useState('automatica');
   const [isRePlanning, setIsRePlanning] = useState(false);
+  const [isGeneratingHeadline, setIsGeneratingHeadline] = useState(false);
 
   // Headline State with interactive position & sizing
   const [headline, setHeadline] = useState(
     project.headline || {
-      text: 'PERDENDO TEMPO PROCURANDO TREINOS PARA OS JOGADORES?',
+      text: '',
       bgColor: '#dc2626',
       textColor: '#ffffff',
       fontSize: 13,
@@ -1220,6 +1221,36 @@ export default function EditorView({
       console.warn('Replan error:', e);
     } finally {
       setIsRePlanning(false);
+    }
+  };
+
+  // Generate new headline matching copy's language on demand
+  const handleGenerateAiHeadline = async () => {
+    setIsGeneratingHeadline(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/headlines/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          transcriptText: project.transcript?.text || '',
+          videoTitle: project.title || '',
+          angle: project.headlineType || 'pergunta_paradoxal'
+        })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.headline) {
+          const newHl = { ...headline, text: data.headline, visible: true };
+          setHeadline(newHl);
+          pushState(segments, newHl);
+        }
+      } else {
+        alert('Não foi possível gerar nova headline no momento.');
+      }
+    } catch (e) {
+      console.warn('Erro ao gerar headline:', e);
+    } finally {
+      setIsGeneratingHeadline(false);
     }
   };
 
@@ -3239,13 +3270,34 @@ export default function EditorView({
                         </div>
                       </div>
 
-                      <input
-                        type="text"
-                        value={headline?.text || ''}
-                        onChange={e => setHeadline({ ...headline, text: e.target.value })}
-                        placeholder="Texto da headline de gancho..."
-                        className="w-full px-3 py-2 rounded-xl bg-[#181B20] border border-[#282C34] text-xs text-[#F5F5F0] focus:outline-none focus:border-[#C5F955]"
-                      />
+                      <div className="space-y-1.5">
+                        <input
+                          type="text"
+                          value={headline?.text || ''}
+                          onChange={e => setHeadline({ ...headline, text: e.target.value })}
+                          placeholder="Texto da headline de gancho..."
+                          className="w-full px-3 py-2 rounded-xl bg-[#181B20] border border-[#282C34] text-xs text-[#F5F5F0] focus:outline-none focus:border-[#C5F955]"
+                        />
+
+                        <button
+                          type="button"
+                          onClick={handleGenerateAiHeadline}
+                          disabled={isGeneratingHeadline}
+                          className="w-full py-1.5 px-3 rounded-xl border border-[#282C34] hover:border-[#C5F955]/60 hover:bg-[#181B20] text-[#C5F955] text-[11px] font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer disabled:opacity-50"
+                        >
+                          {isGeneratingHeadline ? (
+                            <>
+                              <div className="w-3 h-3 border-2 border-[#C5F955] border-t-transparent rounded-full animate-spin" />
+                              <span>Gerando headline no idioma da voz...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Sparkles className="w-3 h-3 text-[#C5F955]" />
+                              <span>Gerar com IA no idioma da copy</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
 
                       {/* 10 Font Buttons in 2 Columns */}
                       <div className="space-y-1.5">
