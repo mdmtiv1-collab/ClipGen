@@ -733,10 +733,7 @@ export default function EditorView({
 
     const handleMouseMove = (moveEvent) => {
       const deltaPx = moveEvent.clientX - resizeStartXRef.current;
-      const barEl = document.querySelector('[data-timeline-track]');
-      const barWidth = barEl?.getBoundingClientRect().width || 1000;
-      const totalDur = duration || 30;
-      const deltaSec = parseFloat(((deltaPx / barWidth) * totalDur).toFixed(2));
+      const deltaSec = parseFloat((deltaPx * 0.035).toFixed(1));
 
       const { prevDur, nextDur } = resizeOriginalDurationRef.current;
       const newPrev = Math.max(0.5, prevDur + deltaSec);
@@ -4198,108 +4195,147 @@ export default function EditorView({
         </div>
       </div>
 
-      {/* Bottom Timeline with All Consecutive Scenes (Fiel ao VibeCut - 100% Proporcional) */}
-      <div className="shrink-0 h-[200px] bg-[#101215] border-t border-[#21252B] px-3 pt-2 pb-1.5 flex flex-col justify-between overflow-hidden select-none z-20">
-        {/* Top Scrubber Track with Scene Proportional Segments */}
+      {/* Bottom Timeline with All Consecutive Scenes (Fiel ao VibeCut - Cada cena embaixo da sua barra) */}
+      <div className="shrink-0 h-[215px] bg-[#101215] border-t border-[#21252B] px-3 pt-2 pb-1.5 flex flex-col justify-between overflow-hidden select-none z-20">
+        {/* Top Info Bar */}
         <div className="flex items-center justify-between text-[10px] text-[#92978F]/60 pb-1">
-          <div
-            data-timeline-track="true"
-            className="relative h-3 flex-1 bg-[#16191E] rounded-sm overflow-hidden flex border border-[#21252B] mr-4 shadow-inner"
-          >
-            {segments.map((seg, idx) => {
-              const isSelected = selectedSegIndex === idx;
-              const pct = ((seg.duration || 3.5) / (duration || 20)) * 100;
-              const isLast = idx === segments.length - 1;
-              return (
-                <div
-                  key={seg.id || idx}
-                  style={{ width: `${pct}%` }}
-                  onClick={() => jumpToScene(idx)}
-                  className={`group relative h-full transition-colors cursor-pointer flex items-center justify-center border-r border-[#111315] ${
-                    isSelected
-                      ? 'bg-[#C5F955] text-black font-mono font-bold text-[7.5px]'
-                      : idx % 2 === 0
-                      ? 'bg-[#1F232B] hover:bg-[#282E37] text-white/40'
-                      : 'bg-[#181B20] hover:bg-[#232832] text-white/40'
-                  }`}
-                  title={`Cena ${idx + 1} (${(seg.duration || 3.5).toFixed(1)}s)`}
-                >
-                  {/* Label if wide enough */}
-                  {pct > 5 && (
-                    <span className="truncate px-1 pointer-events-none text-[7px] font-bold">
-                      {isSelected ? `Cena ${idx + 1}` : `${idx + 1}`}
-                    </span>
-                  )}
-
-                  {/* Resizable Divider Handle on Segment Boundary */}
-                  {!isLast && (
-                    <div
-                      onMouseDown={(e) => handleBoundaryMouseDown(idx, e)}
-                      onClick={(e) => e.stopPropagation()}
-                      className="absolute right-0 top-0 bottom-0 w-2 -mr-1 z-20 cursor-col-resize hover:bg-white/80 active:bg-[#C5F955] opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
-                      title="Arraste para ajustar o tempo desta cena"
-                    >
-                      <div className="w-0.5 h-2 bg-white/60 rounded-full" />
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+          <span className="font-semibold text-[#92978F]">
+            Linha do Tempo · {segments.length} cenas ({duration ? duration.toFixed(1) : 0}s)
+          </span>
           <span className="shrink-0 font-mono text-[9px]">Ctrl / ⌘ + scroll para ajustar o zoom</span>
         </div>
 
-        {/* Horizontal Scene Cards Row */}
+        {/* Horizontal Scene Columns - Cada cena fica EXATAMENTE embaixo da sua respectiva barra */}
         <div
           ref={timelineScrollRef}
-          className="flex-1 min-h-0 flex items-center gap-1.5 overflow-x-auto overflow-y-hidden pt-1 pb-0.5 scrollbar-thin scrollbar-thumb-[#282C34] scrollbar-track-transparent"
+          className="flex-1 min-h-0 flex items-stretch gap-1.5 overflow-x-auto overflow-y-hidden pt-0.5 pb-0.5 scrollbar-thin scrollbar-thumb-[#282C34] scrollbar-track-transparent"
         >
           {segments.map((seg, idx) => {
             const isSelected = selectedSegIndex === idx;
             const segMode = seg.displayMode || seg.type || 'dividida';
+            const isLast = idx === segments.length - 1;
 
             return (
               <div
                 key={seg.id || idx}
                 onClick={() => jumpToScene(idx)}
-                className={`shrink-0 w-[84px] h-[162px] rounded-lg border transition-all cursor-pointer p-1 flex flex-col justify-between ${
-                  isSelected
-                    ? 'bg-[#181B20] border-2 border-[#C5F955] shadow-lg shadow-lime-950/20'
-                    : 'bg-[#131519] border border-[#21252B] hover:border-[#333944]'
-                }`}
+                className="shrink-0 w-[84px] h-full flex flex-col justify-between cursor-pointer group select-none"
               >
-                {/* Card Top: Scene Index & Actions */}
-                <div className="flex items-center justify-between pb-0.5 text-[#92978F]">
-                  <span className={`text-[8.5px] font-bold truncate ${isSelected ? 'text-[#C5F955]' : 'text-[#F5F5F0]'}`}>
-                    Cena {idx + 1}
-                  </span>
-                  <div className="flex items-center gap-1">
-                    <button
-                      type="button"
-                      onClick={(e) => handleDuplicateScene(idx, e)}
-                      className="hover:text-[#C5F955] p-0.5 transition-colors cursor-pointer"
-                      title="Duplicar cena"
-                    >
-                      <Copy className="w-2.5 h-2.5" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={(e) => handleDeleteScene(idx, e)}
-                      className="hover:text-rose-400 p-0.5 transition-colors cursor-pointer"
-                      title="Excluir cena"
-                    >
-                      <Trash2 className="w-2.5 h-2.5" />
-                    </button>
+                {/* BARRA SUPERIOR DESTA CENA (Exatamente em cima do card da cena) */}
+                <div className="relative w-full h-3 mb-1 flex items-center">
+                  <div
+                    className={`w-full h-full rounded-xs flex items-center justify-center transition-colors border ${
+                      isSelected
+                        ? 'bg-[#C5F955] border-[#C5F955] text-black shadow-xs font-mono font-bold text-[7.5px]'
+                        : 'bg-[#181B20] border-[#21252B] hover:bg-[#232832] text-[#92978F] font-mono text-[7px]'
+                    }`}
+                    title={`Barra da Cena ${idx + 1} (${(seg.duration || (seg.end - seg.start) || 3.5).toFixed(1)}s)`}
+                  >
+                    <span className="truncate px-0.5 select-none font-bold">
+                      {isSelected ? `Cena ${idx + 1}` : `${idx + 1}`}
+                    </span>
                   </div>
+
+                  {/* Separador arrastável entre barras para alterar duração da cena */}
+                  {!isLast && (
+                    <div
+                      onMouseDown={(e) => handleBoundaryMouseDown(idx, e)}
+                      onClick={(e) => e.stopPropagation()}
+                      className="absolute -right-1 top-0 bottom-0 w-2 z-30 cursor-col-resize opacity-0 group-hover:opacity-100 hover:opacity-100 flex items-center justify-center"
+                      title="Arraste para ajustar o tempo desta cena"
+                    >
+                      <div className="w-0.5 h-2.5 bg-white/80 rounded-full" />
+                    </div>
+                  )}
                 </div>
 
-                {/* Card Thumbnail - Vertical 9:12 exactly reflecting scene mode */}
-                <div className="relative w-full h-[88px] rounded overflow-hidden bg-black border border-[#262B34] flex flex-col shadow-inner select-none">
-                  {/* MODE 1: TELA DIVIDIDA */}
-                  {(segMode === 'dividida' || segMode === 'split-screen') && (
-                    <div className="relative w-full h-full flex flex-col overflow-hidden">
-                      {/* Top half: B-roll */}
-                      <div className="relative w-full h-1/2 overflow-hidden bg-zinc-950 border-b border-[#21252B]/60">
+                {/* CARD DA CENA (Exatamente embaixo da sua respectiva barra) */}
+                <div
+                  className={`w-full flex-1 rounded-lg border transition-all p-1 flex flex-col justify-between ${
+                    isSelected
+                      ? 'bg-[#181B20] border-2 border-[#C5F955] shadow-lg shadow-lime-950/20'
+                      : 'bg-[#131519] border border-[#21252B] hover:border-[#333944]'
+                  }`}
+                >
+                  {/* Card Top: Scene Index & Actions */}
+                  <div className="flex items-center justify-between pb-0.5 text-[#92978F]">
+                    <span className={`text-[8.5px] font-bold truncate ${isSelected ? 'text-[#C5F955]' : 'text-[#F5F5F0]'}`}>
+                      Cena {idx + 1}
+                    </span>
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={(e) => handleDuplicateScene(idx, e)}
+                        className="hover:text-[#C5F955] p-0.5 transition-colors cursor-pointer"
+                        title="Duplicar cena"
+                      >
+                        <Copy className="w-2.5 h-2.5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => handleDeleteScene(idx, e)}
+                        className="hover:text-rose-400 p-0.5 transition-colors cursor-pointer"
+                        title="Excluir cena"
+                      >
+                        <Trash2 className="w-2.5 h-2.5" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Card Thumbnail - Vertical 9:12 exactly reflecting scene mode */}
+                  <div className="relative w-full h-[88px] rounded overflow-hidden bg-black border border-[#262B34] flex flex-col shadow-inner select-none">
+                    {/* MODE 1: TELA DIVIDIDA */}
+                    {(segMode === 'dividida' || segMode === 'split-screen') && (
+                      <div className="relative w-full h-full flex flex-col overflow-hidden">
+                        {/* Top half: B-roll */}
+                        <div className="relative w-full h-1/2 overflow-hidden bg-zinc-950 border-b border-[#21252B]/60">
+                          {seg.broll?.url ? (
+                            <video
+                              src={`${API_BASE}${seg.broll.url}`}
+                              className="w-full h-full object-cover pointer-events-none"
+                              muted
+                              playsInline
+                              onLoadedMetadata={(e) => {
+                                try { e.target.currentTime = seg.brollOffset || 0.1; } catch (err) {}
+                              }}
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-[7px] text-[#92978F] bg-[#14171C]">
+                              B-roll
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Bottom half: Avatar */}
+                        <div className="relative w-full h-1/2 overflow-hidden bg-zinc-950">
+                          {project.baseVideo?.url ? (
+                            <video
+                              src={`${API_BASE}${project.baseVideo.url}`}
+                              className="w-full h-full object-cover pointer-events-none"
+                              muted
+                              playsInline
+                              onLoadedMetadata={(e) => {
+                                try { e.target.currentTime = seg.start || 0.1; } catch (err) {}
+                              }}
+                            />
+                          ) : project.thumbnailUrl ? (
+                            <img
+                              src={`${API_BASE}${project.thumbnailUrl}`}
+                              alt="Avatar"
+                              className="w-full h-full object-cover pointer-events-none"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-[7px] text-[#92978F] bg-[#14171C]">
+                              Avatar
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* MODE 2: B-ROLL TELA CHEIA */}
+                    {(segMode === 'broll' || segMode === 'broll-full') && (
+                      <div className="relative w-full h-full overflow-hidden bg-zinc-950">
                         {seg.broll?.url ? (
                           <video
                             src={`${API_BASE}${seg.broll.url}`}
@@ -4316,9 +4352,11 @@ export default function EditorView({
                           </div>
                         )}
                       </div>
+                    )}
 
-                      {/* Bottom half: Avatar */}
-                      <div className="relative w-full h-1/2 overflow-hidden bg-zinc-950">
+                    {/* MODE 3: AVATAR TELA CHEIA */}
+                    {(segMode === 'avatar' || segMode === 'talking-head') && (
+                      <div className="relative w-full h-full overflow-hidden bg-zinc-950">
                         {project.baseVideo?.url ? (
                           <video
                             src={`${API_BASE}${project.baseVideo.url}`}
@@ -4341,166 +4379,118 @@ export default function EditorView({
                           </div>
                         )}
                       </div>
-                    </div>
-                  )}
+                    )}
 
-                  {/* MODE 2: B-ROLL TELA CHEIA */}
-                  {(segMode === 'broll' || segMode === 'broll-full') && (
-                    <div className="relative w-full h-full overflow-hidden bg-zinc-950">
-                      {seg.broll?.url ? (
-                        <video
-                          src={`${API_BASE}${seg.broll.url}`}
-                          className="w-full h-full object-cover pointer-events-none"
-                          muted
-                          playsInline
-                          onLoadedMetadata={(e) => {
-                            try { e.target.currentTime = seg.brollOffset || 0.1; } catch (err) {}
-                          }}
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-[7px] text-[#92978F] bg-[#14171C]">
-                          B-roll
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* MODE 3: AVATAR TELA CHEIA */}
-                  {(segMode === 'avatar' || segMode === 'talking-head') && (
-                    <div className="relative w-full h-full overflow-hidden bg-zinc-950">
-                      {project.baseVideo?.url ? (
-                        <video
-                          src={`${API_BASE}${project.baseVideo.url}`}
-                          className="w-full h-full object-cover pointer-events-none"
-                          muted
-                          playsInline
-                          onLoadedMetadata={(e) => {
-                            try { e.target.currentTime = seg.start || 0.1; } catch (err) {}
-                          }}
-                        />
-                      ) : project.thumbnailUrl ? (
-                        <img
-                          src={`${API_BASE}${project.thumbnailUrl}`}
-                          alt="Avatar"
-                          className="w-full h-full object-cover pointer-events-none"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-[7px] text-[#92978F] bg-[#14171C]">
-                          Avatar
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* MODE 4: RECORTE / AVATAR OVERLAY */}
-                  {(segMode === 'recorte' || segMode === 'avatar-overlay') && (
-                    <div className="relative w-full h-full overflow-hidden bg-zinc-950">
-                      {seg.broll?.url && (
-                        <video
-                          src={`${API_BASE}${seg.broll.url}`}
-                          className="w-full h-full object-cover pointer-events-none"
-                          muted
-                          playsInline
-                          onLoadedMetadata={(e) => {
-                            try { e.target.currentTime = seg.brollOffset || 0.1; } catch (err) {}
-                          }}
-                        />
-                      )}
-                      <div
-                        className="absolute right-0 bottom-0 w-3/4 h-3/4 pointer-events-none overflow-hidden flex items-end justify-center"
-                        style={{
-                          WebkitMaskImage: 'radial-gradient(ellipse 70% 80% at 50% 65%, black 45%, transparent 95%)',
-                          maskImage: 'radial-gradient(ellipse 70% 80% at 50% 65%, black 45%, transparent 95%)'
-                        }}
-                      >
-                        {project.baseVideo?.url ? (
+                    {/* MODE 4: RECORTE / AVATAR OVERLAY */}
+                    {(segMode === 'recorte' || segMode === 'avatar-overlay') && (
+                      <div className="relative w-full h-full overflow-hidden bg-zinc-950">
+                        {seg.broll?.url && (
                           <video
-                            src={`${API_BASE}${project.baseVideo.url}`}
-                            className="w-full h-full object-contain pointer-events-none"
+                            src={`${API_BASE}${seg.broll.url}`}
+                            className="w-full h-full object-cover pointer-events-none"
                             muted
                             playsInline
                             onLoadedMetadata={(e) => {
-                              try { e.target.currentTime = seg.start || 0.1; } catch (err) {}
+                              try { e.target.currentTime = seg.brollOffset || 0.1; } catch (err) {}
                             }}
                           />
-                        ) : (
-                          <div className="text-[6px] text-white/70 bg-black/60 px-0.5 rounded">Avatar</div>
                         )}
+                        <div
+                          className="absolute right-0 bottom-0 w-3/4 h-3/4 pointer-events-none overflow-hidden flex items-end justify-center"
+                          style={{
+                            WebkitMaskImage: 'radial-gradient(ellipse 70% 80% at 50% 65%, black 45%, transparent 95%)',
+                            maskImage: 'radial-gradient(ellipse 70% 80% at 50% 65%, black 45%, transparent 95%)'
+                          }}
+                        >
+                          {project.baseVideo?.url ? (
+                            <video
+                              src={`${API_BASE}${project.baseVideo.url}`}
+                              className="w-full h-full object-contain pointer-events-none"
+                              muted
+                              playsInline
+                              onLoadedMetadata={(e) => {
+                                try { e.target.currentTime = seg.start || 0.1; } catch (err) {}
+                              }}
+                            />
+                          ) : (
+                            <div className="text-[6px] text-white/70 bg-black/60 px-0.5 rounded">Avatar</div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
 
-                  {/* Top-Right Timestamp Badge */}
-                  <span className="absolute top-0.5 right-0.5 px-1 py-0.2 rounded bg-black/85 font-mono text-[7px] font-bold text-[#F5F5F0] border border-white/10 z-10 leading-tight">
-                    0:{Math.floor(seg.start || 0).toString().padStart(2, '0')}
-                  </span>
-
-                  {/* Bottom-Left Transition Pill */}
-                  {seg.transition?.type && seg.transition.type !== 'corte_seco' && (
-                    <span className="absolute bottom-0.5 left-0.5 px-1 py-0.2 rounded bg-[#8b5cf6]/90 text-white font-bold text-[6px] uppercase tracking-wider backdrop-blur-xs shadow z-10 leading-tight">
-                      {seg.transition.type.replace('_', ' ')}
+                    {/* Top-Right Timestamp Badge */}
+                    <span className="absolute top-0.5 right-0.5 px-1 py-0.2 rounded bg-black/85 font-mono text-[7px] font-bold text-[#F5F5F0] border border-white/10 z-10 leading-tight">
+                      0:{Math.floor(seg.start || 0).toString().padStart(2, '0')}
                     </span>
-                  )}
 
-                  {/* Top-Left Zoom badge if applied */}
-                  {seg.zoom && seg.zoom !== 'sem_efeito' && (
-                    <span className="absolute top-0.5 left-0.5 px-1 py-0.2 rounded bg-[#eab308]/90 text-black font-bold text-[6px] uppercase tracking-wider backdrop-blur-xs z-10 leading-tight">
-                      {seg.zoom.replace('_', ' ')}
+                    {/* Bottom-Left Transition Pill */}
+                    {seg.transition?.type && seg.transition.type !== 'corte_seco' && (
+                      <span className="absolute bottom-0.5 left-0.5 px-1 py-0.2 rounded bg-[#8b5cf6]/90 text-white font-bold text-[6px] uppercase tracking-wider backdrop-blur-xs shadow z-10 leading-tight">
+                        {seg.transition.type.replace('_', ' ')}
+                      </span>
+                    )}
+
+                    {/* Top-Left Zoom badge if applied */}
+                    {seg.zoom && seg.zoom !== 'sem_efeito' && (
+                      <span className="absolute top-0.5 left-0.5 px-1 py-0.2 rounded bg-[#eab308]/90 text-black font-bold text-[6px] uppercase tracking-wider backdrop-blur-xs z-10 leading-tight">
+                        {seg.zoom.replace('_', ' ')}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Scene Label (fiel ao VibeCut - Foto anexada) */}
+                  <div className="flex items-center gap-1 py-0.5 truncate">
+                    <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                      segMode === 'dividida' || segMode === 'split-screen'
+                        ? 'bg-sky-400'
+                        : segMode === 'avatar' || segMode === 'talking-head'
+                        ? 'bg-indigo-400'
+                        : segMode === 'recorte' || segMode === 'avatar-overlay'
+                        ? 'bg-amber-400'
+                        : 'bg-emerald-400'
+                    }`} />
+                    <span className="text-[7.5px] text-[#D0D4DC] font-medium truncate">
+                      {idx + 1} · {segMode === 'dividida' || segMode === 'split-screen' ? 'Tela dividida' : segMode === 'broll' || segMode === 'broll-full' ? 'B-roll' : segMode === 'recorte' || segMode === 'avatar-overlay' ? 'Recorte' : 'Avatar'}
                     </span>
-                  )}
-                </div>
+                  </div>
 
-                {/* Scene Label (fiel ao VibeCut - Foto anexada) */}
-                <div className="flex items-center gap-1 py-0.5 truncate">
-                  <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${
-                    segMode === 'dividida' || segMode === 'split-screen'
-                      ? 'bg-sky-400'
-                      : segMode === 'avatar' || segMode === 'talking-head'
-                      ? 'bg-indigo-400'
-                      : segMode === 'recorte' || segMode === 'avatar-overlay'
-                      ? 'bg-amber-400'
-                      : 'bg-emerald-400'
-                  }`} />
-                  <span className="text-[7.5px] text-[#D0D4DC] font-medium truncate">
-                    {idx + 1} · {segMode === 'dividida' || segMode === 'split-screen' ? 'Tela dividida' : segMode === 'broll' || segMode === 'broll-full' ? 'B-roll' : segMode === 'recorte' || segMode === 'avatar-overlay' ? 'Recorte' : 'Avatar'}
-                  </span>
-                </div>
-
-                {/* Scene Duration Adjuster (- / +) */}
-                <div 
-                  className="flex items-center justify-between w-full h-[19px] px-1 rounded bg-[#0A0C0E] border border-[#21252B]"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleAdjustSceneDuration(idx, e.shiftKey ? -0.5 : -0.1);
-                    }}
-                    className="w-3.5 h-3.5 rounded bg-[#16181D] hover:bg-[#282C34] text-[#92978F] hover:text-[#F5F5F0] flex items-center justify-center transition-colors cursor-pointer active:scale-90"
-                    title="Diminuir tempo (-0.1s, Shift: -0.5s)"
+                  {/* Scene Duration Adjuster (- / +) */}
+                  <div 
+                    className="flex items-center justify-between w-full h-[19px] px-1 rounded bg-[#0A0C0E] border border-[#21252B]"
+                    onClick={(e) => e.stopPropagation()}
                   >
-                    <Minus className="w-2 h-2" />
-                  </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAdjustSceneDuration(idx, e.shiftKey ? -0.5 : -0.1);
+                      }}
+                      className="w-3.5 h-3.5 rounded bg-[#16181D] hover:bg-[#282C34] text-[#92978F] hover:text-[#F5F5F0] flex items-center justify-center transition-colors cursor-pointer active:scale-90"
+                      title="Diminuir tempo (-0.1s, Shift: -0.5s)"
+                    >
+                      <Minus className="w-2 h-2" />
+                    </button>
 
-                  <span
-                    className="text-[8.5px] font-mono font-bold text-[#C5F955] select-none"
-                    title="Duração da cena em segundos"
-                  >
-                    {(seg.duration || (seg.end - seg.start) || 3.5).toFixed(1)}s
-                  </span>
+                    <span
+                      className="text-[8.5px] font-mono font-bold text-[#C5F955] select-none"
+                      title="Duração da cena em segundos"
+                    >
+                      {(seg.duration || (seg.end - seg.start) || 3.5).toFixed(1)}s
+                    </span>
 
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleAdjustSceneDuration(idx, e.shiftKey ? 0.5 : 0.1);
-                    }}
-                    className="w-3.5 h-3.5 rounded bg-[#16181D] hover:bg-[#282C34] text-[#92978F] hover:text-[#C5F955] flex items-center justify-center transition-colors cursor-pointer active:scale-90"
-                    title="Aumentar tempo (+0.1s, Shift: +0.5s)"
-                  >
-                    <Plus className="w-2 h-2" />
-                  </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAdjustSceneDuration(idx, e.shiftKey ? 0.5 : 0.1);
+                      }}
+                      className="w-3.5 h-3.5 rounded bg-[#16181D] hover:bg-[#282C34] text-[#92978F] hover:text-[#C5F955] flex items-center justify-center transition-colors cursor-pointer active:scale-90"
+                      title="Aumentar tempo (+0.1s, Shift: +0.5s)"
+                    >
+                      <Plus className="w-2 h-2" />
+                    </button>
+                  </div>
                 </div>
               </div>
             );
