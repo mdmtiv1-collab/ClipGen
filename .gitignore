@@ -1,0 +1,47 @@
+# Dependencies
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# Production build artifacts
+dist/
+client/dist/
+build/
+
+# User-uploaded & generated video media (prevents exceeding GitHub repository size limits)
+server/storage/uploads/*
+!server/storage/uploads/.gitkeep
+server/storage/outputs/*
+!server/storage/outputs/.gitkeep
+server/storage/temp/*
+!server/storage/temp/.gitkeep
+server/storage/brolls/*
+!server/storage/brolls/.gitkeep
+
+# Temporary test media & frames
+*.mp4
+*.ass
+frame_*.jpg
+avatar_demo/
+transcricao_video_usuario.json
+transcricao_video_usuario.txt
+
+# Environment variables & secrets (API Keys)
+.env
+.env.*
+!.env.example
+settings.json
+server/settings.json
+!server/settings.example.json
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# System & IDE files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

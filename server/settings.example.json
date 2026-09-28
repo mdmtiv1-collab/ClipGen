@@ -1,0 +1,12 @@
+{
+  "transcriptionProvider": "assemblyai",
+  "groqApiKey": "",
+  "assemblyAiApiKey": "",
+  "openAiApiKey": "",
+  "llmProvider": "openrouter",
+  "geminiApiKey": "",
+  "openRouterApiKey": "",
+  "defaultSubtitleStyle": "impacto",
+  "defaultTemplate": "direct_response",
+  "enableWhooshTransitions": true
+}

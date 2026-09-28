@@ -1,0 +1,109 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: 'Anton';
+  src: url('/fonts/Anton-Regular.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Archivo Black';
+  src: url('/fonts/ArchivoBlack-Regular.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Poppins';
+  src: url('/fonts/Poppins-ExtraBold.ttf') format('truetype');
+  font-weight: 800;
+}
+@font-face {
+  font-family: 'Poppins';
+  src: url('/fonts/Poppins-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+}
+@font-face {
+  font-family: 'Poppins ExtraBold';
+  src: url('/fonts/Poppins-ExtraBold.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Poppins SemiBold';
+  src: url('/fonts/Poppins-SemiBold.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Bebas Neue';
+  src: url('/fonts/BebasNeue-Regular.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Bangers';
+  src: url('/fonts/Bangers-Regular.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Courier Prime';
+  src: url('/fonts/CourierPrime-Bold.ttf') format('truetype');
+  font-weight: bold;
+}
+@font-face {
+  font-family: 'PT Serif';
+  src: url('/fonts/PTSerif-BoldItalic.ttf') format('truetype');
+  font-weight: bold;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'Alfa Slab One';
+  src: url('/fonts/AlfaSlabOne-Regular.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Fjalla One';
+  src: url('/fonts/FjallaOne-Regular.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Lato';
+  src: url('/fonts/Lato-Black.ttf') format('truetype');
+  font-weight: 900;
+}
+@font-face {
+  font-family: 'Playfair Display';
+  src: url('/fonts/PlayfairDisplay-BlackItalic.ttf') format('truetype');
+  font-weight: 900;
+  font-style: italic;
+}
+
+:root {
+  --bg-grafite: #111315;
+  --accent-lime: #C5F955;
+  --accent-lime-hover: #b4ea44;
+  --text-branco-suave: #F5F5F0;
+  --text-cinza: #92978F;
+
+  --primary-accent: #C5F955;
+  --primary-accent-hover: #b4ea44;
+  --primary-accent-glow: rgba(197, 249, 85, 0.25);
+  --primary-badge-bg: rgba(197, 249, 85, 0.15);
+  --primary-border: rgba(197, 249, 85, 0.4);
+}
+
+body {
+  margin: 0;
+  background-color: #111315;
+  color: #F5F5F0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom scrollbar matching Grafite */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #111315;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #25282c;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #373b42;
+}

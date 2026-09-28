@@ -1,0 +1,1050 @@
+[
+  {
+    "id": "proj_1790289216508_0",
+    "title": "Vídeo de Avatar_720p (1)",
+    "baseVideo": {
+      "filename": "tightened_1790289216877_avatar_1790289216079_618.mp4",
+      "url": "/storage/uploads/tightened_1790289216877_avatar_1790289216079_618.mp4",
+      "path": "C:\\Users\\mdmti\\.gemini\\antigravity\\scratch\\creative-ai-editor\\server\\storage\\uploads\\tightened_1790289216877_avatar_1790289216079_618.mp4"
+    },
+    "music": null,
+    "status": "revisao",
+    "stage": "Pronto para revisão",
+    "progress": 100,
+    "format": "9:16",
+    "template": "direct-response",
+    "subtitleStyle": "impacto",
+    "highlightColor": "#FFE600",
+    "fontScale": 100,
+    "broll_segments": [
+      {
+        "id": "seg_1",
+        "index": 1,
+        "start": 0,
+        "end": 3.5,
+        "duration": 3.5,
+        "displayMode": "dividida",
+        "avatarPosition": "embaixo",
+        "maskType": "suave",
+        "maskHeight": 50,
+        "broll": {
+          "filename": "001_7093693220927851818_Here we have a patient who suffered from right side #cva which led to left #hemi.mp4",
+          "category": "Fisioterapia",
+          "url": "/storage/brolls/Fisioterapia/001_7093693220927851818_Here%20we%20have%20a%20patient%20who%20suffered%20from%20right%20side%20%23cva%20which%20led%20to%20left%20%23hemi.mp4"
+        },
+        "zoom": "zoom_punch",
+        "transition": {
+          "type": "zoom_punch",
+          "direction": "esquerda",
+          "sound": "whip",
+          "volume": 100
+        },
+        "texture": {
+          "grain": true,
+          "flash": false
+        },
+        "subtitlePosition": "automatica",
+        "text": "Esse aqui é o ListMe, o meu assistente pessoal de compras. Sempre que",
+        "label": "Cena 1: Tela Dividida"
+      },
+      {
+        "id": "seg_2",
+        "index": 2,
+        "start": 3.5,
+        "end": 7,
+        "duration": 3.5,
+        "displayMode": "avatar",
+        "avatarPosition": "embaixo",
+        "maskType": "suave",
+        "maskHeight": 50,
+        "broll": {
+          "filename": "003_7393276992835112209_Some strengthening exercises for stroke. #strokephysicaltherapy #filipinophysica.mp4",
+          "category": "Fisioterapia",
+          "url": "/storage/brolls/Fisioterapia/003_7393276992835112209_Some%20strengthening%20exercises%20for%20stroke.%20%23strokephysicaltherapy%20%23filipinophysica.mp4"
+        },
+        "zoom": "zoom_in",
+        "transition": {
+          "type": "corte_seco",
+          "direction": "direita",
+          "sound": "whip",
+          "volume": 100
+        },
+        "texture": {
+          "grain": false,
+          "flash": false
+        },
+        "subtitlePosition": "automatica",
+        "text": "que preciso ir ao mercado, eu mando uma mensagem, um áudio ou",
+        "label": "Cena 2: Avatar"
+      },
+      {
+        "id": "seg_3",
+        "index": 3,
+        "start": 7,
+        "end": 10.5,
+        "duration": 3.5,
+        "displayMode": "broll",
+        "avatarPosition": "embaixo",
+        "maskType": "suave",
+        "maskHeight": 50,
+        "broll": {
+          "filename": "004_7452457967615577374_These are my favorite resistance band loops. #physicaltherapy #totalkneereplacem.mp4",
+          "category": "Fisioterapia",
+          "url": "/storage/brolls/Fisioterapia/004_7452457967615577374_These%20are%20my%20favorite%20resistance%20band%20loops.%20%23physicaltherapy%20%23totalkneereplacem.mp4"
+        },
+        "zoom": "zoom_out",
+        "transition": {
+          "type": "glitch",
+          "direction": "esquerda",
+          "sound": "whip",
+          "volume": 100
+        },
+        "texture": {
+          "grain": false,
+          "flash": false
+        },
+        "subtitlePosition": "automatica",
+        "text": "ou até uma foto com os produtos que quero comprar. Ele monta minha lista,",
+        "label": "Cena 3: B-Roll"
+      },
+      {
+        "id": "seg_4",
+        "index": 4,
+        "start": 10.5,
+        "end": 14,
+        "duration": 3.5,
+        "displayMode": "avatar",
+        "avatarPosition": "embaixo",
+        "maskType": "suave",
+        "maskHeight": 50,
+        "broll": {
+          "filename": "005_7459751873319292192_Post Ankle Surgery Rehabilitation with our Sports Therapist, Abi. #anklesurgery .mp4",
+          "category": "Fisioterapia",
+          "url": "/storage/brolls/Fisioterapia/005_7459751873319292192_Post%20Ankle%20Surgery%20Rehabilitation%20with%20our%20Sports%20Therapist%2C%20Abi.%20%23anklesurgery%20.mp4"
+        },
+        "zoom": "zoom_in",
+        "transition": {
+          "type": "corte_seco",
+          "direction": "direita",
+          "sound": "whip",
+          "volume": 100
+        },
+        "texture": {
+          "grain": false,
+          "flash": false
+        },
+        "subtitlePosition": "automatica",
+        "text": "organiza todos os itens por categorias e deixa tudo pronto",
+        "label": "Cena 4: Avatar"
+      },
+      {
+        "id": "seg_5",
+        "index": 5,
+        "start": 14,
+        "end": 17.5,
+        "duration": 3.5,
+        "displayMode": "dividida",
+        "avatarPosition": "embaixo",
+        "maskType": "suave",
+        "maskHeight": 50,
+        "broll": {
+          "filename": "010_7590984984521903374_Este es el resultado. 👀🫶 Después de semanas de constancia, esfuerzo y confianza .mp4",
+          "category": "Fisioterapia",
+          "url": "/storage/brolls/Fisioterapia/010_7590984984521903374_Este%20es%20el%20resultado.%20%F0%9F%91%80%F0%9F%AB%B6%20Despue%CC%81s%20de%20semanas%20de%20constancia%2C%20esfuerzo%20y%20confianza%20.mp4"
+        },
+        "zoom": "zoom_out",
+        "transition": {
+          "type": "flare",
+          "direction": "esquerda",
+          "sound": "whip",
+          "volume": 100
+        },
+        "texture": {
+          "grain": true,
+          "flash": false
+        },
+        "subtitlePosition": "automatica",
+        "text": "para eu não esquecer nada. Mas o que eu mais gosto é que o",
+        "label": "Cena 5: Tela Dividida"
+      },
+      {
+        "id": "seg_6",
+        "index": 6,
+        "start": 17.5,
+        "end": 21,
+        "duration": 3.5,
+        "displayMode": "avatar",
+        "avatarPosition": "embaixo",
+        "maskType": "suave",
+        "maskHeight": 50,
+        "broll": {
+          "filename": "012_7604124450199571743_Slow walking one of the simplest yet most effective ways to train balance and co.mp4",
+          "category": "Fisioterapia",
+          "url": "/storage/brolls/Fisioterapia/012_7604124450199571743_Slow%20walking%20one%20of%20the%20simplest%20yet%20most%20effective%20ways%20to%20train%20balance%20and%20co.mp4"
+        },
+        "zoom": "zoom_in",
+        "transition": {
+          "type": "corte_seco",
+          "direction": "direita",
+          "sound": "whip",
+          "volume": 100
+        },
+        "texture": {
+          "grain": false,
+          "flash": false
+        },
+        "subtitlePosition": "automatica",
+        "text": "que o ListMe também analisa a minha compra e mostra qual",
+        "label": "Cena 6: Avatar"
+      },
+      {
+        "id": "seg_7",
+        "index": 7,
+        "start": 21,
+        "end": 24.5,
+        "duration": 3.5,
+        "displayMode": "broll",
+        "avatarPosition": "embaixo",
+        "maskType": "suave",
+        "maskHeight": 50,
+        "broll": {
+          "filename": "014_7609722904053288206_Here’s several seated exercises I’ve prescribed for some of the geriatric popula.mp4",
+          "category": "Fisioterapia",
+          "url": "/storage/brolls/Fisioterapia/014_7609722904053288206_Here%E2%80%99s%20several%20seated%20exercises%20I%E2%80%99ve%20prescribed%20for%20some%20of%20the%20geriatric%20popula.mp4"
+        },
+        "zoom": "zoom_in",
+        "transition": {
+          "type": "whip_lateral",
+          "direction": "esquerda",
+          "sound": "whip",
+          "volume": 100
+        },
+        "texture": {
+          "grain": false,
+          "flash": false
+        },
+        "subtitlePosition": "automatica",
+        "text": "mercado próximo oferece o melhor custo-benefício para aquela",
+        "label": "Cena 7: B-Roll"
+      },
+      {
+        "id": "seg_8",
+        "index": 8,
+        "start": 24.5,
+        "end": 28,
+        "duration": 3.5,
+        "displayMode": "avatar",
+        "avatarPosition": "embaixo",
+        "maskType": "suave",
+        "maskHeight": 50,
+        "broll": {
+          "filename": "Copy of  (1).mp4",
+          "category": "Homem - Academia",
+          "url": "/storage/brolls/Homem%20-%20Academia/Copy%20of%20%20(1).mp4"
+        },
+        "zoom": "zoom_out",
+        "transition": {
+          "type": "corte_seco",
+          "direction": "direita",
+          "sound": "whip",
+          "volume": 100
+        },
+        "texture": {
+          "grain": false,
+          "flash": false
+        },
+        "subtitlePosition": "automatica",
+        "text": "aquela lista. Ou seja, Além de facilitar toda a organização,",
+        "label": "Cena 8: Avatar"
+      },
+      {
+        "id": "seg_9",
+        "index": 9,
+        "start": 28,
+        "end": 31.5,
+        "duration": 3.5,
+        "displayMode": "dividida",
+        "avatarPosition": "embaixo",
+        "maskType": "suave",
+        "maskHeight": 50,
+        "broll": {
+          "filename": "Copy of  (10).mp4",
+          "category": "Homem - Academia",
+          "url": "/storage/brolls/Homem%20-%20Academia/Copy%20of%20%20(10).mp4"
+        },
+        "zoom": "zoom_in",
+        "transition": {
+          "type": "blur",
+          "direction": "esquerda",
+          "sound": "whip",
+          "volume": 100
+        },
+        "texture": {
+          "grain": true,
+          "flash": false
+        },
+        "subtitlePosition": "automatica",
+        "text": "ele ainda me ajuda a escolher melhor onde comprar e",
+        "label": "Cena 9: Tela Dividida"
+      },
+      {
+        "id": "seg_10",
+        "index": 10,
+        "start": 31.5,
+        "end": 34,
+        "duration": 2.5,
+        "displayMode": "avatar",
+        "avatarPosition": "embaixo",
+        "maskType": "suave",
+        "maskHeight": 50,
+        "broll": {
+          "filename": "Copy of  (14).mp4",
+          "category": "Homem - Academia",
+          "url": "/storage/brolls/Homem%20-%20Academia/Copy%20of%20%20(14).mp4"
+        },
+        "zoom": "zoom_in",
+        "transition": {
+          "type": "corte_seco",
+          "direction": "direita",
+          "sound": "whip",
+          "volume": 100
+        },
+        "texture": {
+          "grain": false,
+          "flash": false
+        },
+        "subtitlePosition": "automatica",
+        "text": "Clique em Saiba mais e teste o seu",
+        "label": "Cena 10: Avatar"
+      },
+      {
+        "id": "seg_11",
+        "index": 11,
+        "start": 34,
+        "end": 36.42,
+        "duration": 2.42,
+        "displayMode": "broll",
+        "avatarPosition": "embaixo",
+        "maskType": "suave",
+        "maskHeight": 50,
+        "broll": {
+          "filename": "Copy of  (19).mp4",
+          "category": "Homem - Academia",
+          "url": "/storage/brolls/Homem%20-%20Academia/Copy%20of%20%20(19).mp4"
+        },
+        "zoom": "sem_efeito",
+        "transition": {
+          "type": "fade",
+          "direction": "esquerda",
+          "sound": "whip",
+          "volume": 100
+        },
+        "texture": {
+          "grain": false,
+          "flash": false
+        },
+        "subtitlePosition": "automatica",
+        "text": "o seu assistente pessoal de compras por 7 dias.",
+        "label": "Cena 11: B-Roll"
+      }
+    ],
+    "caixinha": null,
+    "isVslMode": false,
+    "createdAt": "2026-09-24T22:33:36.508Z",
+    "thumbnailUrl": "/storage/uploads/thumbnails/thumb_1790289216509_avatar_1790289216079_618.jpg",
+    "durationSec": 36,
+    "durationFormatted": "0:36",
+    "updatedAt": "2026-09-24T22:33:54.628Z",
+    "transcript": {
+      "text": "Esse aqui é o ListMe, o meu assistente pessoal de compras. Sempre que preciso ir ao mercado, eu mando uma mensagem, um áudio ou até uma foto com os produtos que quero comprar. Ele monta minha lista, organiza todos os itens por categorias e deixa tudo pronto para eu não esquecer nada. Mas o que eu mais gosto é que o ListMe também analisa a minha compra e mostra qual mercado próximo oferece o melhor custo-benefício para aquela lista. Ou seja, Além de facilitar toda a organização, ele ainda me ajuda a escolher melhor onde comprar e economizar. Clique em Saiba mais e teste o seu assistente pessoal de compras por 7 dias.",
+      "words": [
+        {
+          "word": "Esse",
+          "start": 0.112,
+          "end": 0.224,
+          "confidence": 0.9956093
+        },
+        {
+          "word": "aqui",
+          "start": 0.272,
+          "end": 0.369,
+          "confidence": 0.998317
+        },
+        {
+          "word": "é",
+          "start": 0.369,
+          "end": 0.529,
+          "confidence": 0.9999546
+        },
+        {
+          "word": "o",
+          "start": 0.529,
+          "end": 0.577,
+          "confidence": 0.99996054
+        },
+        {
+          "word": "ListMe,",
+          "start": 0.577,
+          "end": 0.93,
+          "confidence": 0.8569173
+        },
+        {
+          "word": "o",
+          "start": 1.235,
+          "end": 1.251,
+          "confidence": 0.9978606
+        },
+        {
+          "word": "meu",
+          "start": 1.251,
+          "end": 1.476,
+          "confidence": 0.99995196
+        },
+        {
+          "word": "assistente",
+          "start": 1.476,
+          "end": 1.99,
+          "confidence": 0.9999251
+        },
+        {
+          "word": "pessoal",
+          "start": 2.022,
+          "end": 2.423,
+          "confidence": 0.9999013
+        },
+        {
+          "word": "de",
+          "start": 2.423,
+          "end": 2.503,
+          "confidence": 0.9999713
+        },
+        {
+          "word": "compras.",
+          "start": 2.503,
+          "end": 3.033,
+          "confidence": 0.9977027
+        },
+        {
+          "word": "Sempre",
+          "start": 3.225,
+          "end": 3.514,
+          "confidence": 0.99981743
+        },
+        {
+          "word": "que",
+          "start": 3.546,
+          "end": 3.627,
+          "confidence": 0.9999697
+        },
+        {
+          "word": "preciso",
+          "start": 3.627,
+          "end": 4.06,
+          "confidence": 0.9990552
+        },
+        {
+          "word": "ir",
+          "start": 4.124,
+          "end": 4.204,
+          "confidence": 0.99992955
+        },
+        {
+          "word": "ao",
+          "start": 4.204,
+          "end": 4.269,
+          "confidence": 0.99987745
+        },
+        {
+          "word": "mercado,",
+          "start": 4.269,
+          "end": 4.798,
+          "confidence": 0.9987773
+        },
+        {
+          "word": "eu",
+          "start": 4.846,
+          "end": 4.943,
+          "confidence": 0.9995034
+        },
+        {
+          "word": "mando",
+          "start": 4.943,
+          "end": 5.167,
+          "confidence": 0.9999798
+        },
+        {
+          "word": "uma",
+          "start": 5.167,
+          "end": 5.264,
+          "confidence": 0.9998535
+        },
+        {
+          "word": "mensagem,",
+          "start": 5.264,
+          "end": 6.002,
+          "confidence": 0.9998105
+        },
+        {
+          "word": "um",
+          "start": 6.211,
+          "end": 6.371,
+          "confidence": 0.9999038
+        },
+        {
+          "word": "áudio",
+          "start": 6.371,
+          "end": 6.805,
+          "confidence": 0.99998045
+        },
+        {
+          "word": "ou",
+          "start": 6.933,
+          "end": 7.045,
+          "confidence": 0.9592451
+        },
+        {
+          "word": "até",
+          "start": 7.093,
+          "end": 7.254,
+          "confidence": 0.99988365
+        },
+        {
+          "word": "uma",
+          "start": 7.254,
+          "end": 7.398,
+          "confidence": 0.9997738
+        },
+        {
+          "word": "foto",
+          "start": 7.398,
+          "end": 7.687,
+          "confidence": 0.99998224
+        },
+        {
+          "word": "com",
+          "start": 7.719,
+          "end": 7.816,
+          "confidence": 0.9993235
+        },
+        {
+          "word": "os",
+          "start": 7.816,
+          "end": 7.96,
+          "confidence": 0.99995863
+        },
+        {
+          "word": "produtos",
+          "start": 7.96,
+          "end": 8.361,
+          "confidence": 0.9999771
+        },
+        {
+          "word": "que",
+          "start": 8.361,
+          "end": 8.442,
+          "confidence": 0.9998766
+        },
+        {
+          "word": "quero",
+          "start": 8.442,
+          "end": 8.666,
+          "confidence": 0.998756
+        },
+        {
+          "word": "comprar.",
+          "start": 8.666,
+          "end": 9.051,
+          "confidence": 0.99960715
+        },
+        {
+          "word": "Ele",
+          "start": 9.26,
+          "end": 9.405,
+          "confidence": 0.998733
+        },
+        {
+          "word": "monta",
+          "start": 9.405,
+          "end": 9.758,
+          "confidence": 0.99997294
+        },
+        {
+          "word": "minha",
+          "start": 9.758,
+          "end": 9.934,
+          "confidence": 0.58824164
+        },
+        {
+          "word": "lista,",
+          "start": 9.95,
+          "end": 10.335,
+          "confidence": 0.9999091
+        },
+        {
+          "word": "organiza",
+          "start": 10.351,
+          "end": 11.058,
+          "confidence": 0.9998433
+        },
+        {
+          "word": "todos",
+          "start": 11.09,
+          "end": 11.427,
+          "confidence": 0.99992716
+        },
+        {
+          "word": "os",
+          "start": 11.427,
+          "end": 11.587,
+          "confidence": 0.9999883
+        },
+        {
+          "word": "itens",
+          "start": 11.587,
+          "end": 11.972,
+          "confidence": 0.9999738
+        },
+        {
+          "word": "por",
+          "start": 11.972,
+          "end": 12.133,
+          "confidence": 0.9997799
+        },
+        {
+          "word": "categorias",
+          "start": 12.133,
+          "end": 12.839,
+          "confidence": 0.9999902
+        },
+        {
+          "word": "e",
+          "start": 13.112,
+          "end": 13.176,
+          "confidence": 0.99891603
+        },
+        {
+          "word": "deixa",
+          "start": 13.176,
+          "end": 13.417,
+          "confidence": 0.9999354
+        },
+        {
+          "word": "tudo",
+          "start": 13.417,
+          "end": 13.658,
+          "confidence": 0.9999168
+        },
+        {
+          "word": "pronto",
+          "start": 13.658,
+          "end": 13.979,
+          "confidence": 0.9998411
+        },
+        {
+          "word": "para",
+          "start": 13.979,
+          "end": 14.219,
+          "confidence": 0.86638415
+        },
+        {
+          "word": "eu",
+          "start": 14.316,
+          "end": 14.332,
+          "confidence": 0.9997259
+        },
+        {
+          "word": "não",
+          "start": 14.332,
+          "end": 14.492,
+          "confidence": 0.9999504
+        },
+        {
+          "word": "esquecer",
+          "start": 14.492,
+          "end": 14.813,
+          "confidence": 0.9999514
+        },
+        {
+          "word": "nada.",
+          "start": 14.813,
+          "end": 15.15,
+          "confidence": 0.9952802
+        },
+        {
+          "word": "Mas",
+          "start": 15.343,
+          "end": 15.921,
+          "confidence": 0.99578935
+        },
+        {
+          "word": "o",
+          "start": 15.921,
+          "end": 15.985,
+          "confidence": 0.9941962
+        },
+        {
+          "word": "que",
+          "start": 15.985,
+          "end": 16.081,
+          "confidence": 0.9999026
+        },
+        {
+          "word": "eu",
+          "start": 16.081,
+          "end": 16.113,
+          "confidence": 0.99994636
+        },
+        {
+          "word": "mais",
+          "start": 16.145,
+          "end": 16.466,
+          "confidence": 0.99993706
+        },
+        {
+          "word": "gosto",
+          "start": 16.466,
+          "end": 17.028,
+          "confidence": 0.9999216
+        },
+        {
+          "word": "é",
+          "start": 17.285,
+          "end": 17.429,
+          "confidence": 0.9996697
+        },
+        {
+          "word": "que",
+          "start": 17.429,
+          "end": 17.461,
+          "confidence": 0.9997632
+        },
+        {
+          "word": "o",
+          "start": 17.461,
+          "end": 17.526,
+          "confidence": 0.9996382
+        },
+        {
+          "word": "ListMe",
+          "start": 17.526,
+          "end": 17.911,
+          "confidence": 0.99996287
+        },
+        {
+          "word": "também",
+          "start": 17.911,
+          "end": 18.248,
+          "confidence": 0.99979025
+        },
+        {
+          "word": "analisa",
+          "start": 18.248,
+          "end": 18.729,
+          "confidence": 0.9999204
+        },
+        {
+          "word": "a",
+          "start": 18.729,
+          "end": 18.745,
+          "confidence": 0.9934818
+        },
+        {
+          "word": "minha",
+          "start": 18.745,
+          "end": 19.195,
+          "confidence": 0.9996743
+        },
+        {
+          "word": "compra",
+          "start": 19.275,
+          "end": 19.756,
+          "confidence": 0.9978382
+        },
+        {
+          "word": "e",
+          "start": 20.174,
+          "end": 20.19,
+          "confidence": 0.99936444
+        },
+        {
+          "word": "mostra",
+          "start": 20.19,
+          "end": 20.719,
+          "confidence": 0.9995771
+        },
+        {
+          "word": "qual",
+          "start": 20.719,
+          "end": 20.88,
+          "confidence": 0.99978226
+        },
+        {
+          "word": "mercado",
+          "start": 20.88,
+          "end": 21.361,
+          "confidence": 0.9110339
+        },
+        {
+          "word": "próximo",
+          "start": 21.361,
+          "end": 21.875,
+          "confidence": 0.9998111
+        },
+        {
+          "word": "oferece",
+          "start": 22.26,
+          "end": 22.694,
+          "confidence": 0.9999509
+        },
+        {
+          "word": "o",
+          "start": 22.742,
+          "end": 22.758,
+          "confidence": 0.9996886
+        },
+        {
+          "word": "melhor",
+          "start": 22.758,
+          "end": 23.352,
+          "confidence": 0.9998543
+        },
+        {
+          "word": "custo-benefício",
+          "start": 23.368,
+          "end": 24.17,
+          "confidence": 0.99998116
+        },
+        {
+          "word": "para",
+          "start": 24.17,
+          "end": 24.331,
+          "confidence": 0.99531317
+        },
+        {
+          "word": "aquela",
+          "start": 24.347,
+          "end": 24.652,
+          "confidence": 0.99989045
+        },
+        {
+          "word": "lista.",
+          "start": 24.652,
+          "end": 25.021,
+          "confidence": 0.9565792
+        },
+        {
+          "word": "Ou",
+          "start": 25.229,
+          "end": 25.294,
+          "confidence": 0.9919585
+        },
+        {
+          "word": "seja,",
+          "start": 25.294,
+          "end": 25.727,
+          "confidence": 0.99064964
+        },
+        {
+          "word": "Além",
+          "start": 26.032,
+          "end": 26.305,
+          "confidence": 0.99283415
+        },
+        {
+          "word": "de",
+          "start": 26.417,
+          "end": 26.498,
+          "confidence": 0.9999542
+        },
+        {
+          "word": "facilitar",
+          "start": 26.498,
+          "end": 27.028,
+          "confidence": 0.9998732
+        },
+        {
+          "word": "toda",
+          "start": 27.06,
+          "end": 27.204,
+          "confidence": 0.999616
+        },
+        {
+          "word": "a",
+          "start": 27.237,
+          "end": 27.317,
+          "confidence": 0.99595636
+        },
+        {
+          "word": "organização,",
+          "start": 27.317,
+          "end": 28.136,
+          "confidence": 0.9991612
+        },
+        {
+          "word": "ele",
+          "start": 28.682,
+          "end": 28.875,
+          "confidence": 0.9997714
+        },
+        {
+          "word": "ainda",
+          "start": 28.923,
+          "end": 29.309,
+          "confidence": 0.9995819
+        },
+        {
+          "word": "me",
+          "start": 29.309,
+          "end": 29.405,
+          "confidence": 0.9996995
+        },
+        {
+          "word": "ajuda",
+          "start": 29.405,
+          "end": 29.79,
+          "confidence": 0.999983
+        },
+        {
+          "word": "a",
+          "start": 29.806,
+          "end": 29.871,
+          "confidence": 0.9999027
+        },
+        {
+          "word": "escolher",
+          "start": 29.871,
+          "end": 30.16,
+          "confidence": 0.9987327
+        },
+        {
+          "word": "melhor",
+          "start": 30.16,
+          "end": 30.449,
+          "confidence": 0.99904555
+        },
+        {
+          "word": "onde",
+          "start": 30.449,
+          "end": 30.754,
+          "confidence": 0.99810624
+        },
+        {
+          "word": "comprar",
+          "start": 30.754,
+          "end": 31.172,
+          "confidence": 0.99983835
+        },
+        {
+          "word": "e",
+          "start": 31.172,
+          "end": 31.204,
+          "confidence": 0.99944395
+        },
+        {
+          "word": "economizar.",
+          "start": 31.252,
+          "end": 31.766,
+          "confidence": 0.98924094
+        },
+        {
+          "word": "Clique",
+          "start": 31.878,
+          "end": 32.296,
+          "confidence": 0.99933344
+        },
+        {
+          "word": "em",
+          "start": 32.296,
+          "end": 32.344,
+          "confidence": 0.99975735
+        },
+        {
+          "word": "Saiba",
+          "start": 32.441,
+          "end": 32.794,
+          "confidence": 0.9627054
+        },
+        {
+          "word": "mais",
+          "start": 32.794,
+          "end": 33.34,
+          "confidence": 0.5797092
+        },
+        {
+          "word": "e",
+          "start": 33.581,
+          "end": 33.645,
+          "confidence": 0.9953347
+        },
+        {
+          "word": "teste",
+          "start": 33.726,
+          "end": 33.918,
+          "confidence": 0.9989913
+        },
+        {
+          "word": "o",
+          "start": 33.918,
+          "end": 33.966,
+          "confidence": 0.999617
+        },
+        {
+          "word": "seu",
+          "start": 33.966,
+          "end": 34.095,
+          "confidence": 0.9996024
+        },
+        {
+          "word": "assistente",
+          "start": 34.143,
+          "end": 34.609,
+          "confidence": 0.81056637
+        },
+        {
+          "word": "pessoal",
+          "start": 34.609,
+          "end": 34.93,
+          "confidence": 0.99982
+        },
+        {
+          "word": "de",
+          "start": 34.93,
+          "end": 35.01,
+          "confidence": 0.9999306
+        },
+        {
+          "word": "compras",
+          "start": 35.091,
+          "end": 35.412,
+          "confidence": 0.99999464
+        },
+        {
+          "word": "por",
+          "start": 35.412,
+          "end": 35.573,
+          "confidence": 0.99921393
+        },
+        {
+          "word": "7",
+          "start": 35.573,
+          "end": 35.926,
+          "confidence": 0.9999659
+        },
+        {
+          "word": "dias.",
+          "start": 36.054,
+          "end": 36.424,
+          "confidence": 0.88249207
+        }
+      ],
+      "segments": []
+    },
+    "headline": {
+      "text": "PARE DE ESQUECER ITENS E ENCONTRAR MERCADOS CAROS!",
+      "style": "block",
+      "bgColor": "#dc2626",
+      "textColor": "#ffffff",
+      "position": "avatar"
+    }
+  }
+]
