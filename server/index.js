@@ -376,6 +376,45 @@ app.get('/api/projects', (req, res) => {
   }
 });
 
+// List Rendered Outputs
+app.get('/api/projects/outputs', (req, res) => {
+  try {
+    const outputsDir = path.join(__dirname, 'storage', 'outputs');
+    if (!fs.existsSync(outputsDir)) return res.json([]);
+
+    const files = fs.readdirSync(outputsDir)
+      .filter(f => /\.(mp4|mov)$/i.test(f))
+      .map(f => {
+        const stats = fs.statSync(path.join(outputsDir, f));
+        return {
+          filename: f,
+          url: `/storage/outputs/${encodeURIComponent(f)}`,
+          size: stats.size,
+          createdAt: stats.mtime
+        };
+      })
+      .sort((a, b) => b.createdAt - a.createdAt);
+
+    res.json(files);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Download Rendered Video directly as attachment
+app.get('/api/projects/download/:filename', (req, res) => {
+  try {
+    const filename = path.basename(req.params.filename);
+    const filePath = path.join(__dirname, 'storage', 'outputs', filename);
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ error: 'Arquivo de vídeo não encontrado' });
+    }
+    res.download(filePath, filename);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.get('/api/projects/:id', (req, res) => {
   try {
     const proj = getProjectById(req.params.id);
@@ -503,31 +542,6 @@ app.post('/api/projects/render', async (req, res) => {
     res.json(result);
   } catch (err) {
     console.error('Render error:', err);
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// 5. List Rendered Outputs
-app.get('/api/projects/outputs', (req, res) => {
-  try {
-    const outputsDir = path.join(__dirname, 'storage', 'outputs');
-    if (!fs.existsSync(outputsDir)) return res.json([]);
-
-    const files = fs.readdirSync(outputsDir)
-      .filter(f => /\.(mp4|mov)$/i.test(f))
-      .map(f => {
-        const stats = fs.statSync(path.join(outputsDir, f));
-        return {
-          filename: f,
-          url: `/storage/outputs/${encodeURIComponent(f)}`,
-          size: stats.size,
-          createdAt: stats.mtime
-        };
-      })
-      .sort((a, b) => b.createdAt - a.createdAt);
-
-    res.json(files);
-  } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });

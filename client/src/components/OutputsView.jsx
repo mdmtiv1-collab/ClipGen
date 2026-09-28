@@ -7,6 +7,29 @@ export default function OutputsView() {
   const [outputs, setOutputs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeVideo, setActiveVideo] = useState(null);
+  const [downloadingFile, setDownloadingFile] = useState(null);
+
+  const downloadVideo = async (filename) => {
+    if (!filename) return;
+    setDownloadingFile(filename);
+    try {
+      const res = await fetch(`${API_BASE}/api/projects/download/${encodeURIComponent(filename)}`);
+      if (!res.ok) throw new Error('Download failed');
+      const blob = await res.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => window.URL.revokeObjectURL(blobUrl), 3000);
+    } catch (err) {
+      window.open(`${API_BASE}/api/projects/download/${encodeURIComponent(filename)}`, '_blank');
+    } finally {
+      setDownloadingFile(null);
+    }
+  };
 
   const fetchOutputs = async () => {
     try {
@@ -69,14 +92,24 @@ export default function OutputsView() {
                 className="w-full h-full object-cover"
               />
             </div>
-            <a
-              href={`${API_BASE}${activeVideo.url}`}
-              download={activeVideo.filename}
-              className="w-full py-3 rounded-xl bg-[#C5F955] hover:bg-[#b8ea44] text-[#111315] font-medium text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
+            <button
+              type="button"
+              onClick={() => downloadVideo(activeVideo.filename)}
+              disabled={downloadingFile === activeVideo.filename}
+              className="w-full py-3 rounded-xl bg-[#C5F955] hover:bg-[#b8ea44] text-[#111315] font-bold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-lg shadow-lime-950/30 disabled:opacity-50"
             >
-              <Download className="w-4 h-4 stroke-[2.5]" />
-              <span>Baixar Arquivo MP4</span>
-            </a>
+              {downloadingFile === activeVideo.filename ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                  <span>Baixando para o computador...</span>
+                </>
+              ) : (
+                <>
+                  <Download className="w-4 h-4 stroke-[2.5]" />
+                  <span>Baixar Arquivo MP4</span>
+                </>
+              )}
+            </button>
           </div>
         </div>
       )}
@@ -119,14 +152,24 @@ export default function OutputsView() {
                   </div>
                 </div>
 
-                <a
-                  href={`${API_BASE}${item.url}`}
-                  download={item.filename}
-                  className="w-full py-2 rounded-xl bg-[#181c21] hover:bg-[#1f242b] border border-[#21252b] text-[#C5F955] text-xs font-medium flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                <button
+                  type="button"
+                  onClick={() => downloadVideo(item.filename)}
+                  disabled={downloadingFile === item.filename}
+                  className="w-full py-2 rounded-xl bg-[#181c21] hover:bg-[#1f242b] border border-[#21252b] text-[#C5F955] text-xs font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer disabled:opacity-50"
                 >
-                  <Download className="w-3.5 h-3.5 stroke-[2.5]" />
-                  <span>Download MP4</span>
-                </a>
+                  {downloadingFile === item.filename ? (
+                    <>
+                      <div className="w-3.5 h-3.5 border-2 border-[#C5F955] border-t-transparent rounded-full animate-spin" />
+                      <span>Baixando...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Download className="w-3.5 h-3.5 stroke-[2.5]" />
+                      <span>Download MP4</span>
+                    </>
+                  )}
+                </button>
               </div>
             </div>
           ))}

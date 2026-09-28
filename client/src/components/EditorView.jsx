@@ -641,6 +641,9 @@ export default function EditorView({
   const [sceneSaveFeedback, setSceneSaveFeedback] = useState(false);
   const [isRendering, setIsRendering] = useState(false);
   const [renderProgress, setRenderProgress] = useState('');
+  const [renderedResult, setRenderedResult] = useState(null);
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [projectTitle, setProjectTitle] = useState(project.title || 'Anúncio sem título');
 
@@ -1344,7 +1347,34 @@ export default function EditorView({
     return allAvailableBrolls.slice(0, 4);
   }, [allAvailableBrolls]);
 
-  // Render Final Video with FFmpeg
+  // Download video helper directly to user's computer via blob / attachment
+  const handleDownloadVideo = async (url, filename) => {
+    setIsDownloading(true);
+    try {
+      const cleanName = filename || (url ? url.split('/').pop() : 'anuncio_clipgen.mp4');
+      const downloadEndpoint = `${API_BASE}/api/projects/download/${encodeURIComponent(cleanName)}`;
+      
+      const res = await fetch(downloadEndpoint);
+      if (!res.ok) throw new Error('Download failed');
+      const blob = await res.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = cleanName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => window.URL.revokeObjectURL(blobUrl), 3000);
+    } catch (err) {
+      console.warn('Direct blob download fallback:', err);
+      const cleanName = filename || (url ? url.split('/').pop() : 'anuncio_clipgen.mp4');
+      window.open(`${API_BASE}/api/projects/download/${encodeURIComponent(cleanName)}`, '_blank');
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  // Render Final Video with FFmpeg and Auto-Download (VibeCut-like)
   const handleRenderFinal = async () => {
     setIsRendering(true);
     setRenderProgress('Processando corte e sincronização com FFmpeg...');
@@ -1380,9 +1410,12 @@ export default function EditorView({
 
       const data = await res.json();
       setIsRendering(false);
-      if (onRenderSuccess) {
-        onRenderSuccess(data);
-      }
+      setRenderedResult(data);
+      setShowExportModal(true);
+
+      // Auto-trigger direct download to user's computer just like VibeCut
+      const downloadFilename = data.outputFilename || (data.videoUrl ? data.videoUrl.split('/').pop() : 'anuncio_clipgen.mp4');
+      handleDownloadVideo(data.videoUrl || data.url, downloadFilename);
     } catch (err) {
       alert('Erro na renderização: ' + err.message);
       setIsRendering(false);
@@ -2007,16 +2040,17 @@ export default function EditorView({
             onClick={handleRenderFinal}
             disabled={isRendering}
             className="px-4 py-1.5 rounded-xl bg-[#C5F955] hover:bg-[#b2e847] text-black font-bold text-xs transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50 shadow-md shadow-lime-950/30"
+            title="Exporta o vídeo final em Full HD e baixa direto para o seu computador"
           >
             {isRendering ? (
               <>
                 <div className="w-3.5 h-3.5 border-2 border-black border-t-transparent rounded-full animate-spin" />
-                <span>{renderProgress || 'Renderizando...'}</span>
+                <span>{renderProgress || 'Exportando...'}</span>
               </>
             ) : (
               <>
-                <Sparkles className="w-3.5 h-3.5 stroke-[2.5]" />
-                <span>Renderizar vídeo</span>
+                <Download className="w-3.5 h-3.5 stroke-[2.5]" />
+                <span>Exportar e Baixar</span>
               </>
             )}
           </button>
@@ -4495,6 +4529,100 @@ export default function EditorView({
                   Nenhum B-roll encontrado nesta categoria.
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* EXPORT SUCCESS & DIRECT DOWNLOAD MODAL (Idêntico ao VibeCut) */}
+      {showExportModal && renderedResult && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#14171C] border border-[#282C34] rounded-2xl max-w-sm w-full p-5 space-y-4 shadow-2xl shadow-black/90">
+            {/* Header */}
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-[#C5F955]/15 border border-[#C5F955]/40 flex items-center justify-center text-[#C5F955] shrink-0">
+                  <CheckCircle2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-[#F5F5F0]">Vídeo Pronto para Download!</h3>
+                  <p className="text-[11px] text-[#92978F]">Exportado em 1080x1920 (9:16 Full HD)</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowExportModal(false)}
+                className="text-[#92978F] hover:text-[#F5F5F0] p-1 rounded-lg hover:bg-[#1F242C] transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Video Player Preview */}
+            <div className="relative aspect-[9/16] max-h-[300px] mx-auto bg-black rounded-xl overflow-hidden border border-[#282C34] shadow-inner">
+              <video
+                src={`${API_BASE}${renderedResult.videoUrl || renderedResult.url}`}
+                controls
+                autoPlay
+                playsInline
+                className="w-full h-full object-cover"
+              />
+            </div>
+
+            {/* Status Feedback */}
+            <div className="p-2.5 rounded-xl bg-[#0D0E11] border border-[#21252B] space-y-1 text-xs">
+              <div className="flex items-center justify-between text-[#92978F]">
+                <span className="text-[11px]">Arquivo:</span>
+                <span className="font-mono text-[#F5F5F0] text-[10px] truncate max-w-[190px]">
+                  {renderedResult.outputFilename}
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5 text-[#C5F955] text-[10px] pt-0.5">
+                <Check className="w-3 h-3 shrink-0" />
+                <span>Download iniciado direto para seu computador!</span>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="space-y-2">
+              <button
+                type="button"
+                onClick={() => handleDownloadVideo(renderedResult.videoUrl || renderedResult.url, renderedResult.outputFilename)}
+                disabled={isDownloading}
+                className="w-full py-2.5 rounded-xl bg-[#C5F955] hover:bg-[#b2e847] text-black font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-lime-950/40 disabled:opacity-50"
+              >
+                {isDownloading ? (
+                  <>
+                    <div className="w-3.5 h-3.5 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                    <span>Baixando arquivo...</span>
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-4 h-4 stroke-[2.5]" />
+                    <span>Baixar Novamente (.mp4)</span>
+                  </>
+                )}
+              </button>
+
+              <div className="flex items-center gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setShowExportModal(false)}
+                  className="flex-1 py-2 rounded-xl bg-[#181B20] hover:bg-[#21252B] border border-[#282C34] text-[#F5F5F0] text-xs font-semibold transition-colors cursor-pointer text-center"
+                >
+                  Continuar no Editor
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowExportModal(false);
+                    if (onRenderSuccess) onRenderSuccess(renderedResult);
+                  }}
+                  className="flex-1 py-2 rounded-xl bg-[#181B20] hover:bg-[#21252B] border border-[#282C34] text-[#92978F] hover:text-[#C5F955] text-xs font-semibold transition-colors cursor-pointer text-center"
+                >
+                  Ver Todos os Vídeos
+                </button>
+              </div>
             </div>
           </div>
         </div>
