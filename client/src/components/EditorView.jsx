@@ -668,6 +668,11 @@ export default function EditorView({
   const timelineScrollRef = useRef(null);
   const avatarFramingBoxRef = useRef(null);
   const brollFramingBoxRef = useRef(null);
+  const cutoutCanvasRef = useRef(null);
+  const selfieSegRef = useRef(null);
+  const isSegBusyRef = useRef(false);
+  const segAnimFrameRef = useRef(null);
+  const [isSegLoading, setIsSegLoading] = useState(false);
 
   const activeSegment = segments[selectedSegIndex] || segments[0];
 
@@ -984,6 +989,119 @@ export default function EditorView({
       videoRef.current.playbackRate = avatarSpeed;
     }
   }, [avatarSpeed]);
+
+  // Initialize MediaPipe AI Selfie Segmentation for Recorte Mode
+  useEffect(() => {
+    let checkInterval = null;
+    const initSelfieSeg = () => {
+      if (selfieSegRef.current || typeof window === 'undefined' || !window.SelfieSegmentation) return;
+      try {
+        setIsSegLoading(true);
+        const seg = new window.SelfieSegmentation({
+          locateFile: (file) => `/mediapipe/${file}`
+        });
+        seg.setOptions({
+          modelSelection: 1, // landscape: faster, covers full body/torso accurately
+          selfieMode: false
+        });
+        seg.onResults((results) => {
+          isSegBusyRef.current = false;
+          setIsSegLoading(false);
+          const canvas = cutoutCanvasRef.current;
+          if (!canvas) return;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) return;
+
+          const w = results.image.width || 720;
+          const h = results.image.height || 1280;
+
+          if (canvas.width !== w || canvas.height !== h) {
+            canvas.width = w;
+            canvas.height = h;
+          }
+
+          ctx.save();
+          ctx.clearRect(0, 0, w, h);
+
+          // 1. Draw segmentation mask with soft blur for antialiasing
+          ctx.filter = 'blur(1px)';
+          ctx.drawImage(results.segmentationMask, 0, 0, w, h);
+          ctx.filter = 'none';
+
+          // 2. Keep only where mask exists (person outline)
+          ctx.globalCompositeOperation = 'source-in';
+
+          // 3. Draw video frame
+          ctx.drawImage(results.image, 0, 0, w, h);
+
+          ctx.restore();
+        });
+        selfieSegRef.current = seg;
+      } catch (err) {
+        console.warn('Failed to init SelfieSegmentation:', err);
+        setIsSegLoading(false);
+      }
+    };
+
+    if (typeof window !== 'undefined' && window.SelfieSegmentation) {
+      initSelfieSeg();
+    } else {
+      checkInterval = setInterval(() => {
+        if (typeof window !== 'undefined' && window.SelfieSegmentation) {
+          clearInterval(checkInterval);
+          initSelfieSeg();
+        }
+      }, 150);
+    }
+
+    return () => {
+      if (checkInterval) clearInterval(checkInterval);
+    };
+  }, []);
+
+  // Frame processing loop when in Recorte (avatar-overlay) mode
+  useEffect(() => {
+    if (currentMode !== 'avatar-overlay') return;
+
+    let isAlive = true;
+
+    const processFrame = async () => {
+      if (!isAlive) return;
+      const v = videoRef.current;
+      const seg = selfieSegRef.current;
+
+      if (v && seg && v.readyState >= 2 && !v.ended) {
+        if (!isSegBusyRef.current) {
+          isSegBusyRef.current = true;
+          try {
+            await seg.send({ image: v });
+          } catch (e) {
+            isSegBusyRef.current = false;
+          }
+        }
+      }
+      segAnimFrameRef.current = requestAnimationFrame(processFrame);
+    };
+
+    segAnimFrameRef.current = requestAnimationFrame(processFrame);
+
+    // Initial frame on scene enter / mode switch
+    const v = videoRef.current;
+    const seg = selfieSegRef.current;
+    if (v && seg && v.readyState >= 2 && !isSegBusyRef.current) {
+      isSegBusyRef.current = true;
+      seg.send({ image: v }).catch(() => {
+        isSegBusyRef.current = false;
+      });
+    }
+
+    return () => {
+      isAlive = false;
+      if (segAnimFrameRef.current) {
+        cancelAnimationFrame(segAnimFrameRef.current);
+      }
+    };
+  }, [currentMode, activeSegment?.id, selectedSegIndex]);
 
   // Toggle Play / Pause
   const togglePlay = () => {
@@ -1929,7 +2047,7 @@ export default function EditorView({
             <div
               className="absolute inset-0 overflow-hidden transition-all duration-300 pointer-events-none"
               style={{
-                opacity: currentMode === 'broll-full' ? 0 : 1,
+                opacity: currentMode === 'broll-full' || currentMode === 'avatar-overlay' ? 0 : 1,
                 ...(isSplitMode
                   ? isAvatarTop
                     ? {
@@ -1951,16 +2069,6 @@ export default function EditorView({
                         WebkitMaskImage: 'none',
                         maskImage: 'none'
                       }
-                  : currentMode === 'avatar-overlay'
-                  ? {
-                      top: '25%',
-                      bottom: 0,
-                      height: '75%',
-                      zIndex: 2,
-                      display: 'flex',
-                      alignItems: 'flex-end',
-                      justifyContent: 'center'
-                    }
                   : {
                       top: 0,
                       left: 0,
@@ -1973,7 +2081,7 @@ export default function EditorView({
               <video
                 ref={videoRef}
                 src={project.baseVideo?.url ? `${API_BASE}${project.baseVideo.url}` : ''}
-                className={`w-full ${currentMode === 'avatar-overlay' ? 'h-full object-contain' : currentMode === 'split-screen' ? 'object-cover' : 'h-full object-cover'} transition-all duration-150`}
+                className={`w-full ${currentMode === 'split-screen' ? 'object-cover' : 'h-full object-cover'} transition-all duration-150`}
                 style={{
                   ...(currentMode === 'split-screen'
                     ? {
@@ -1992,6 +2100,34 @@ export default function EditorView({
                 muted={isMuted}
               />
             </div>
+
+            {/* CUTOUT AVATAR LAYER (Recorte IA - Somente o Avatar sem o Cenário) */}
+            {currentMode === 'avatar-overlay' && (
+              <div
+                className="absolute pointer-events-none z-5 flex items-end justify-center transition-all duration-150"
+                style={{
+                  bottom: 0,
+                  height: `${activeSegment?.avatarRecorteScale || 80}%`,
+                  width: '60%',
+                  ...(activeSegment?.avatarRecortePosition === 'esquerda'
+                    ? { left: '2%' }
+                    : activeSegment?.avatarRecortePosition === 'centro'
+                    ? { left: '50%', transform: 'translateX(-50%)', width: '75%' }
+                    : { right: '2%' })
+                }}
+              >
+                <canvas
+                  ref={cutoutCanvasRef}
+                  className="w-full h-full object-contain drop-shadow-[0_10px_25px_rgba(0,0,0,0.65)]"
+                />
+                {isSegLoading && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-xs rounded-xl text-[10px] text-white font-semibold">
+                    <Sparkles className="w-3.5 h-3.5 text-[#C5F955] animate-spin mr-1.5" />
+                    Processando recorte IA...
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* SPLIT SCREEN MASK SEAM: BLUR GRADIENTE ESFUMAÇADO (Fiel ao VibeCut - Foto 1) */}
             {currentMode === 'split-screen' && (
@@ -2551,6 +2687,62 @@ export default function EditorView({
                               </div>
                             </div>
                           )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Recorte (Cutout) options when Recorte is selected */}
+                    {currentMode === 'avatar-overlay' && (
+                      <div className="p-3.5 rounded-xl bg-[#111315] border border-[#21252B] space-y-3">
+                        {/* Posição do avatar */}
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-[11px] font-semibold text-[#92978F] uppercase tracking-wider">
+                            Posição do avatar
+                          </span>
+                          <div className="flex items-center gap-1.5">
+                            {[
+                              { id: 'esquerda', label: 'Esquerda' },
+                              { id: 'direita', label: 'Direita' },
+                              { id: 'centro', label: 'Centro' }
+                            ].map(pos => (
+                              <button
+                                key={pos.id}
+                                type="button"
+                                onClick={() => updateActiveSegment({ avatarRecortePosition: pos.id })}
+                                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                                  (activeSegment?.avatarRecortePosition || 'direita') === pos.id
+                                    ? 'bg-[#C5F955] text-black shadow-sm'
+                                    : 'bg-[#181B20] border border-[#282C34] text-[#92978F] hover:text-white'
+                                }`}
+                              >
+                                {pos.label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Tamanho do avatar no recorte */}
+                        <div className="space-y-1.5 pt-2 border-t border-[#21252B]">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-[#92978F] text-[11px]">Tamanho do avatar</span>
+                            <span className="font-mono text-[#F5F5F0] text-[11px]">
+                              {activeSegment?.avatarRecorteScale || 80}%
+                            </span>
+                          </div>
+                          <input
+                            type="range"
+                            min="50"
+                            max="100"
+                            step="5"
+                            value={activeSegment?.avatarRecorteScale || 80}
+                            onChange={e => updateActiveSegment({ avatarRecorteScale: parseInt(e.target.value) })}
+                            className="w-full accent-[#C5F955] h-1.5 bg-[#21252B] rounded cursor-pointer"
+                          />
+                        </div>
+
+                        <div className="flex items-center gap-2 text-[10px] text-[#C5F955] pt-1">
+                          <Sparkles className="w-3.5 h-3.5 shrink-0" />
+                          <span>Recorte por IA ativo: todo o cenário é removido</span>
                         </div>
                       </div>
                     )}
@@ -4089,7 +4281,13 @@ export default function EditorView({
                           }}
                         />
                       )}
-                      <div className="absolute right-0 bottom-0 w-3/4 h-3/4 pointer-events-none overflow-hidden flex items-end justify-center">
+                      <div
+                        className="absolute right-0 bottom-0 w-3/4 h-3/4 pointer-events-none overflow-hidden flex items-end justify-center"
+                        style={{
+                          WebkitMaskImage: 'radial-gradient(ellipse 70% 80% at 50% 65%, black 45%, transparent 95%)',
+                          maskImage: 'radial-gradient(ellipse 70% 80% at 50% 65%, black 45%, transparent 95%)'
+                        }}
+                      >
                         {project.baseVideo?.url ? (
                           <video
                             src={`${API_BASE}${project.baseVideo.url}`}

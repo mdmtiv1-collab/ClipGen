@@ -119,6 +119,38 @@ function renderVideo({
           const nextVTag = `v_seg_${i}`;
           filterComplex.push(`[${currentVTag}][${splitTag}]overlay=0:0:enable='between(t,${startT},${endT})'[${nextVTag}]`);
           currentVTag = nextVTag;
+        } else if (mode === 'recorte' || mode === 'avatar-overlay') {
+          // RECORTE: B-ROLL EM TELA CHEIA COM AVATAR RECORTADO SOBREPOSTO
+          const targetW = Math.round(width * zoom);
+          const targetH = Math.round(height * zoom);
+          const brollTag = `broll_bg_${i}`;
+          if (zoom >= 1.0) {
+            filterComplex.push(`[${brollStream}]scale=${targetW}:${targetH}:force_original_aspect_ratio=increase,crop=${width}:${height}[${brollTag}]`);
+          } else {
+            filterComplex.push(`[${brollStream}]scale=${targetW}:${targetH},pad=${width}:${height}:(ow-iw)/2:(oh-ih)/2:black[${brollTag}]`);
+          }
+
+          // AVATAR RECORTADO (Sobreposição sem cenário)
+          const scalePct = (seg.avatarRecorteScale || 80) / 100;
+          const avH = Math.round(height * scalePct);
+          const avW = Math.round(width * 0.65);
+          const pos = seg.avatarRecortePosition || 'direita';
+          const avX = pos === 'esquerda' ? 24 : pos === 'centro' ? Math.round((width - avW) / 2) : Math.round(width - avW - 24);
+          const avY = height - avH;
+
+          // Scale and crop avatar, with edge feathered mask
+          const avCropTag = `av_crop_${i}`;
+          const avAlphaTag = `av_cutout_${i}`;
+          filterComplex.push(`[0:v]scale=${avW}:${avH}:force_original_aspect_ratio=increase,crop=${avW}:${avH}[${avCropTag}]`);
+          filterComplex.push(`[${avCropTag}]format=rgba,geq=r='r(X,Y)':g='g(X,Y)':b='b(X,Y)':a='if(gt(Y,H*0.85),255,if(lt(X,W*0.06),255*pow(X/(W*0.06),1.2),if(gt(X,W*0.94),255*pow((W-X)/(W*0.06),1.2),if(lt(Y,H*0.08),255*pow(Y/(H*0.08),1.2),255))))'[${avAlphaTag}]`);
+
+          // Composite B-roll background first, then Cutout Avatar on top
+          const bgCompTag = `bg_comp_${i}`;
+          filterComplex.push(`[${currentVTag}][${brollTag}]overlay=0:0:enable='between(t,${startT},${endT})'[${bgCompTag}]`);
+
+          const nextVTag = `v_seg_${i}`;
+          filterComplex.push(`[${bgCompTag}][${avAlphaTag}]overlay=${avX}:${avY}:enable='between(t,${startT},${endT})'[${nextVTag}]`);
+          currentVTag = nextVTag;
         } else {
           // B-ROLL TELA CHEIA
           const targetW = Math.round(width * zoom);
