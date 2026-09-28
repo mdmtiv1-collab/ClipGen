@@ -1,11 +1,11 @@
 [
   {
-    "id": "proj_1790622018336_0",
-    "title": "Vídeo de Avatar_1080p (13)",
+    "id": "proj_1790629033634_0",
+    "title": "Vídeo de Avatar_1080p (14)",
     "baseVideo": {
-      "filename": "tightened_1790622019894_avatar_1790622017596_9972.mp4",
-      "url": "/storage/uploads/tightened_1790622019894_avatar_1790622017596_9972.mp4",
-      "path": "C:\\Users\\mdmti\\.gemini\\antigravity\\scratch\\creative-ai-editor\\server\\storage\\uploads\\tightened_1790622019894_avatar_1790622017596_9972.mp4"
+      "filename": "tightened_1790629036161_avatar_1790629032952_7935.mp4",
+      "url": "/storage/uploads/tightened_1790629036161_avatar_1790629032952_7935.mp4",
+      "path": "C:\\Users\\mdmti\\.gemini\\antigravity\\scratch\\creative-ai-editor\\server\\storage\\uploads\\tightened_1790629036161_avatar_1790629032952_7935.mp4"
     },
     "music": null,
     "status": "revisao",
@@ -13,80 +13,76 @@
     "progress": 100,
     "format": "9:16",
     "template": "direct-response",
-    "subtitleStyle": "caixa",
-    "highlightColor": "#FFE600",
+    "subtitleStyle": "impacto",
+    "highlightColor": "#ffffff",
     "fontScale": 100,
     "broll_segments": [
       {
         "id": "seg_1",
         "index": 1,
         "start": 0,
-        "end": 3.5,
-        "duration": 3.5,
+        "end": 3.84,
+        "duration": 3.84,
         "displayMode": "dividida",
-        "avatarPosition": "em_cima",
-        "maskType": "suave",
-        "maskHeight": 50,
-        "broll": {
-          "filename": "1790621991130_videoplayback_(8).mp4",
-          "category": "futebol",
-          "url": "/storage/brolls/futebol/1790621991130_videoplayback_(8).mp4"
-        },
-        "zoom": "zoom_punch",
-        "transition": {
-          "type": "corte_seco",
-          "direction": "esquerda",
-          "sound": "padrao",
-          "volume": 80
-        },
-        "texture": {
-          "grain": false,
-          "flash": false
-        },
-        "subtitlePosition": "automatica",
-        "text": "hacer gimnasio si eso no se nota en tu",
-        "label": "Cena 1: Tela Dividida",
-        "degrade": 11,
-        "brollZoom": 1.2,
-        "brollFrameX": 1,
-        "brollFrameY": -1
-      },
-      {
-        "id": "seg_2",
-        "index": 2,
-        "start": 3.5,
-        "end": 7,
-        "duration": 3.5,
-        "displayMode": "broll",
         "avatarPosition": "embaixo",
         "maskType": "suave",
         "maskHeight": 50,
         "broll": {
-          "filename": "1790621992586_7464903855197703446.mp4",
+          "filename": "1790621990875_snapinsta-1790620962885.mp4",
           "category": "futebol",
-          "url": "/storage/brolls/futebol/1790621992586_7464903855197703446.mp4"
+          "url": "/storage/brolls/futebol/1790621990875_snapinsta-1790620962885.mp4"
         },
-        "zoom": "zoom_in",
+        "zoom": "sem_efeito",
         "transition": {
-          "type": "flash_branco",
-          "sound": "camera_flash",
-          "volume": 90
+          "type": "zoom_punch",
+          "sound": "impact_sub",
+          "volume": 80
+        },
+        "texture": {
+          "grain": true,
+          "flash": false
+        },
+        "subtitlePosition": "automatica",
+        "text": "la semana, pero en el partido sigues sintiéndote lento?",
+        "label": "Cena 1: Tela Dividida",
+        "degrade": 2
+      },
+      {
+        "id": "seg_2",
+        "index": 2,
+        "start": 3.84,
+        "end": 6.47,
+        "duration": 2.63,
+        "displayMode": "avatar",
+        "avatarPosition": "embaixo",
+        "maskType": "suave",
+        "maskHeight": 50,
+        "broll": {
+          "filename": "1790621990933_snapinsta-1790620935465.mp4",
+          "category": "futebol",
+          "url": "/storage/brolls/futebol/1790621990933_snapinsta-1790620935465.mp4"
+        },
+        "zoom": "zoom_out",
+        "transition": {
+          "type": "corte_seco",
+          "sound": "padrao",
+          "volume": 6
         },
         "texture": {
           "grain": false,
           "flash": false
         },
         "subtitlePosition": "automatica",
-        "text": "hacer Tu entrenamiento físico debería ayudarte a correr más,",
-        "label": "Cena 2: B-Roll"
+        "text": "la El problema puede no ser cuánto entrenas,",
+        "label": "Cena 2: Avatar"
       },
       {
         "id": "seg_3",
         "index": 3,
-        "start": 7,
-        "end": 10.5,
-        "duration": 3.5,
-        "displayMode": "avatar",
+        "start": 6.47,
+        "end": 13.96,
+        "duration": 7.49,
+        "displayMode": "broll",
         "avatarPosition": "embaixo",
         "maskType": "suave",
         "maskHeight": 50,
@@ -97,85 +93,54 @@
         },
         "zoom": "sem_efeito",
         "transition": {
-          "type": "zoom_punch",
-          "direction": "esquerda",
-          "sound": "impact_sub",
-          "volume": 90
+          "type": "whip_lateral",
+          "sound": "whip",
+          "volume": 6
         },
         "texture": {
           "grain": false,
           "flash": false
         },
         "subtitlePosition": "automatica",
-        "text": "hacer acelerar mejor, aguantar los 90 minutos y llegar más fuerte a",
-        "label": "Cena 3: Avatar"
-      },
-      {
-        "id": "seg_4",
-        "index": 4,
-        "start": 10.5,
-        "end": 14,
-        "duration": 3.5,
-        "displayMode": "dividida",
-        "avatarPosition": "embaixo",
-        "maskType": "suave",
-        "maskHeight": 50,
-        "broll": {
-          "filename": "1790621991670_7548483379558141191.mp4",
-          "category": "futebol",
-          "url": "/storage/brolls/futebol/1790621991670_7548483379558141191.mp4"
-        },
-        "zoom": "zoom_out",
-        "transition": {
-          "type": "glitch",
-          "direction": "direita",
-          "sound": "glitch_sfx",
-          "volume": 85
-        },
-        "texture": {
-          "grain": false,
-          "flash": false
-        },
-        "subtitlePosition": "automatica",
-        "text": "hacer a cada jugada. Y para eso no sirve entrenar sin",
-        "label": "Cena 4: Tela Dividida"
+        "text": "la sino cómo estás entrenando. Para rendir mejor en el fútbol",
+        "label": "Cena 3: B-Roll"
       },
       {
         "id": "seg_5",
-        "index": 5,
-        "start": 14,
-        "end": 17.5,
-        "duration": 3.5,
-        "displayMode": "broll",
+        "index": 4,
+        "start": 13.96,
+        "end": 16.85,
+        "duration": 2.89,
+        "displayMode": "avatar",
         "avatarPosition": "embaixo",
         "maskType": "suave",
         "maskHeight": 50,
         "broll": {
-          "filename": "1790621992774_YTDown.com_Shorts_Rutina-NIVEL-0-de-Fuerza-para-Futbolista_Media_BQnO4oIQQo4_001_1080p.mp4",
+          "filename": "1790621991185_videoplayback_(6).mp4",
           "category": "futebol",
-          "url": "/storage/brolls/futebol/1790621992774_YTDown.com_Shorts_Rutina-NIVEL-0-de-Fuerza-para-Futbolista_Media_BQnO4oIQQo4_001_1080p.mp4"
+          "url": "/storage/brolls/futebol/1790621991185_videoplayback_(6).mp4"
         },
         "zoom": "zoom_in",
         "transition": {
-          "type": "whip_lateral",
-          "sound": "whip_snap",
-          "volume": 85
+          "type": "fade",
+          "sound": "swoosh",
+          "volume": 6
         },
         "texture": {
           "grain": true,
           "flash": false
         },
         "subtitlePosition": "automatica",
-        "text": "hacer Futforce fue creado justamente para eso. Tienes",
-        "label": "Cena 5: B-Roll"
+        "text": "la explosividad y movilidad de forma específica.",
+        "label": "Cena 4: Avatar"
       },
       {
         "id": "seg_6",
-        "index": 6,
-        "start": 17.5,
-        "end": 21,
-        "duration": 3.5,
-        "displayMode": "avatar",
+        "index": 5,
+        "start": 16.85,
+        "end": 20.82,
+        "duration": 3.97,
+        "displayMode": "broll",
         "avatarPosition": "embaixo",
         "maskType": "suave",
         "maskHeight": 50,
@@ -186,86 +151,83 @@
         },
         "zoom": "sem_efeito",
         "transition": {
-          "type": "glare",
-          "direction": "direita",
-          "sound": "optic_glare",
-          "volume": 85
+          "type": "blur",
+          "sound": "blur",
+          "volume": 6
         },
         "texture": {
           "grain": false,
           "flash": false
         },
         "subtitlePosition": "automatica",
-        "text": "hacer acceso a más de 150 rutinas de gimnasio y",
-        "label": "Cena 6: Avatar"
+        "text": "la Con FootForce tienes acceso a más de 150 rutinas de",
+        "label": "Cena 5: B-Roll"
       },
       {
         "id": "seg_7",
+        "index": 6,
+        "start": 20.82,
+        "end": 24.48,
+        "duration": 3.66,
+        "displayMode": "avatar",
+        "avatarPosition": "embaixo",
+        "maskType": "suave",
+        "maskHeight": 50,
+        "broll": {
+          "filename": "1790621991198_snapinsta-1790620460261.mp4",
+          "category": "futebol",
+          "url": "/storage/brolls/futebol/1790621991198_snapinsta-1790620460261.mp4"
+        },
+        "zoom": "zoom_punch",
+        "transition": {
+          "type": "glitch",
+          "sound": "glitch_sfx",
+          "volume": 6
+        },
+        "texture": {
+          "grain": false,
+          "flash": false
+        },
+        "subtitlePosition": "automatica",
+        "text": "la de gimnasio y entrenamiento funcional pensadas para futbolistas.",
+        "label": "Cena 6: Avatar"
+      },
+      {
+        "id": "seg_8",
         "index": 7,
-        "start": 21,
-        "end": 24.5,
-        "duration": 3.5,
+        "start": 24.48,
+        "end": 27.81,
+        "duration": 3.33,
         "displayMode": "dividida",
         "avatarPosition": "embaixo",
         "maskType": "suave",
         "maskHeight": 50,
         "broll": {
-          "filename": "1790621992723_YTDown.com_Shorts_PLIOMETRIA-para-futbolistas-entrenamient_Media_aepMghc3NNs_001_1080p.mp4",
+          "filename": "1790621991254_snapinsta-1790620433905.mp4",
           "category": "futebol",
-          "url": "/storage/brolls/futebol/1790621992723_YTDown.com_Shorts_PLIOMETRIA-para-futbolistas-entrenamient_Media_aepMghc3NNs_001_1080p.mp4"
+          "url": "/storage/brolls/futebol/1790621991254_snapinsta-1790620433905.mp4"
         },
-        "zoom": "zoom_punch",
+        "zoom": "sem_efeito",
         "transition": {
-          "type": "blur",
-          "direction": "esquerda",
-          "sound": "whoosh_deep",
-          "volume": 85
+          "type": "glare",
+          "sound": "optic_glare",
+          "volume": 6
         },
         "texture": {
           "grain": false,
           "flash": false
         },
         "subtitlePosition": "automatica",
-        "text": "hacer funcional organizadas para mejorar fuerza,",
+        "text": "la Deja de entrenar sin dirección y empieza a trabajar tu",
         "label": "Cena 7: Tela Dividida"
       },
       {
-        "id": "seg_8",
-        "index": 8,
-        "start": 24.5,
-        "end": 28,
-        "duration": 3.5,
-        "displayMode": "broll",
-        "avatarPosition": "embaixo",
-        "maskType": "suave",
-        "maskHeight": 50,
-        "broll": {
-          "filename": "1790621991844_7488004247032843575.mp4",
-          "category": "futebol",
-          "url": "/storage/brolls/futebol/1790621991844_7488004247032843575.mp4"
-        },
-        "zoom": "zoom_out",
-        "transition": {
-          "type": "whip_lateral",
-          "direction": "direita",
-          "sound": "whip",
-          "volume": 100
-        },
-        "texture": {
-          "grain": false,
-          "flash": false
-        },
-        "subtitlePosition": "automatica",
-        "text": "hacer resistencia, potencia, explosividad, movilidad y condición",
-        "label": "Cena 8: B-Roll"
-      },
-      {
         "id": "seg_9",
-        "index": 9,
-        "start": 28,
-        "end": 31.5,
-        "duration": 3.5,
-        "displayMode": "avatar",
+        "index": 8,
+        "start": 27.81,
+        "end": 31.46,
+        "duration": 3.65,
+        "displayMode": "broll",
         "avatarPosition": "embaixo",
         "maskType": "suave",
         "maskHeight": 50,
@@ -276,85 +238,82 @@
         },
         "zoom": "sem_efeito",
         "transition": {
-          "type": "flare",
-          "direction": "esquerda",
-          "sound": "whip",
-          "volume": 100
+          "type": "zoom_punch",
+          "sound": "impact_sub",
+          "volume": 6
         },
         "texture": {
           "grain": true,
           "flash": false
         },
         "subtitlePosition": "automatica",
-        "text": "hacer física para el fútbol. Abres la rutina, sigues los ejercicios y",
-        "label": "Cena 9: Avatar"
+        "text": "la tu físico con un objetivo claro. Porque si entrenas toda la",
+        "label": "Cena 8: B-Roll"
       },
       {
         "id": "seg_10",
-        "index": 10,
-        "start": 31.5,
-        "end": 35,
-        "duration": 3.5,
-        "displayMode": "dividida",
+        "index": 9,
+        "start": 31.46,
+        "end": 34.62,
+        "duration": 3.16,
+        "displayMode": "avatar",
         "avatarPosition": "embaixo",
         "maskType": "suave",
         "maskHeight": 50,
         "broll": {
-          "filename": "1790621992895_criativo_1_(13).mp4",
+          "filename": "1790621991440_snapinsta-1789673471209.mp4",
           "category": "futebol",
-          "url": "/storage/brolls/futebol/1790621992895_criativo_1_(13).mp4"
+          "url": "/storage/brolls/futebol/1790621991440_snapinsta-1789673471209.mp4"
         },
-        "zoom": "zoom_in",
+        "zoom": "zoom_out",
         "transition": {
-          "type": "glitch",
-          "direction": "direita",
-          "sound": "whip",
-          "volume": 100
+          "type": "corte_seco",
+          "sound": "padrao",
+          "volume": 6
         },
         "texture": {
           "grain": false,
           "flash": false
         },
         "subtitlePosition": "automatica",
-        "text": "hacer Y sabes exactamente qué entrenar. Porque el",
-        "label": "Cena 10: Tela Dividida"
+        "text": "la la semana pero sigues sintiéndote lento dentro del campo,",
+        "label": "Cena 9: Avatar"
       },
       {
         "id": "seg_11",
-        "index": 11,
-        "start": 35,
-        "end": 38.5,
-        "duration": 3.5,
+        "index": 10,
+        "start": 34.62,
+        "end": 37.73,
+        "duration": 3.11,
         "displayMode": "broll",
         "avatarPosition": "embaixo",
         "maskType": "suave",
         "maskHeight": 50,
         "broll": {
-          "filename": "1790621992904_criativo_1_(9).mp4",
+          "filename": "1790621991485_snapinsta-1789673389008.mp4",
           "category": "futebol",
-          "url": "/storage/brolls/futebol/1790621992904_criativo_1_(9).mp4"
+          "url": "/storage/brolls/futebol/1790621991485_snapinsta-1789673389008.mp4"
         },
         "zoom": "sem_efeito",
         "transition": {
-          "type": "blur",
-          "direction": "esquerda",
-          "sound": "whip",
-          "volume": 100
+          "type": "whip_lateral",
+          "sound": "whip_snap",
+          "volume": 6
         },
         "texture": {
           "grain": false,
           "flash": false
         },
         "subtitlePosition": "automatica",
-        "text": "hacer no es solo mejorar en el gimnasio, es mejorar dentro del",
-        "label": "Cena 11: B-Roll"
+        "text": "la quizá ha llegado el momento de cambiar cómo entrenas.",
+        "label": "Cena 10: B-Roll"
       },
       {
         "id": "seg_12",
-        "index": 12,
-        "start": 38.5,
-        "end": 42,
-        "duration": 3.5,
+        "index": 11,
+        "start": 37.73,
+        "end": 42.32,
+        "duration": 4.59,
         "displayMode": "dividida",
         "avatarPosition": "embaixo",
         "maskType": "suave",
@@ -364,852 +323,756 @@
           "category": "futebol",
           "url": "/storage/brolls/futebol/1790621991555_7569258855553699080.mp4"
         },
-        "zoom": "zoom_out",
+        "zoom": "sem_efeito",
         "transition": {
-          "type": "fade",
-          "direction": "direita",
-          "sound": "whip",
-          "volume": 100
+          "type": "flash_branco",
+          "sound": "camera_flash",
+          "volume": 6
         },
         "texture": {
           "grain": false,
           "flash": false
         },
         "subtitlePosition": "automatica",
-        "text": "hacer del campo. Haz clic en más información, accede a",
-        "label": "Cena 12: Avatar"
+        "text": "la Haz clic en más información, accede a FatForce y empieza a",
+        "label": "Cena 11: Tela Dividida"
       },
       {
         "id": "seg_13",
-        "index": 13,
-        "start": 42,
-        "end": 45.5,
-        "duration": 3.5,
-        "displayMode": "dividida",
-        "avatarPosition": "embaixo",
-        "maskType": "suave",
-        "maskHeight": 50,
-        "broll": {
-          "filename": "1790621991485_snapinsta-1789673389008.mp4",
-          "category": "futebol",
-          "url": "/storage/brolls/futebol/1790621991485_snapinsta-1789673389008.mp4"
-        },
-        "zoom": "zoom_punch",
-        "transition": {
-          "type": "flash_branco",
-          "direction": "esquerda",
-          "sound": "whip",
-          "volume": 100
-        },
-        "texture": {
-          "grain": false,
-          "flash": false
-        },
-        "subtitlePosition": "automatica",
-        "text": "hacer y empieza a entrenar como un futbolista, no como",
-        "label": "Cena 13: Tela Dividida"
-      },
-      {
-        "id": "seg_14",
-        "index": 14,
-        "start": 45.5,
-        "end": 46.73,
-        "duration": 1.23,
+        "index": 12,
+        "start": 42.32,
+        "end": 45.55,
+        "duration": 3.23,
         "displayMode": "avatar",
         "avatarPosition": "embaixo",
         "maskType": "suave",
         "maskHeight": 50,
         "broll": {
-          "filename": "1790621991426_snapinsta-1790620398293.mp4",
+          "filename": "1790621991602_7489072024300621111.mp4",
           "category": "futebol",
-          "url": "/storage/brolls/futebol/1790621991426_snapinsta-1790620398293.mp4"
+          "url": "/storage/brolls/futebol/1790621991602_7489072024300621111.mp4"
         },
-        "zoom": "sem_efeito",
+        "zoom": "zoom_in",
         "transition": {
-          "type": "corte_seco",
-          "direction": "direita",
-          "sound": "whip",
-          "volume": 100
+          "type": "glitch",
+          "sound": "glitch",
+          "volume": 6
         },
         "texture": {
-          "grain": false,
+          "grain": true,
           "flash": false
         },
         "subtitlePosition": "automatica",
-        "text": "hacer alguien que solo va al gimnasio.",
-        "label": "Cena 14: B-Roll",
-        "brollOffset": 6.4
+        "text": "la a entrenar para que tu esfuerzo se note dentro del campo.",
+        "label": "Cena 12: Avatar"
       }
     ],
     "caixinha": null,
     "isVslMode": false,
-    "createdAt": "2026-09-28T19:00:18.336Z",
-    "thumbnailUrl": "/storage/uploads/thumbnails/thumb_1790622018337_avatar_1790622017596_9972.jpg",
-    "durationSec": 47,
-    "durationFormatted": "0:46",
-    "updatedAt": "2026-09-28T19:11:22.623Z",
+    "createdAt": "2026-09-28T20:57:13.634Z",
+    "thumbnailUrl": "/storage/uploads/thumbnails/thumb_1790629033635_avatar_1790629032952_7935.jpg",
+    "durationSec": 46,
+    "durationFormatted": "0:45",
+    "updatedAt": "2026-09-28T21:53:35.878Z",
     "transcript": {
-      "text": "¿De qué sirve hacer gimnasio si eso no se nota en tu fútbol? Tu entrenamiento físico debería ayudarte a correr más, acelerar mejor, aguantar los 90 minutos y llegar más fuerte a cada jugada. Y para eso no sirve entrenar sin estructura. Futforce fue creado justamente para eso. Tienes acceso a más de 150 rutinas de gimnasio y entrenamiento funcional organizadas para mejorar fuerza, resistencia, potencia, explosividad, movilidad y condición física para el fútbol. Abres la rutina, sigues los ejercicios y Y sabes exactamente qué entrenar. Porque el objetivo no es solo mejorar en el gimnasio, es mejorar dentro del campo. Haz clic en más información, accede a FootForce y empieza a entrenar como un futbolista, no como alguien que solo va al gimnasio.",
+      "text": "¿Entrenas toda la semana, pero en el partido sigues sintiéndote lento? El problema puede no ser cuánto entrenas, sino cómo estás entrenando. Para rendir mejor en el fútbol necesitas trabajar fuerza, resistencia, potencia, explosividad y movilidad de forma específica. Con FootForce tienes acceso a más de 150 rutinas de gimnasio y entrenamiento funcional pensadas para futbolistas. Deja de entrenar sin dirección y empieza a trabajar tu físico con un objetivo claro. Porque si entrenas toda la semana pero sigues sintiéndote lento dentro del campo, quizá ha llegado el momento de cambiar cómo entrenas. Haz clic en más información, accede a FatForce y empieza a entrenar para que tu esfuerzo se note dentro del campo.",
+      "language": "es",
       "words": [
         {
-          "word": "¿De",
-          "start": 0,
-          "end": 240,
-          "confidence": 0.83647573
-        },
-        {
-          "word": "qué",
-          "start": 240,
-          "end": 420,
-          "confidence": 0.9999373
-        },
-        {
-          "word": "sirve",
-          "start": 420,
-          "end": 760,
-          "confidence": 0.9998191
-        },
-        {
-          "word": "hacer",
-          "start": 760,
-          "end": 1.12,
-          "confidence": 0.9998479
-        },
-        {
-          "word": "gimnasio",
-          "start": 1.12,
-          "end": 1.54,
-          "confidence": 0.99995214
-        },
-        {
-          "word": "si",
-          "start": 1.54,
-          "end": 2.04,
-          "confidence": 0.89727455
-        },
-        {
-          "word": "eso",
-          "start": 2.04,
-          "end": 2.3,
-          "confidence": 0.99981636
-        },
-        {
-          "word": "no",
-          "start": 2.3,
-          "end": 2.44,
-          "confidence": 0.9999865
-        },
-        {
-          "word": "se",
-          "start": 2.44,
-          "end": 2.66,
-          "confidence": 0.99998057
-        },
-        {
-          "word": "nota",
-          "start": 2.66,
-          "end": 2.84,
-          "confidence": 0.9999825
-        },
-        {
-          "word": "en",
-          "start": 2.84,
-          "end": 2.98,
-          "confidence": 0.9999931
-        },
-        {
-          "word": "tu",
-          "start": 2.98,
-          "end": 3.12,
-          "confidence": 0.9999715
-        },
-        {
-          "word": "fútbol?",
-          "start": 3.12,
-          "end": 3.72,
-          "confidence": 0.9996754
-        },
-        {
-          "word": "Tu",
-          "start": 3.72,
-          "end": 3.76,
-          "confidence": 0.9979861
-        },
-        {
-          "word": "entrenamiento",
-          "start": 3.76,
-          "end": 4.38,
-          "confidence": 0.9999892
-        },
-        {
-          "word": "físico",
-          "start": 4.38,
-          "end": 4.94,
-          "confidence": 0.99999577
-        },
-        {
-          "word": "debería",
-          "start": 4.94,
-          "end": 5.5,
-          "confidence": 0.99990374
-        },
-        {
-          "word": "ayudarte",
-          "start": 5.5,
-          "end": 5.96,
-          "confidence": 0.9999742
-        },
-        {
-          "word": "a",
-          "start": 5.96,
-          "end": 6.16,
-          "confidence": 0.9999943
-        },
-        {
-          "word": "correr",
-          "start": 6.16,
-          "end": 6.28,
-          "confidence": 0.9999933
-        },
-        {
-          "word": "más,",
-          "start": 6.28,
-          "end": 6.94,
-          "confidence": 0.99983764
-        },
-        {
-          "word": "acelerar",
-          "start": 6.94,
-          "end": 7.28,
-          "confidence": 0.9967413
-        },
-        {
-          "word": "mejor,",
-          "start": 7.28,
-          "end": 8.02,
-          "confidence": 0.9998925
-        },
-        {
-          "word": "aguantar",
-          "start": 8.02,
-          "end": 8.36,
-          "confidence": 0.9999234
-        },
-        {
-          "word": "los",
-          "start": 8.36,
-          "end": 8.52,
-          "confidence": 0.999843
-        },
-        {
-          "word": "90",
-          "start": 8.52,
-          "end": 8.86,
-          "confidence": 0.99997985
-        },
-        {
-          "word": "minutos",
-          "start": 8.86,
-          "end": 9.4,
-          "confidence": 0.99996674
-        },
-        {
-          "word": "y",
-          "start": 9.4,
-          "end": 9.64,
-          "confidence": 0.9967192
-        },
-        {
-          "word": "llegar",
-          "start": 9.64,
-          "end": 9.94,
-          "confidence": 0.99963665
-        },
-        {
-          "word": "más",
-          "start": 9.94,
-          "end": 10.26,
-          "confidence": 0.99997354
-        },
-        {
-          "word": "fuerte",
-          "start": 10.26,
-          "end": 10.54,
-          "confidence": 0.99998444
-        },
-        {
-          "word": "a",
-          "start": 10.54,
-          "end": 10.7,
-          "confidence": 0.9999565
-        },
-        {
-          "word": "cada",
-          "start": 10.7,
-          "end": 10.94,
-          "confidence": 0.99999654
-        },
-        {
-          "word": "jugada.",
-          "start": 10.94,
-          "end": 11.46,
-          "confidence": 0.9992496
-        },
-        {
-          "word": "Y",
-          "start": 11.46,
-          "end": 11.66,
-          "confidence": 0.99764353
-        },
-        {
-          "word": "para",
-          "start": 11.66,
-          "end": 11.84,
-          "confidence": 0.9997147
-        },
-        {
-          "word": "eso",
-          "start": 11.84,
-          "end": 12.4,
-          "confidence": 0.9999466
-        },
-        {
-          "word": "no",
-          "start": 12.4,
-          "end": 12.64,
-          "confidence": 0.95715237
-        },
-        {
-          "word": "sirve",
-          "start": 12.64,
-          "end": 13.06,
-          "confidence": 0.9999608
-        },
-        {
-          "word": "entrenar",
-          "start": 13.06,
-          "end": 13.52,
-          "confidence": 0.99997795
-        },
-        {
-          "word": "sin",
-          "start": 13.52,
-          "end": 13.7,
-          "confidence": 0.99997246
-        },
-        {
-          "word": "estructura.",
-          "start": 13.7,
-          "end": 14.5,
-          "confidence": 0.99971753
-        },
-        {
-          "word": "Futforce",
-          "start": 14.5,
-          "end": 14.92,
-          "confidence": 0.5168286
-        },
-        {
-          "word": "fue",
-          "start": 14.92,
-          "end": 15.22,
-          "confidence": 0.99877125
-        },
-        {
-          "word": "creado",
-          "start": 15.22,
-          "end": 15.6,
-          "confidence": 0.9999684
-        },
-        {
-          "word": "justamente",
-          "start": 15.6,
-          "end": 16.26,
-          "confidence": 0.9999592
-        },
-        {
-          "word": "para",
-          "start": 16.26,
-          "end": 16.64,
-          "confidence": 0.9999825
-        },
-        {
-          "word": "eso.",
-          "start": 16.64,
-          "end": 17.28,
-          "confidence": 0.9993959
-        },
-        {
-          "word": "Tienes",
-          "start": 17.28,
-          "end": 17.4,
-          "confidence": 0.99969655
-        },
-        {
-          "word": "acceso",
-          "start": 17.4,
-          "end": 17.9,
-          "confidence": 0.9999795
-        },
-        {
-          "word": "a",
-          "start": 17.9,
-          "end": 18.18,
-          "confidence": 0.999987
-        },
-        {
-          "word": "más",
-          "start": 18.18,
-          "end": 18.36,
-          "confidence": 0.99995816
-        },
-        {
-          "word": "de",
-          "start": 18.36,
-          "end": 18.58,
-          "confidence": 0.9999913
-        },
-        {
-          "word": "150",
-          "start": 18.58,
-          "end": 19.28,
-          "confidence": 0.9998517
-        },
-        {
-          "word": "rutinas",
-          "start": 19.28,
-          "end": 19.74,
-          "confidence": 0.9999916
-        },
-        {
-          "word": "de",
-          "start": 19.74,
-          "end": 20,
-          "confidence": 0.99993837
-        },
-        {
-          "word": "gimnasio",
-          "start": 20,
-          "end": 20.48,
-          "confidence": 0.99998933
-        },
-        {
-          "word": "y",
-          "start": 20.48,
-          "end": 20.78,
-          "confidence": 0.99991906
-        },
-        {
-          "word": "entrenamiento",
-          "start": 20.78,
-          "end": 21.38,
-          "confidence": 0.9999198
-        },
-        {
-          "word": "funcional",
-          "start": 21.38,
-          "end": 21.96,
-          "confidence": 0.9999903
-        },
-        {
-          "word": "organizadas",
-          "start": 21.96,
-          "end": 22.7,
-          "confidence": 0.98020506
-        },
-        {
-          "word": "para",
-          "start": 22.7,
-          "end": 22.9,
-          "confidence": 0.99997425
-        },
-        {
-          "word": "mejorar",
-          "start": 22.9,
-          "end": 23.26,
-          "confidence": 0.99999034
-        },
-        {
-          "word": "fuerza,",
-          "start": 23.26,
-          "end": 24.32,
-          "confidence": 0.99989676
-        },
-        {
-          "word": "resistencia,",
-          "start": 24.32,
-          "end": 25.3,
-          "confidence": 0.99992406
-        },
-        {
-          "word": "potencia,",
-          "start": 25.3,
-          "end": 26.14,
-          "confidence": 0.99988765
-        },
-        {
-          "word": "explosividad,",
-          "start": 26.14,
-          "end": 26.92,
-          "confidence": 0.99994576
-        },
-        {
-          "word": "movilidad",
-          "start": 26.92,
-          "end": 27.3,
-          "confidence": 0.9999789
-        },
-        {
-          "word": "y",
-          "start": 27.3,
-          "end": 27.58,
-          "confidence": 0.9999591
-        },
-        {
-          "word": "condición",
-          "start": 27.58,
-          "end": 28.06,
-          "confidence": 0.99999183
-        },
-        {
-          "word": "física",
-          "start": 28.06,
-          "end": 28.52,
-          "confidence": 0.99999076
-        },
-        {
-          "word": "para",
-          "start": 28.52,
-          "end": 28.76,
-          "confidence": 0.99972063
-        },
-        {
-          "word": "el",
-          "start": 28.76,
-          "end": 28.96,
-          "confidence": 0.9999573
-        },
-        {
-          "word": "fútbol.",
-          "start": 28.96,
-          "end": 29.6,
-          "confidence": 0.9999591
-        },
-        {
-          "word": "Abres",
-          "start": 29.6,
-          "end": 29.66,
-          "confidence": 0.9989418
+          "word": "¿Entrenas",
+          "start": 112,
+          "end": 658,
+          "confidence": 0.9899826
+        },
+        {
+          "word": "toda",
+          "start": 658,
+          "end": 980,
+          "confidence": 0.999749
         },
         {
           "word": "la",
-          "start": 29.66,
-          "end": 29.9,
-          "confidence": 0.99935514
+          "start": 980,
+          "end": 1.06,
+          "confidence": 0.9999902
         },
         {
-          "word": "rutina,",
-          "start": 29.9,
-          "end": 29.98,
-          "confidence": 0.999866
+          "word": "semana,",
+          "start": 1.06,
+          "end": 1.429,
+          "confidence": 0.9746243
+        },
+        {
+          "word": "pero",
+          "start": 1.783,
+          "end": 1.96,
+          "confidence": 0.9999789
+        },
+        {
+          "word": "en",
+          "start": 1.96,
+          "end": 2.008,
+          "confidence": 0.99987245
+        },
+        {
+          "word": "el",
+          "start": 2.04,
+          "end": 2.152,
+          "confidence": 0.99987376
+        },
+        {
+          "word": "partido",
+          "start": 2.185,
+          "end": 2.667,
+          "confidence": 0.99998736
         },
         {
           "word": "sigues",
-          "start": 29.98,
-          "end": 30,
-          "confidence": 0.99982405
+          "start": 2.667,
+          "end": 2.988,
+          "confidence": 0.9954458
         },
         {
-          "word": "los",
-          "start": 30,
-          "end": 30.02,
-          "confidence": 0.99990535
+          "word": "sintiéndote",
+          "start": 2.988,
+          "end": 3.55,
+          "confidence": 0.9999908
         },
         {
-          "word": "ejercicios",
-          "start": 30.02,
-          "end": 30.04,
+          "word": "lento?",
+          "start": 3.55,
+          "end": 3.839,
+          "confidence": 0.9999797
+        },
+        {
+          "word": "El",
+          "start": 4.129,
+          "end": 4.241,
+          "confidence": 0.9982179
+        },
+        {
+          "word": "problema",
+          "start": 4.273,
+          "end": 4.755,
+          "confidence": 0.99999106
+        },
+        {
+          "word": "puede",
+          "start": 4.996,
+          "end": 5.318,
+          "confidence": 0.99075377
+        },
+        {
+          "word": "no",
+          "start": 5.318,
+          "end": 5.478,
+          "confidence": 0.9999542
+        },
+        {
+          "word": "ser",
+          "start": 5.478,
+          "end": 5.703,
+          "confidence": 0.99998426
+        },
+        {
+          "word": "cuánto",
+          "start": 5.719,
+          "end": 6.057,
+          "confidence": 0.99981976
+        },
+        {
+          "word": "entrenas,",
+          "start": 6.057,
+          "end": 6.474,
+          "confidence": 0.9997642
+        },
+        {
+          "word": "sino",
+          "start": 6.924,
+          "end": 7.326,
+          "confidence": 0.9976572
+        },
+        {
+          "word": "cómo",
+          "start": 7.326,
+          "end": 7.599,
+          "confidence": 0.99742246
+        },
+        {
+          "word": "estás",
+          "start": 7.599,
+          "end": 7.985,
+          "confidence": 0.9999631
+        },
+        {
+          "word": "entrenando.",
+          "start": 7.985,
+          "end": 8.579,
+          "confidence": 0.99958897
+        },
+        {
+          "word": "Para",
+          "start": 8.772,
+          "end": 8.965,
+          "confidence": 0.9998988
+        },
+        {
+          "word": "rendir",
+          "start": 8.965,
+          "end": 9.318,
+          "confidence": 0.99999
+        },
+        {
+          "word": "mejor",
+          "start": 9.334,
+          "end": 9.672,
+          "confidence": 0.99996555
+        },
+        {
+          "word": "en",
+          "start": 9.672,
+          "end": 9.832,
+          "confidence": 0.9999758
+        },
+        {
+          "word": "el",
+          "start": 9.832,
+          "end": 9.881,
+          "confidence": 0.9999809
+        },
+        {
+          "word": "fútbol",
+          "start": 9.977,
+          "end": 10.475,
+          "confidence": 0.999945
+        },
+        {
+          "word": "necesitas",
+          "start": 10.62,
+          "end": 11.166,
+          "confidence": 0.79053545
+        },
+        {
+          "word": "trabajar",
+          "start": 11.262,
+          "end": 11.648,
+          "confidence": 0.9999832
+        },
+        {
+          "word": "fuerza,",
+          "start": 11.744,
+          "end": 12.114,
+          "confidence": 0.99982756
+        },
+        {
+          "word": "resistencia,",
+          "start": 12.387,
+          "end": 12.998,
+          "confidence": 0.9999696
+        },
+        {
+          "word": "potencia,",
+          "start": 13.431,
+          "end": 13.962,
           "confidence": 0.9999655
         },
         {
+          "word": "explosividad",
+          "start": 14.17,
+          "end": 15.134,
+          "confidence": 0.9999826
+        },
+        {
           "word": "y",
-          "start": 30.04,
-          "end": 30.06,
-          "confidence": 0.4603616
+          "start": 15.215,
+          "end": 15.231,
+          "confidence": 0.99991727
         },
         {
-          "word": "Y",
-          "start": 31.922,
-          "end": 32.146,
-          "confidence": 0.74549466
+          "word": "movilidad",
+          "start": 15.231,
+          "end": 15.841,
+          "confidence": 0.999987
         },
         {
-          "word": "sabes",
-          "start": 32.146,
-          "end": 32.387,
-          "confidence": 0.99981254
+          "word": "de",
+          "start": 15.841,
+          "end": 15.922,
+          "confidence": 0.99964535
         },
         {
-          "word": "exactamente",
-          "start": 32.484,
-          "end": 33.399,
-          "confidence": 0.9999336
+          "word": "forma",
+          "start": 16.002,
+          "end": 16.195,
+          "confidence": 0.9999819
         },
         {
-          "word": "qué",
-          "start": 33.431,
-          "end": 33.607,
-          "confidence": 0.9994535
+          "word": "específica.",
+          "start": 16.195,
+          "end": 16.854,
+          "confidence": 0.99995947
         },
         {
-          "word": "entrenar.",
-          "start": 33.607,
-          "end": 34.121,
-          "confidence": 0.88913727
-        },
-        {
-          "word": "Porque",
-          "start": 34.314,
-          "end": 34.523,
-          "confidence": 0.99961007
-        },
-        {
-          "word": "el",
-          "start": 34.571,
-          "end": 34.651,
-          "confidence": 0.999887
-        },
-        {
-          "word": "objetivo",
-          "start": 34.651,
-          "end": 35.245,
-          "confidence": 0.99999523
-        },
-        {
-          "word": "no",
-          "start": 35.598,
-          "end": 35.679,
-          "confidence": 0.88146704
-        },
-        {
-          "word": "es",
-          "start": 35.775,
-          "end": 35.839,
-          "confidence": 0.9999175
-        },
-        {
-          "word": "solo",
-          "start": 35.839,
-          "end": 36.144,
-          "confidence": 0.9712058
-        },
-        {
-          "word": "mejorar",
-          "start": 36.16,
-          "end": 36.578,
-          "confidence": 0.99985194
-        },
-        {
-          "word": "en",
-          "start": 36.578,
-          "end": 36.658,
-          "confidence": 0.99997044
-        },
-        {
-          "word": "el",
-          "start": 36.658,
-          "end": 36.754,
-          "confidence": 0.9999888
-        },
-        {
-          "word": "gimnasio,",
-          "start": 36.803,
-          "end": 37.252,
-          "confidence": 0.87666863
-        },
-        {
-          "word": "es",
-          "start": 37.541,
-          "end": 37.621,
-          "confidence": 0.9818038
-        },
-        {
-          "word": "mejorar",
-          "start": 37.686,
-          "end": 38.151,
-          "confidence": 0.99975115
-        },
-        {
-          "word": "dentro",
-          "start": 38.167,
-          "end": 38.488,
-          "confidence": 0.9999169
-        },
-        {
-          "word": "del",
-          "start": 38.488,
-          "end": 38.601,
-          "confidence": 0.9999753
-        },
-        {
-          "word": "campo.",
-          "start": 38.649,
-          "end": 38.938,
-          "confidence": 0.99944794
-        },
-        {
-          "word": "Haz",
-          "start": 39.227,
-          "end": 39.275,
-          "confidence": 0.9966978
-        },
-        {
-          "word": "clic",
-          "start": 39.371,
-          "end": 39.789,
-          "confidence": 0.9987066
-        },
-        {
-          "word": "en",
-          "start": 39.789,
-          "end": 39.901,
-          "confidence": 0.9998927
-        },
-        {
-          "word": "más",
-          "start": 40.014,
-          "end": 40.271,
-          "confidence": 0.9790891
-        },
-        {
-          "word": "información,",
-          "start": 40.271,
-          "end": 40.945,
-          "confidence": 0.9901504
-        },
-        {
-          "word": "accede",
-          "start": 41.154,
-          "end": 41.635,
-          "confidence": 0.9999896
-        },
-        {
-          "word": "a",
-          "start": 41.635,
-          "end": 41.7,
-          "confidence": 0.9999174
+          "word": "Con",
+          "start": 17.046,
+          "end": 17.287,
+          "confidence": 0.99954635
         },
         {
           "word": "FootForce",
-          "start": 41.7,
-          "end": 42.229,
-          "confidence": 0.5943151
+          "start": 17.287,
+          "end": 17.85,
+          "confidence": 0.6695905
         },
         {
-          "word": "y",
-          "start": 42.438,
-          "end": 42.599,
-          "confidence": 0.97248757
+          "word": "tienes",
+          "start": 17.93,
+          "end": 18.187,
+          "confidence": 0.9927133
         },
         {
-          "word": "empieza",
-          "start": 42.599,
-          "end": 43.064,
-          "confidence": 0.9997635
+          "word": "acceso",
+          "start": 18.187,
+          "end": 18.766,
+          "confidence": 0.99999106
         },
         {
           "word": "a",
-          "start": 43.241,
-          "end": 43.289,
-          "confidence": 0.9999206
+          "start": 18.83,
+          "end": 18.894,
+          "confidence": 0.9999939
+        },
+        {
+          "word": "más",
+          "start": 18.974,
+          "end": 19.215,
+          "confidence": 0.9999727
+        },
+        {
+          "word": "de",
+          "start": 19.215,
+          "end": 19.376,
+          "confidence": 0.9999939
+        },
+        {
+          "word": "150",
+          "start": 19.376,
+          "end": 20.212,
+          "confidence": 0.9999225
+        },
+        {
+          "word": "rutinas",
+          "start": 20.212,
+          "end": 20.742,
+          "confidence": 0.9999958
+        },
+        {
+          "word": "de",
+          "start": 20.742,
+          "end": 20.822,
+          "confidence": 0.9999548
+        },
+        {
+          "word": "gimnasio",
+          "start": 20.822,
+          "end": 21.385,
+          "confidence": 0.9999871
+        },
+        {
+          "word": "y",
+          "start": 21.722,
+          "end": 21.802,
+          "confidence": 0.9998791
+        },
+        {
+          "word": "entrenamiento",
+          "start": 21.802,
+          "end": 22.509,
+          "confidence": 0.9999694
+        },
+        {
+          "word": "funcional",
+          "start": 22.509,
+          "end": 23.023,
+          "confidence": 0.99997544
+        },
+        {
+          "word": "pensadas",
+          "start": 23.072,
+          "end": 23.714,
+          "confidence": 0.9991968
+        },
+        {
+          "word": "para",
+          "start": 23.714,
+          "end": 23.843,
+          "confidence": 0.99993134
+        },
+        {
+          "word": "futbolistas.",
+          "start": 23.875,
+          "end": 24.485,
+          "confidence": 0.99992704
+        },
+        {
+          "word": "Deja",
+          "start": 24.759,
+          "end": 25,
+          "confidence": 0.99545395
+        },
+        {
+          "word": "de",
+          "start": 25,
+          "end": 25.096,
+          "confidence": 0.99994624
         },
         {
           "word": "entrenar",
-          "start": 43.321,
-          "end": 43.931,
-          "confidence": 0.9999928
+          "start": 25.096,
+          "end": 25.562,
+          "confidence": 0.99998206
         },
         {
-          "word": "como",
-          "start": 43.947,
-          "end": 44.124,
-          "confidence": 0.9999238
+          "word": "sin",
+          "start": 25.562,
+          "end": 25.723,
+          "confidence": 0.9998852
+        },
+        {
+          "word": "dirección",
+          "start": 25.723,
+          "end": 26.863,
+          "confidence": 0.99996424
+        },
+        {
+          "word": "y",
+          "start": 26.622,
+          "end": 26.703,
+          "confidence": 0.5521042
+        },
+        {
+          "word": "empieza",
+          "start": 26.703,
+          "end": 27.153,
+          "confidence": 0.9998636
+        },
+        {
+          "word": "a",
+          "start": 27.153,
+          "end": 27.169,
+          "confidence": 0.99997985
+        },
+        {
+          "word": "trabajar",
+          "start": 27.169,
+          "end": 27.732,
+          "confidence": 0.99992
+        },
+        {
+          "word": "tu",
+          "start": 27.732,
+          "end": 27.813,
+          "confidence": 0.99959594
+        },
+        {
+          "word": "físico",
+          "start": 27.813,
+          "end": 28.295,
+          "confidence": 0.9999598
+        },
+        {
+          "word": "con",
+          "start": 28.536,
+          "end": 28.713,
+          "confidence": 0.925164
         },
         {
           "word": "un",
-          "start": 44.124,
-          "end": 44.188,
+          "start": 28.874,
+          "end": 28.987,
+          "confidence": 0.99977297
+        },
+        {
+          "word": "objetivo",
+          "start": 29.035,
+          "end": 29.582,
           "confidence": 0.9999763
         },
         {
-          "word": "futbolista,",
-          "start": 44.188,
-          "end": 44.782,
-          "confidence": 0.99596745
+          "word": "claro.",
+          "start": 29.582,
+          "end": 29.871,
+          "confidence": 0.997898
         },
         {
-          "word": "no",
-          "start": 44.991,
-          "end": 45.152,
-          "confidence": 0.9985404
+          "word": "Porque",
+          "start": 30.064,
+          "end": 30.338,
+          "confidence": 0.9997952
         },
         {
-          "word": "como",
-          "start": 45.152,
-          "end": 45.408,
-          "confidence": 0.9999137
+          "word": "si",
+          "start": 30.338,
+          "end": 30.482,
+          "confidence": 0.9977301
         },
         {
-          "word": "alguien",
-          "start": 45.408,
-          "end": 45.714,
-          "confidence": 0.9999821
+          "word": "entrenas",
+          "start": 30.482,
+          "end": 30.981,
+          "confidence": 0.9999842
+        },
+        {
+          "word": "toda",
+          "start": 31.109,
+          "end": 31.383,
+          "confidence": 0.9993999
+        },
+        {
+          "word": "la",
+          "start": 31.383,
+          "end": 31.463,
+          "confidence": 0.99998283
+        },
+        {
+          "word": "semana",
+          "start": 31.463,
+          "end": 31.914,
+          "confidence": 0.99999285
+        },
+        {
+          "word": "pero",
+          "start": 32.235,
+          "end": 32.396,
+          "confidence": 0.49976075
+        },
+        {
+          "word": "sigues",
+          "start": 32.396,
+          "end": 32.879,
+          "confidence": 0.998769
+        },
+        {
+          "word": "sintiéndote",
+          "start": 32.879,
+          "end": 33.409,
+          "confidence": 0.99998856
+        },
+        {
+          "word": "lento",
+          "start": 33.409,
+          "end": 33.763,
+          "confidence": 0.9999903
+        },
+        {
+          "word": "dentro",
+          "start": 33.763,
+          "end": 34.085,
+          "confidence": 0.99998724
+        },
+        {
+          "word": "del",
+          "start": 34.085,
+          "end": 34.197,
+          "confidence": 0.9999784
+        },
+        {
+          "word": "campo,",
+          "start": 34.246,
+          "end": 34.615,
+          "confidence": 0.9988904
+        },
+        {
+          "word": "quizá",
+          "start": 34.808,
+          "end": 35.21,
+          "confidence": 0.9958316
+        },
+        {
+          "word": "ha",
+          "start": 35.468,
+          "end": 35.532,
+          "confidence": 0.9983835
+        },
+        {
+          "word": "llegado",
+          "start": 35.532,
+          "end": 35.886,
+          "confidence": 0.99999565
+        },
+        {
+          "word": "el",
+          "start": 35.886,
+          "end": 35.966,
+          "confidence": 0.99998057
+        },
+        {
+          "word": "momento",
+          "start": 36.015,
+          "end": 36.417,
+          "confidence": 0.9999877
+        },
+        {
+          "word": "de",
+          "start": 36.417,
+          "end": 36.497,
+          "confidence": 0.99998736
+        },
+        {
+          "word": "cambiar",
+          "start": 36.529,
+          "end": 36.883,
+          "confidence": 0.9999813
+        },
+        {
+          "word": "cómo",
+          "start": 37.06,
+          "end": 37.317,
+          "confidence": 0.9996265
+        },
+        {
+          "word": "entrenas.",
+          "start": 37.317,
+          "end": 37.735,
+          "confidence": 0.9995365
+        },
+        {
+          "word": "Haz",
+          "start": 38.041,
+          "end": 38.137,
+          "confidence": 0.99553066
+        },
+        {
+          "word": "clic",
+          "start": 38.266,
+          "end": 38.684,
+          "confidence": 0.99955136
+        },
+        {
+          "word": "en",
+          "start": 38.684,
+          "end": 38.829,
+          "confidence": 0.9998896
+        },
+        {
+          "word": "más",
+          "start": 38.829,
+          "end": 39.086,
+          "confidence": 0.9618054
+        },
+        {
+          "word": "información,",
+          "start": 39.086,
+          "end": 39.762,
+          "confidence": 0.99806166
+        },
+        {
+          "word": "accede",
+          "start": 40.051,
+          "end": 40.566,
+          "confidence": 0.99998975
+        },
+        {
+          "word": "a",
+          "start": 40.614,
+          "end": 40.759,
+          "confidence": 0.9999248
+        },
+        {
+          "word": "FatForce",
+          "start": 40.839,
+          "end": 41.579,
+          "confidence": 0.5521612
+        },
+        {
+          "word": "y",
+          "start": 41.579,
+          "end": 41.66,
+          "confidence": 0.99005765
+        },
+        {
+          "word": "empieza",
+          "start": 41.66,
+          "end": 42.319,
+          "confidence": 0.9997021
+        },
+        {
+          "word": "a",
+          "start": 42.383,
+          "end": 42.448,
+          "confidence": 0.9999
+        },
+        {
+          "word": "entrenar",
+          "start": 42.464,
+          "end": 43.075,
+          "confidence": 0.9999894
+        },
+        {
+          "word": "para",
+          "start": 43.332,
+          "end": 43.493,
+          "confidence": 0.9950119
         },
         {
           "word": "que",
-          "start": 45.714,
-          "end": 45.762,
-          "confidence": 0.9999646
+          "start": 43.493,
+          "end": 43.654,
+          "confidence": 0.9999665
         },
         {
-          "word": "solo",
-          "start": 45.826,
-          "end": 46.115,
-          "confidence": 0.9988451
+          "word": "tu",
+          "start": 43.654,
+          "end": 43.75,
+          "confidence": 0.9998554
         },
         {
-          "word": "va",
-          "start": 46.115,
-          "end": 46.211,
-          "confidence": 0.99991345
+          "word": "esfuerzo",
+          "start": 43.75,
+          "end": 44.217,
+          "confidence": 0.999996
         },
         {
-          "word": "al",
-          "start": 46.211,
-          "end": 46.275,
-          "confidence": 0.99994993
+          "word": "se",
+          "start": 44.217,
+          "end": 44.329,
+          "confidence": 0.9999614
         },
         {
-          "word": "gimnasio.",
-          "start": 46.275,
-          "end": 46.725,
-          "confidence": 0.99847
+          "word": "note",
+          "start": 44.329,
+          "end": 44.699,
+          "confidence": 0.9999852
+        },
+        {
+          "word": "dentro",
+          "start": 44.78,
+          "end": 45.133,
+          "confidence": 0.9999403
+        },
+        {
+          "word": "del",
+          "start": 45.133,
+          "end": 45.246,
+          "confidence": 0.99998283
+        },
+        {
+          "word": "campo.",
+          "start": 45.262,
+          "end": 45.551,
+          "confidence": 0.99796814
         }
       ],
-      "language": "es",
       "segments": []
     },
     "headline": {
-      "text": "¿DE QUÉ SIRVE EL GIMNASIO SI NO SE NOTA EN LA CANCHA?",
+      "text": "¿ENTRENAS PERO SIGUES LENTO EN EL CAMPO? ¡CAMBIA TU ENTRENAMIENTO!",
       "style": "block",
       "bgColor": "#dc2626",
       "textColor": "#ffffff",
       "position": "avatar",
-      "positionY": 48,
-      "fontSize": 14,
-      "fontFamily": "Archivo Black",
-      "width": 96,
-      "durationSec": 3.5
+      "width": 98,
+      "fontSize": 15
     }
   }
 ]

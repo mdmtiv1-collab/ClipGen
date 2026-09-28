@@ -702,6 +702,68 @@ export default function EditorView({
     }
   }, [avatarFraming.frameTime, project.baseVideo?.url]);
 
+  // Auto-scroll timeline to keep active scene card centered and visible
+  useEffect(() => {
+    if (timelineScrollRef.current) {
+      const container = timelineScrollRef.current;
+      const cardEl = container.children[selectedSegIndex];
+      if (cardEl) {
+        cardEl.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      }
+    }
+  }, [selectedSegIndex]);
+
+  // State & drag handler for boundary trimming directly on the timeline track
+  const [resizingBoundaryIndex, setResizingBoundaryIndex] = useState(null);
+  const resizeStartXRef = useRef(0);
+  const resizeOriginalDurationRef = useRef({ prevDur: 0, nextDur: 0 });
+
+  const handleBoundaryMouseDown = (idx, e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setResizingBoundaryIndex(idx);
+    resizeStartXRef.current = e.clientX;
+    const curSeg = segments[idx];
+    const nextSeg = segments[idx + 1];
+    if (!curSeg || !nextSeg) return;
+    resizeOriginalDurationRef.current = {
+      prevDur: curSeg.duration || (curSeg.end - curSeg.start),
+      nextDur: nextSeg.duration || (nextSeg.end - nextSeg.start)
+    };
+
+    const handleMouseMove = (moveEvent) => {
+      const deltaPx = moveEvent.clientX - resizeStartXRef.current;
+      const barEl = document.querySelector('[data-timeline-track]');
+      const barWidth = barEl?.getBoundingClientRect().width || 1000;
+      const totalDur = duration || 30;
+      const deltaSec = parseFloat(((deltaPx / barWidth) * totalDur).toFixed(2));
+
+      const { prevDur, nextDur } = resizeOriginalDurationRef.current;
+      const newPrev = Math.max(0.5, prevDur + deltaSec);
+      const newNext = Math.max(0.5, nextDur - deltaSec);
+      if (newPrev >= 0.5 && newNext >= 0.5) {
+        setSegments(prev => {
+          const updated = prev.map(s => ({ ...s }));
+          updated[idx].duration = parseFloat(newPrev.toFixed(2));
+          updated[idx].end = parseFloat((updated[idx].start + newPrev).toFixed(2));
+          updated[idx + 1].start = updated[idx].end;
+          updated[idx + 1].duration = parseFloat(newNext.toFixed(2));
+          return updated;
+        });
+      }
+    };
+
+    const handleMouseUp = () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+      setResizingBoundaryIndex(null);
+      pushState();
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+  };
+
   // Drag handler for headline vertical positioning
   const handleHeadlineMouseDown = (e) => {
     e.stopPropagation();
@@ -4136,23 +4198,51 @@ export default function EditorView({
         </div>
       </div>
 
-      {/* Bottom Timeline with All Consecutive Scenes (Pinned single screen) */}
-      <div className="shrink-0 h-[235px] bg-[#111315] border-t border-[#21252B] px-4 py-2 flex flex-col justify-between overflow-hidden">
-        {/* Top Scrubber Track with Scene Tick Markers */}
+      {/* Bottom Timeline with All Consecutive Scenes (Fiel ao VibeCut - 100% Proporcional) */}
+      <div className="shrink-0 h-[200px] bg-[#101215] border-t border-[#21252B] px-3 pt-2 pb-1.5 flex flex-col justify-between overflow-hidden select-none z-20">
+        {/* Top Scrubber Track with Scene Proportional Segments */}
         <div className="flex items-center justify-between text-[10px] text-[#92978F]/60 pb-1">
-          <div className="relative h-2 flex-1 bg-[#181B20] rounded-full overflow-hidden flex border border-[#21252B] mr-4">
+          <div
+            data-timeline-track="true"
+            className="relative h-3 flex-1 bg-[#16191E] rounded-sm overflow-hidden flex border border-[#21252B] mr-4 shadow-inner"
+          >
             {segments.map((seg, idx) => {
               const isSelected = selectedSegIndex === idx;
               const pct = ((seg.duration || 3.5) / (duration || 20)) * 100;
+              const isLast = idx === segments.length - 1;
               return (
                 <div
                   key={seg.id || idx}
                   style={{ width: `${pct}%` }}
                   onClick={() => jumpToScene(idx)}
-                  className={`h-full transition-all cursor-pointer ${
-                    isSelected ? 'bg-[#C5F955]' : idx % 2 === 0 ? 'bg-[#21252B]' : 'bg-[#181B20]'
-                  } hover:brightness-125 border-r border-[#111315]`}
-                />
+                  className={`group relative h-full transition-colors cursor-pointer flex items-center justify-center border-r border-[#111315] ${
+                    isSelected
+                      ? 'bg-[#C5F955] text-black font-mono font-bold text-[7.5px]'
+                      : idx % 2 === 0
+                      ? 'bg-[#1F232B] hover:bg-[#282E37] text-white/40'
+                      : 'bg-[#181B20] hover:bg-[#232832] text-white/40'
+                  }`}
+                  title={`Cena ${idx + 1} (${(seg.duration || 3.5).toFixed(1)}s)`}
+                >
+                  {/* Label if wide enough */}
+                  {pct > 5 && (
+                    <span className="truncate px-1 pointer-events-none text-[7px] font-bold">
+                      {isSelected ? `Cena ${idx + 1}` : `${idx + 1}`}
+                    </span>
+                  )}
+
+                  {/* Resizable Divider Handle on Segment Boundary */}
+                  {!isLast && (
+                    <div
+                      onMouseDown={(e) => handleBoundaryMouseDown(idx, e)}
+                      onClick={(e) => e.stopPropagation()}
+                      className="absolute right-0 top-0 bottom-0 w-2 -mr-1 z-20 cursor-col-resize hover:bg-white/80 active:bg-[#C5F955] opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                      title="Arraste para ajustar o tempo desta cena"
+                    >
+                      <div className="w-0.5 h-2 bg-white/60 rounded-full" />
+                    </div>
+                  )}
+                </div>
               );
             })}
           </div>
@@ -4162,7 +4252,7 @@ export default function EditorView({
         {/* Horizontal Scene Cards Row */}
         <div
           ref={timelineScrollRef}
-          className="flex items-center gap-2.5 overflow-x-auto pb-1 scrollbar-thin scrollbar-thumb-[#282C34] scrollbar-track-transparent"
+          className="flex-1 min-h-0 flex items-center gap-1.5 overflow-x-auto overflow-y-hidden pt-1 pb-0.5 scrollbar-thin scrollbar-thumb-[#282C34] scrollbar-track-transparent"
         >
           {segments.map((seg, idx) => {
             const isSelected = selectedSegIndex === idx;
@@ -4172,18 +4262,18 @@ export default function EditorView({
               <div
                 key={seg.id || idx}
                 onClick={() => jumpToScene(idx)}
-                className={`flex-none w-[118px] rounded-xl border transition-all cursor-pointer p-1.5 flex flex-col justify-between ${
+                className={`shrink-0 w-[84px] h-[162px] rounded-lg border transition-all cursor-pointer p-1 flex flex-col justify-between ${
                   isSelected
                     ? 'bg-[#181B20] border-2 border-[#C5F955] shadow-lg shadow-lime-950/20'
-                    : 'bg-[#14171C] border border-[#21252B] hover:border-[#282C34]'
+                    : 'bg-[#131519] border border-[#21252B] hover:border-[#333944]'
                 }`}
               >
-                {/* Card Top: Actions */}
-                <div className="flex items-center justify-between pb-1 text-[#92978F]">
-                  <span className={`text-[9px] font-bold ${isSelected ? 'text-[#C5F955]' : 'text-[#F5F5F0]'}`}>
+                {/* Card Top: Scene Index & Actions */}
+                <div className="flex items-center justify-between pb-0.5 text-[#92978F]">
+                  <span className={`text-[8.5px] font-bold truncate ${isSelected ? 'text-[#C5F955]' : 'text-[#F5F5F0]'}`}>
                     Cena {idx + 1}
                   </span>
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1">
                     <button
                       type="button"
                       onClick={(e) => handleDuplicateScene(idx, e)}
@@ -4196,15 +4286,15 @@ export default function EditorView({
                       type="button"
                       onClick={(e) => handleDeleteScene(idx, e)}
                       className="hover:text-rose-400 p-0.5 transition-colors cursor-pointer"
-                      title="Excluir cena (engloba na cena anterior estilo VibeCut)"
+                      title="Excluir cena"
                     >
                       <Trash2 className="w-2.5 h-2.5" />
                     </button>
                   </div>
                 </div>
 
-                {/* Card Thumbnail - Vertical 9:13 exactly reflecting current scene visual */}
-                <div className="relative w-full aspect-[9/13] rounded-lg overflow-hidden bg-black border border-[#282C34] flex flex-col shadow-inner select-none">
+                {/* Card Thumbnail - Vertical 9:12 exactly reflecting scene mode */}
+                <div className="relative w-full h-[88px] rounded overflow-hidden bg-black border border-[#262B34] flex flex-col shadow-inner select-none">
                   {/* MODE 1: TELA DIVIDIDA */}
                   {(segMode === 'dividida' || segMode === 'split-screen') && (
                     <div className="relative w-full h-full flex flex-col overflow-hidden">
@@ -4268,7 +4358,7 @@ export default function EditorView({
                           }}
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-[8px] text-[#92978F] bg-[#14171C]">
+                        <div className="w-full h-full flex items-center justify-center text-[7px] text-[#92978F] bg-[#14171C]">
                           B-roll
                         </div>
                       )}
@@ -4295,7 +4385,7 @@ export default function EditorView({
                           className="w-full h-full object-cover pointer-events-none"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-[8px] text-[#92978F] bg-[#14171C]">
+                        <div className="w-full h-full flex items-center justify-center text-[7px] text-[#92978F] bg-[#14171C]">
                           Avatar
                         </div>
                       )}
@@ -4334,34 +4424,34 @@ export default function EditorView({
                             }}
                           />
                         ) : (
-                          <div className="text-[7px] text-white/70 bg-black/60 px-1 rounded">Avatar</div>
+                          <div className="text-[6px] text-white/70 bg-black/60 px-0.5 rounded">Avatar</div>
                         )}
                       </div>
                     </div>
                   )}
 
-                  {/* Top-Right Timestamp Badge (e.g. 0:07) */}
-                  <span className="absolute top-1 right-1 px-1.5 py-0.5 rounded bg-black/85 font-mono text-[8px] font-bold text-[#F5F5F0] border border-white/10 z-10">
+                  {/* Top-Right Timestamp Badge */}
+                  <span className="absolute top-0.5 right-0.5 px-1 py-0.2 rounded bg-black/85 font-mono text-[7px] font-bold text-[#F5F5F0] border border-white/10 z-10 leading-tight">
                     0:{Math.floor(seg.start || 0).toString().padStart(2, '0')}
                   </span>
 
                   {/* Bottom-Left Transition Pill */}
                   {seg.transition?.type && seg.transition.type !== 'corte_seco' && (
-                    <span className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded bg-[#8b5cf6]/90 text-white font-bold text-[7px] uppercase tracking-wider backdrop-blur-xs shadow z-10">
+                    <span className="absolute bottom-0.5 left-0.5 px-1 py-0.2 rounded bg-[#8b5cf6]/90 text-white font-bold text-[6px] uppercase tracking-wider backdrop-blur-xs shadow z-10 leading-tight">
                       {seg.transition.type.replace('_', ' ')}
                     </span>
                   )}
 
                   {/* Top-Left Zoom badge if applied */}
                   {seg.zoom && seg.zoom !== 'sem_efeito' && (
-                    <span className="absolute top-1 left-1 px-1 py-0.5 rounded bg-[#eab308]/90 text-black font-bold text-[7px] uppercase tracking-wider backdrop-blur-xs z-10">
+                    <span className="absolute top-0.5 left-0.5 px-1 py-0.2 rounded bg-[#eab308]/90 text-black font-bold text-[6px] uppercase tracking-wider backdrop-blur-xs z-10 leading-tight">
                       {seg.zoom.replace('_', ' ')}
                     </span>
                   )}
                 </div>
 
                 {/* Scene Label (fiel ao VibeCut - Foto anexada) */}
-                <div className="flex items-center gap-1 pt-0.5 truncate">
+                <div className="flex items-center gap-1 py-0.5 truncate">
                   <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${
                     segMode === 'dividida' || segMode === 'split-screen'
                       ? 'bg-sky-400'
@@ -4371,29 +4461,32 @@ export default function EditorView({
                       ? 'bg-amber-400'
                       : 'bg-emerald-400'
                   }`} />
-                  <span className="text-[9px] text-[#F5F5F0] font-semibold truncate">
+                  <span className="text-[7.5px] text-[#D0D4DC] font-medium truncate">
                     {idx + 1} · {segMode === 'dividida' || segMode === 'split-screen' ? 'Tela dividida' : segMode === 'broll' || segMode === 'broll-full' ? 'B-roll' : segMode === 'recorte' || segMode === 'avatar-overlay' ? 'Recorte' : 'Avatar'}
                   </span>
                 </div>
 
                 {/* Scene Duration Adjuster (- / +) */}
                 <div 
-                  className="flex items-center justify-between mt-1 px-1 py-0.5 rounded-lg bg-[#0E1012] border border-[#21252B]"
+                  className="flex items-center justify-between w-full h-[19px] px-1 rounded bg-[#0A0C0E] border border-[#21252B]"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <button
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleAdjustSceneDuration(idx, -0.5);
+                      handleAdjustSceneDuration(idx, e.shiftKey ? -0.5 : -0.1);
                     }}
-                    className="w-3.5 h-3.5 rounded bg-[#181B20] hover:bg-[#282C34] text-[#92978F] hover:text-[#F5F5F0] flex items-center justify-center transition-colors cursor-pointer active:scale-90"
-                    title="Diminuir tempo da cena (-0.5s)"
+                    className="w-3.5 h-3.5 rounded bg-[#16181D] hover:bg-[#282C34] text-[#92978F] hover:text-[#F5F5F0] flex items-center justify-center transition-colors cursor-pointer active:scale-90"
+                    title="Diminuir tempo (-0.1s, Shift: -0.5s)"
                   >
                     <Minus className="w-2 h-2" />
                   </button>
 
-                  <span className="text-[9px] font-mono font-bold text-[#C5F955] select-none">
+                  <span
+                    className="text-[8.5px] font-mono font-bold text-[#C5F955] select-none"
+                    title="Duração da cena em segundos"
+                  >
                     {(seg.duration || (seg.end - seg.start) || 3.5).toFixed(1)}s
                   </span>
 
@@ -4401,10 +4494,10 @@ export default function EditorView({
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleAdjustSceneDuration(idx, 0.5);
+                      handleAdjustSceneDuration(idx, e.shiftKey ? 0.5 : 0.1);
                     }}
-                    className="w-3.5 h-3.5 rounded bg-[#181B20] hover:bg-[#282C34] text-[#92978F] hover:text-[#F5F5F0] flex items-center justify-center transition-colors cursor-pointer active:scale-90"
-                    title="Aumentar tempo da cena (+0.5s)"
+                    className="w-3.5 h-3.5 rounded bg-[#16181D] hover:bg-[#282C34] text-[#92978F] hover:text-[#C5F955] flex items-center justify-center transition-colors cursor-pointer active:scale-90"
+                    title="Aumentar tempo (+0.1s, Shift: +0.5s)"
                   >
                     <Plus className="w-2 h-2" />
                   </button>
