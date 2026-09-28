@@ -23,6 +23,7 @@ import {
   Edit2,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   Layers,
   Type,
   Music2,
@@ -96,32 +97,60 @@ const TRANSITIONS_GRID = [
   { id: 'glare', label: 'Glare' }
 ];
 
-const TRANSITION_SOUNDS = [
-  { id: 'padrao', label: 'Padrão (Sem som)' },
-  { id: 'camera_flash', label: 'Flash Fotográfico (Câmera Shutter)' },
-  { id: 'impact_sub', label: 'Impacto Sub 808 (Zoom Punch)' },
-  { id: 'whip_snap', label: 'Chicote Seco (Whip Snap)' },
-  { id: 'optic_glare', label: 'Brilho Óptico (Glare Shimmer)' },
-  { id: 'glitch_sfx', label: 'Glitch Digital (Bitcrush)' },
-  { id: 'whoosh_deep', label: 'Whoosh Profundo (Blur)' },
-  { id: 'whoosh_fast', label: 'Whoosh Rápido' },
-  { id: 'swoosh', label: 'Swoosh Cinematográfico (Fade)' },
-  { id: 'pop', label: 'Pop Moderno' },
-  { id: 'riser', label: 'Riser de Tensão' }
+// Mapeamento idêntico ao VibeCut: cada transição tem seu som nativo padrão (ou sem som)
+const TRANSITION_DEFAULT_SOUNDS = {
+  corte_seco: { id: 'sem_som', label: 'Sem som' },
+  fade: { id: 'sem_som', label: 'Sem som' },
+  flash_branco: { id: 'flash_branco', label: 'Flash branco' },
+  zoom_punch: { id: 'zoom_punch', label: 'Zoom punch' },
+  whip_lateral: { id: 'whip', label: 'Whip' },
+  blur: { id: 'blur', label: 'Blur' },
+  glitch: { id: 'glitch', label: 'Glitch' },
+  glare: { id: 'glitch', label: 'Glare' },
+  flare: { id: 'glitch', label: 'Glare' }
+};
+
+// Aliases para compatibilidade retroativa
+const TRANSITION_DEFAULT_SOUND = {
+  corte_seco: 'sem_som',
+  fade: 'sem_som',
+  flash_branco: 'flash_branco',
+  zoom_punch: 'zoom_punch',
+  whip_lateral: 'whip',
+  blur: 'blur',
+  glitch: 'glitch',
+  glare: 'glitch',
+  flare: 'glitch'
+};
+
+// Lista de opções de som do VibeCut (Imagem 2)
+const SOUND_OPTIONS_LIST = [
+  { id: 'sem_som', label: 'Sem som' },
+  { id: 'whip', label: 'Whip' },
+  { id: 'flash_branco', label: 'Flash branco' },
+  { id: 'blur', label: 'Blur' },
+  { id: 'zoom_punch', label: 'Zoom punch' },
+  { id: 'glitch', label: 'Glitch' }
 ];
 
-// Cada transição tem seu som nativo característico e perfeitamente sintonizado
-const TRANSITION_DEFAULT_SOUND = {
-  corte_seco: 'padrao',
-  fade: 'swoosh',
-  flash_branco: 'camera_flash',
-  zoom_punch: 'impact_sub',
-  whip_lateral: 'whip_snap',
-  blur: 'whoosh_deep',
-  glitch: 'glitch_sfx',
-  glare: 'optic_glare',
-  flare: 'optic_glare'
+const SOUND_AUDIO_FILES = {
+  zoom_punch: '/storage/transitions/zoom-punch.mp3',
+  flash_branco: '/storage/transitions/whiteflash.mp3',
+  whip: '/storage/transitions/whip.mp3',
+  blur: '/storage/transitions/blur.mp3',
+  glitch: '/storage/transitions/glitch.mp3',
+  glare: '/storage/transitions/glitch.mp3'
 };
+
+const TRANSITION_SOUNDS = [
+  { id: 'padrao', label: 'Padrão' },
+  { id: 'sem_som', label: 'Sem som' },
+  { id: 'whip', label: 'Whip' },
+  { id: 'flash_branco', label: 'Flash branco' },
+  { id: 'blur', label: 'Blur' },
+  { id: 'zoom_punch', label: 'Zoom punch' },
+  { id: 'glitch', label: 'Glitch' }
+];
 
 // Gerador PCM WAV puro em memória para reprodução 100% instantânea e livre de bloqueios de áudio
 function generatePcmWav(fn, duration = 0.28, sampleRate = 22050) {
@@ -377,24 +406,20 @@ function initSoundBuffers(ctx) {
   } catch (e) {}
 }
 
-function playTransitionSound(soundId, volume = 0.8) {
-  if (!soundId || soundId === 'padrao' || volume <= 0) return;
-  const safeVol = Math.max(0.01, Math.min(1.0, volume));
+function playFallbackPcm(cleanId, safeVol = 0.8) {
+  let pcmId = cleanId;
+  if (pcmId === 'zoom_punch') pcmId = 'impact_sub';
+  if (pcmId === 'flash_branco') pcmId = 'camera_flash';
+  if (pcmId === 'whip') pcmId = 'whip_snap';
+  if (pcmId === 'blur') pcmId = 'whoosh_deep';
+  if (pcmId === 'glitch') pcmId = 'glitch_sfx';
 
-  // Normaliza aliases e valores antigos
-  let cleanId = soundId;
-  if (cleanId === 'whip') cleanId = 'whip_snap';
-  if (cleanId === 'flare' || cleanId === 'glare') cleanId = 'optic_glare';
-  if (cleanId === 'punch') cleanId = 'impact_sub';
-  if (cleanId === 'camera') cleanId = 'camera_flash';
-
-  // 1. Toca instantaneamente via Web Audio AudioBuffer (latência 0ms)
   const ctx = getAudioContext();
   if (ctx) {
     if (Object.keys(_soundBuffers).length === 0) {
       initSoundBuffers(ctx);
     }
-    const buf = _soundBuffers[cleanId];
+    const buf = _soundBuffers[pcmId];
     if (buf) {
       try {
         const source = ctx.createBufferSource();
@@ -409,15 +434,56 @@ function playTransitionSound(soundId, volume = 0.8) {
     }
   }
 
-  // 2. Fallback via HTML5 Audio usando o WAV sintetizado
   try {
-    const dataUri = SOUND_DATA_URIS[cleanId] || SOUND_DATA_URIS[soundId];
+    const dataUri = SOUND_DATA_URIS[pcmId];
     if (dataUri) {
       const audio = new Audio(dataUri);
       audio.volume = safeVol;
       audio.play().catch(() => {});
     }
   } catch (err) {}
+}
+
+function playTransitionSound(soundId, volume = 0.8, transType = 'zoom_punch') {
+  if (volume <= 0) return;
+
+  let target = soundId || 'padrao';
+  if (target === 'padrao') {
+    const def = TRANSITION_DEFAULT_SOUNDS[transType] || { id: 'sem_som' };
+    target = def.id;
+  }
+
+  // Normaliza aliases e valores antigos
+  if (target === 'impact_sub') target = 'zoom_punch';
+  if (target === 'camera_flash') target = 'flash_branco';
+  if (target === 'whip_snap' || target === 'whip_lateral') target = 'whip';
+  if (target === 'whoosh_deep') target = 'blur';
+  if (target === 'glitch_sfx' || target === 'optic_glare' || target === 'glare') target = 'glitch';
+
+  if (!target || target === 'sem_som' || target === 'padrao') return;
+
+  const safeVol = Math.max(0.01, Math.min(1.0, volume > 1 ? volume / 100 : volume));
+
+  // 1. Tentar áudio MP3 de /storage/transitions
+  const mp3Url = SOUND_AUDIO_FILES[target];
+  if (mp3Url) {
+    try {
+      const audio = new Audio(mp3Url);
+      audio.volume = safeVol;
+      const p = audio.play();
+      if (p !== undefined) {
+        p.catch(() => {
+          playFallbackPcm(target, safeVol);
+        });
+      }
+      return;
+    } catch (e) {
+      playFallbackPcm(target, safeVol);
+      return;
+    }
+  }
+
+  playFallbackPcm(target, safeVol);
 }
 
 export default function EditorView({
@@ -438,17 +504,8 @@ export default function EditorView({
     let cleanType = type || 'corte_seco';
     if (cleanType === 'flare') cleanType = 'glare';
 
-    // Determina o som característico da transição caso não especificado
-    let autoSound = sound && sound !== 'padrao' 
-      ? sound 
-      : (TRANSITION_DEFAULT_SOUND[cleanType] || 'padrao');
-
-    if (autoSound === 'whip') autoSound = 'whip_snap';
-    if (autoSound === 'flare' || autoSound === 'glare') autoSound = 'optic_glare';
-    if (autoSound === 'punch') autoSound = 'impact_sub';
-
-    if (autoSound && autoSound !== 'padrao') {
-      playTransitionSound(autoSound, (volume ?? 80) / 100);
+    if (soundEffectsEnabled) {
+      playTransitionSound(sound, volume ?? 35, cleanType);
     }
 
     if (cleanType && cleanType !== 'corte_seco') {
@@ -535,9 +592,26 @@ export default function EditorView({
     zoom: 1.0,
     applyToFullScenes: false
   });
-  const [subtitlesPositionGlobal, setSubtitlesPositionGlobal] = useState('automatica');
   const [isRePlanning, setIsRePlanning] = useState(false);
   const [isGeneratingHeadline, setIsGeneratingHeadline] = useState(false);
+  const [isSoundDropdownOpen, setIsSoundDropdownOpen] = useState(false);
+  const soundDropdownRef = useRef(null);
+  const [syncAllVolumeOnDrag, setSyncAllVolumeOnDrag] = useState(false);
+  const [soundFeedbackMsg, setSoundFeedbackMsg] = useState('');
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (soundDropdownRef.current && !soundDropdownRef.current.contains(event.target)) {
+        setIsSoundDropdownOpen(false);
+      }
+    }
+    if (isSoundDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isSoundDropdownOpen]);
 
   // Headline State with interactive position & sizing
   const [headline, setHeadline] = useState(
@@ -2521,27 +2595,31 @@ export default function EditorView({
                         {/* 8 Botões de transição em 2 colunas */}
                         <div className="grid grid-cols-2 gap-1.5">
                           {TRANSITIONS_GRID.map(t => {
-                            const currentType = activeSegment?.transition?.type || activeSegment?.transitionType || 'corte_seco';
-                            const isSel = currentType === t.id;
+                            const curTransType = activeSegment?.transition?.type || activeSegment?.transitionType || 'corte_seco';
+                            const isSel = curTransType === t.id;
+                            const curVol = activeSegment?.transition?.volume ?? activeSegment?.transitionVolume ?? 35;
+                            const curSound = activeSegment?.transition?.sound || 'padrao';
                             return (
                               <button
                                 key={t.id}
                                 type="button"
                                 onClick={() => {
-                                  const autoSound = TRANSITION_DEFAULT_SOUND[t.id] || 'padrao';
-                                  const currentVol = activeSegment?.transition?.volume ?? activeSegment?.transitionVolume ?? 80;
                                   updateActiveSegment({
                                     transition: {
                                       type: t.id,
-                                      sound: autoSound,
-                                      volume: currentVol
+                                      sound: curSound,
+                                      volume: curVol
                                     }
                                   });
-                                  triggerTransitionPreview(t.id, autoSound, currentVol);
+                                  let soundToPlay = curSound;
+                                  if (soundToPlay === 'padrao') {
+                                    soundToPlay = TRANSITION_DEFAULT_SOUNDS[t.id]?.id || 'sem_som';
+                                  }
+                                  triggerTransitionPreview(t.id, soundToPlay, curVol);
                                 }}
                                 className={`py-2 px-2.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer text-center ${
                                   isSel
-                                    ? 'bg-[#181B20] text-white border-[#C5F955] ring-1 ring-[#C5F955]/40 shadow-sm'
+                                    ? 'bg-[#181B20] text-white border-[#a855f7] ring-1 ring-[#a855f7] shadow-sm'
                                     : 'bg-[#111315] border-[#21252B] text-[#92978F] hover:text-white hover:border-[#282C34]'
                                 }`}
                               >
@@ -2551,113 +2629,256 @@ export default function EditorView({
                           })}
                         </div>
 
-                        {/* Dropdown de Som + Botão de Prévia */}
-                        <div className="space-y-2 pt-1">
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs text-[#92978F] shrink-0 w-9">Som</span>
-                            <select
-                              value={activeSegment?.transition?.sound || activeSegment?.transitionSound || TRANSITION_DEFAULT_SOUND[activeSegment?.transition?.type || 'corte_seco'] || 'padrao'}
-                              onChange={e => {
-                                const newSound = e.target.value;
-                                const currentType = activeSegment?.transition?.type || activeSegment?.transitionType || 'corte_seco';
-                                const currentVol = activeSegment?.transition?.volume ?? activeSegment?.transitionVolume ?? 80;
-                                updateActiveSegment({
-                                  transition: {
-                                    type: currentType,
-                                    sound: newSound,
-                                    volume: currentVol
-                                  }
-                                });
-                                if (newSound !== 'padrao') {
-                                  playTransitionSound(newSound, currentVol / 100);
-                                }
-                                triggerTransitionPreview(currentType, newSound, currentVol);
-                              }}
-                              className="flex-1 bg-[#181B20] border border-[#21252B] text-[#F5F5F0] text-xs rounded-xl px-2.5 py-1.5 focus:outline-none focus:border-[#C5F955] cursor-pointer"
-                            >
-                              {TRANSITION_SOUNDS.map(s => (
-                                <option key={s.id} value={s.id} className="bg-[#111315] text-[#F5F5F0]">
-                                  {s.label}
-                                </option>
-                              ))}
-                            </select>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const currentType = activeSegment?.transition?.type || activeSegment?.transitionType || 'corte_seco';
-                                const defaultSound = TRANSITION_DEFAULT_SOUND[currentType] || 'camera_flash';
-                                const currentSound = activeSegment?.transition?.sound || activeSegment?.transitionSound || defaultSound;
-                                const currentVol = activeSegment?.transition?.volume ?? activeSegment?.transitionVolume ?? 80;
-                                const soundToPlay = currentSound !== 'padrao' ? currentSound : defaultSound;
-                                playTransitionSound(soundToPlay, currentVol / 100);
-                                triggerTransitionPreview(currentType, soundToPlay, currentVol);
-                              }}
-                              title="Ouvir som e testar transição na tela"
-                              className="p-2 rounded-xl bg-[#181B20] border border-[#21252B] text-[#92978F] hover:text-[#C5F955] hover:border-[#C5F955]/40 transition-colors cursor-pointer shrink-0"
-                            >
-                              <Volume2 className="w-4 h-4" />
-                            </button>
-                          </div>
+                        {/* Dropdown de Som + Botão de Prévia (Idêntico ao VibeCut - Imagem 1 e 2) */}
+                        {(() => {
+                          const curTransType = activeSegment?.transition?.type || activeSegment?.transitionType || 'corte_seco';
+                          const curTransDefault = TRANSITION_DEFAULT_SOUNDS[curTransType] || { id: 'sem_som', label: 'Sem som' };
+                          
+                          let curSoundVal = activeSegment?.transition?.sound || activeSegment?.transitionSound || 'padrao';
+                          if (curSoundVal === 'impact_sub') curSoundVal = 'zoom_punch';
+                          if (curSoundVal === 'camera_flash') curSoundVal = 'flash_branco';
+                          if (curSoundVal === 'whip_snap' || curSoundVal === 'whip_lateral') curSoundVal = 'whip';
+                          if (curSoundVal === 'whoosh_deep') curSoundVal = 'blur';
+                          if (curSoundVal === 'glitch_sfx' || curSoundVal === 'optic_glare') curSoundVal = 'glitch';
 
-                          {/* Controle de Volume com slider e desativação */}
-                          <div className="flex items-center gap-2.5 pt-0.5">
-                            <span className="text-xs text-[#92978F] shrink-0 w-9">Volume</span>
-                            <input
-                              type="range"
-                              min="0"
-                              max="100"
-                              step="5"
-                              value={activeSegment?.transition?.volume ?? activeSegment?.transitionVolume ?? 80}
-                              onChange={e => {
-                                const newVol = parseInt(e.target.value);
-                                const currentType = activeSegment?.transition?.type || activeSegment?.transitionType || 'corte_seco';
-                                const currentSound = activeSegment?.transition?.sound || activeSegment?.transitionSound || 'padrao';
-                                updateActiveSegment({
-                                  transition: {
-                                    type: currentType,
-                                    sound: currentSound,
-                                    volume: newVol
-                                  }
-                                });
-                              }}
-                              className="flex-1 accent-[#C5F955] h-1.5 bg-[#21252B] rounded cursor-pointer"
-                            />
-                            <span className="text-[11px] font-mono text-[#C5F955] w-9 text-right shrink-0">
-                              {(activeSegment?.transition?.volume ?? activeSegment?.transitionVolume ?? 80) === 0 
-                                ? '0%' 
-                                : `${activeSegment?.transition?.volume ?? activeSegment?.transitionVolume ?? 80}%`}
-                            </span>
-                          </div>
+                          let curSoundLabel = `Padrão (${curTransDefault.label})`;
+                          if (curSoundVal === 'padrao') {
+                            curSoundLabel = `Padrão (${curTransDefault.label})`;
+                          } else if (curSoundVal === 'sem_som') {
+                            curSoundLabel = 'Sem som';
+                          } else {
+                            const found = SOUND_OPTIONS_LIST.find(s => s.id === curSoundVal);
+                            curSoundLabel = found ? found.label : `Padrão (${curTransDefault.label})`;
+                          }
 
-                          {/* Texto explicativo idêntico ao VibeCut */}
-                          <p className="text-[10px] text-[#92978F] leading-tight pt-0.5">
-                            Corte seco e fade entram sem som de fábrica. Para sonorizar, escolha um som na lista.
-                          </p>
+                          const curVol = activeSegment?.transition?.volume ?? activeSegment?.transitionVolume ?? 35;
 
-                          {/* Ação: Som padrão em todas as cenas */}
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const currentSound = activeSegment?.transition?.sound || activeSegment?.transitionSound || 'padrao';
-                              const currentVol = activeSegment?.transition?.volume ?? activeSegment?.transitionVolume ?? 80;
-                              setSegments(prev => prev.map((s, idx) => {
-                                if (idx === 0) return s;
-                                return {
-                                  ...s,
-                                  transition: {
-                                    ...(s.transition || {}),
-                                    type: s.transition?.type || 'corte_seco',
-                                    sound: currentSound,
-                                    volume: currentVol
-                                  }
-                                };
-                              }));
-                            }}
-                            className="text-[11px] text-[#92978F] hover:text-[#C5F955] transition-colors cursor-pointer text-left block underline decoration-dotted pt-0.5"
-                          >
-                            Som padrão em todas as cenas
-                          </button>
-                        </div>
+                          return (
+                            <div className="space-y-2 pt-1">
+                              {/* Linha do Dropdown de Som */}
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-[#92978F] shrink-0 w-9">Som</span>
+                                
+                                <div className="relative flex-1" ref={soundDropdownRef}>
+                                  <button
+                                    type="button"
+                                    onClick={() => setIsSoundDropdownOpen(prev => !prev)}
+                                    className="w-full bg-[#181B20] border border-[#21252B] hover:border-[#383D47] text-[#F5F5F0] text-xs rounded-xl px-3 py-2 flex items-center justify-between transition-colors cursor-pointer"
+                                  >
+                                    <span className="truncate font-medium">{curSoundLabel}</span>
+                                    <ChevronDown className={`w-3.5 h-3.5 text-[#92978F] transition-transform duration-150 ${isSoundDropdownOpen ? 'rotate-180 text-white' : ''}`} />
+                                  </button>
+
+                                  {/* Menu Flutuante de Sons (Imagem 2) */}
+                                  {isSoundDropdownOpen && (
+                                    <div className="absolute top-full left-0 right-0 mt-1 z-50 bg-[#16181D] border border-[#282C34] rounded-xl shadow-2xl py-1 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+                                      {/* Opção Padrão (Nome da Transição) */}
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          updateActiveSegment({
+                                            transition: {
+                                              type: curTransType,
+                                              sound: 'padrao',
+                                              volume: curVol
+                                            }
+                                          });
+                                          setIsSoundDropdownOpen(false);
+                                          const defSound = curTransDefault.id;
+                                          if (defSound && defSound !== 'sem_som') {
+                                            playTransitionSound(defSound, curVol / 100, curTransType);
+                                          }
+                                          triggerTransitionPreview(curTransType, defSound, curVol);
+                                        }}
+                                        className={`w-full px-3 py-2 text-xs flex items-center justify-between text-left transition-colors cursor-pointer ${
+                                          curSoundVal === 'padrao'
+                                            ? 'bg-[#21252B] text-white font-medium'
+                                            : 'text-[#D1D5DB] hover:bg-[#1C1F26] hover:text-white'
+                                        }`}
+                                      >
+                                        <span>{`Padrão (${curTransDefault.label})`}</span>
+                                        {curSoundVal === 'padrao' && <Check className="w-3.5 h-3.5 text-[#C5F955]" />}
+                                      </button>
+
+                                      {/* Demais opções do VibeCut: Sem som, Whip, Flash branco, Blur, Zoom punch, Glitch */}
+                                      {SOUND_OPTIONS_LIST.map(opt => {
+                                        const isSelected = curSoundVal === opt.id;
+                                        return (
+                                          <button
+                                            key={opt.id}
+                                            type="button"
+                                            onClick={() => {
+                                              updateActiveSegment({
+                                                transition: {
+                                                  type: curTransType,
+                                                  sound: opt.id,
+                                                  volume: curVol
+                                                }
+                                              });
+                                              setIsSoundDropdownOpen(false);
+                                              if (opt.id !== 'sem_som') {
+                                                playTransitionSound(opt.id, curVol / 100, curTransType);
+                                              }
+                                              triggerTransitionPreview(curTransType, opt.id, curVol);
+                                            }}
+                                            className={`w-full px-3 py-2 text-xs flex items-center justify-between text-left transition-colors cursor-pointer ${
+                                              isSelected
+                                                ? 'bg-[#21252B] text-white font-medium'
+                                                : 'text-[#D1D5DB] hover:bg-[#1C1F26] hover:text-white'
+                                            }`}
+                                          >
+                                            <span>{opt.label}</span>
+                                            {isSelected && <Check className="w-3.5 h-3.5 text-[#C5F955]" />}
+                                          </button>
+                                        );
+                                      })}
+                                    </div>
+                                  )}
+                                </div>
+
+                                {/* Botão de Prévia de Áudio (Ícone de Alto-Falante) */}
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    let soundToPlay = curSoundVal;
+                                    if (soundToPlay === 'padrao') {
+                                      soundToPlay = curTransDefault.id;
+                                    }
+                                    if (soundToPlay && soundToPlay !== 'sem_som') {
+                                      playTransitionSound(soundToPlay, curVol / 100, curTransType);
+                                    }
+                                    triggerTransitionPreview(curTransType, soundToPlay, curVol);
+                                  }}
+                                  title="Ouvir som e testar transição na tela"
+                                  className="p-2 rounded-xl bg-[#181B20] border border-[#21252B] text-[#92978F] hover:text-[#C5F955] hover:border-[#C5F955]/40 transition-colors cursor-pointer shrink-0"
+                                >
+                                  <Volume2 className="w-4 h-4" />
+                                </button>
+                              </div>
+
+                              {/* Controle de Volume */}
+                              <div className="flex items-center gap-2.5 pt-0.5">
+                                <span className="text-xs text-[#92978F] shrink-0 w-9">Volume</span>
+                                <input
+                                  type="range"
+                                  min="0"
+                                  max="100"
+                                  step="1"
+                                  value={curVol}
+                                  onChange={e => {
+                                    const newVol = parseInt(e.target.value);
+                                    if (syncAllVolumeOnDrag) {
+                                      setSegments(prev => prev.map((s, idx) => {
+                                        if (idx === 0) return s;
+                                        return {
+                                          ...s,
+                                          transition: {
+                                            ...(s.transition || {}),
+                                            type: s.transition?.type || 'corte_seco',
+                                            sound: s.transition?.sound || 'padrao',
+                                            volume: newVol
+                                          }
+                                        };
+                                      }));
+                                    } else {
+                                      updateActiveSegment({
+                                        transition: {
+                                          type: curTransType,
+                                          sound: curSoundVal,
+                                          volume: newVol
+                                        }
+                                      });
+                                    }
+                                  }}
+                                  className="flex-1 accent-[#a855f7] h-1.5 bg-[#21252B] rounded cursor-pointer"
+                                />
+                                <span className="text-xs font-mono text-[#F5F5F0] w-9 text-right shrink-0 font-medium">
+                                  {curVol}%
+                                </span>
+                              </div>
+
+                              {/* Ações idênticas ao VibeCut (Imagem 1): Som padrão em todas as cenas | 35% em todas as cenas */}
+                              <div className="flex items-center justify-between text-[11px] pt-1 border-t border-[#21252B]/60 mt-1">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setSegments(prev => {
+                                      const updated = prev.map((s, idx) => {
+                                        if (idx === 0) return s;
+                                        return {
+                                          ...s,
+                                          transition: {
+                                            ...(s.transition || {}),
+                                            type: s.transition?.type || 'corte_seco',
+                                            sound: 'padrao',
+                                            volume: s.transition?.volume ?? curVol
+                                          }
+                                        };
+                                      });
+                                      pushState(updated, headline);
+                                      return updated;
+                                    });
+                                    setSoundFeedbackMsg('som_padrao');
+                                    setTimeout(() => setSoundFeedbackMsg(''), 2500);
+                                  }}
+                                  className="text-[#92978F] hover:text-[#C5F955] transition-colors cursor-pointer text-left underline decoration-dotted"
+                                >
+                                  {soundFeedbackMsg === 'som_padrao' ? (
+                                    <span className="text-[#C5F955] font-semibold flex items-center gap-1">
+                                      <Check className="w-3 h-3" /> Som padrão em todas
+                                    </span>
+                                  ) : (
+                                    'Som padrão em todas as cenas'
+                                  )}
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setSegments(prev => {
+                                      const updated = prev.map((s, idx) => {
+                                        if (idx === 0) return s;
+                                        return {
+                                          ...s,
+                                          transition: {
+                                            ...(s.transition || {}),
+                                            type: s.transition?.type || 'corte_seco',
+                                            sound: s.transition?.sound || 'padrao',
+                                            volume: curVol
+                                          }
+                                        };
+                                      });
+                                      pushState(updated, headline);
+                                      return updated;
+                                    });
+                                    setSoundFeedbackMsg('volume_todas');
+                                    setTimeout(() => setSoundFeedbackMsg(''), 2500);
+                                  }}
+                                  className="text-[#92978F] hover:text-[#C5F955] transition-colors cursor-pointer text-right underline decoration-dotted"
+                                >
+                                  {soundFeedbackMsg === 'volume_todas' ? (
+                                    <span className="text-[#C5F955] font-semibold flex items-center gap-1">
+                                      <Check className="w-3 h-3" /> {curVol}% em todas
+                                    </span>
+                                  ) : (
+                                    `${curVol}% em todas as cenas`
+                                  )}
+                                </button>
+                              </div>
+
+                              {/* Opção de sincronização automática contínua */}
+                              <label className="flex items-center gap-1.5 text-[10px] text-[#92978F] hover:text-[#F5F5F0] cursor-pointer select-none pt-0.5">
+                                <input
+                                  type="checkbox"
+                                  checked={syncAllVolumeOnDrag}
+                                  onChange={e => setSyncAllVolumeOnDrag(e.target.checked)}
+                                  className="accent-[#a855f7] rounded cursor-pointer w-3 h-3"
+                                />
+                                <span>Sincronizar volume em todas as cenas ao mover slider</span>
+                              </label>
+                            </div>
+                          );
+                        })()}
                       </div>
                     ) : (
                       <div className="p-3 rounded-xl bg-[#111315] border border-[#21252B] space-y-1">

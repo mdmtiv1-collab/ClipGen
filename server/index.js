@@ -30,6 +30,7 @@ app.use('/storage/brolls', express.static(path.join(__dirname, 'storage', 'broll
 app.use('/storage/uploads', express.static(path.join(__dirname, 'storage', 'uploads')));
 app.use('/storage/outputs', express.static(path.join(__dirname, 'storage', 'outputs')));
 app.use('/storage/music', express.static(path.join(__dirname, 'storage', 'music')));
+app.use('/storage/transitions', express.static(path.join(__dirname, 'storage', 'transitions')));
 
 // Storage setups
 const uploadStorage = multer.diskStorage({
