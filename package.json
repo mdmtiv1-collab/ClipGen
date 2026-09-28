@@ -1,0 +1,70 @@
+{
+  "name": "clipgen",
+  "productName": "ClipGen",
+  "version": "1.0.0",
+  "description": "ClipGen - Criador Inteligente de Vídeos Direct Response com IA",
+  "main": "electron/main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "app": "electron .",
+    "build:client": "npm.cmd run build --prefix client",
+    "dist": "npm.cmd run build:client && electron-builder --win nsis",
+    "dist:dir": "npm.cmd run build:client && electron-builder --win --dir"
+  },
+  "build": {
+    "appId": "com.clipgen.studio",
+    "productName": "ClipGen",
+    "directories": {
+      "output": "dist_installer"
+    },
+    "files": [
+      "electron/**/*",
+      "client/dist/**/*",
+      "server/index.js",
+      "server/services/**/*",
+      "server/storage/music/**/*",
+      "server/storage/transitions/**/*",
+      "server/storage/fonts/**/*",
+      "package.json"
+    ],
+    "extraMetadata": {
+      "main": "electron/main.cjs"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "client/public/clipgen.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "ClipGen"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mdmtiv1-collab/ClipGen.git"
+  },
+  "keywords": [
+    "video",
+    "editor",
+    "ai",
+    "broll",
+    "direct-response",
+    "subtitles"
+  ],
+  "author": "ClipGen Studio",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "electron": "^44.4.5",
+    "electron-builder": "^26.15.3"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.4",
+    "express": "^5.2.1",
+    "multer": "^2.4.0"
+  }
+}

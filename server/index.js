@@ -25,12 +25,17 @@ const PORT = 3001;
 app.use(cors());
 app.use(express.json({ limit: '100mb' }));
 
-// Static file serving for videos
+// Static file serving for videos and frontend
 app.use('/storage/brolls', express.static(path.join(__dirname, 'storage', 'brolls')));
 app.use('/storage/uploads', express.static(path.join(__dirname, 'storage', 'uploads')));
 app.use('/storage/outputs', express.static(path.join(__dirname, 'storage', 'outputs')));
 app.use('/storage/music', express.static(path.join(__dirname, 'storage', 'music')));
 app.use('/storage/transitions', express.static(path.join(__dirname, 'storage', 'transitions')));
+
+const clientDistPath = path.join(__dirname, '..', 'client', 'dist');
+if (fs.existsSync(clientDistPath)) {
+  app.use(express.static(clientDistPath));
+}
 
 // Storage setups
 const uploadStorage = multer.diskStorage({
@@ -611,6 +616,15 @@ app.post('/api/license/activate', (req, res) => {
 app.post('/api/license/deactivate', (req, res) => {
   res.json(deactivateLicense());
 });
+
+if (fs.existsSync(clientDistPath)) {
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api') || req.path.startsWith('/storage')) {
+      return next();
+    }
+    res.sendFile(path.join(clientDistPath, 'index.html'));
+  });
+}
 
 app.listen(PORT, () => {
   console.log(`=======================================================`);

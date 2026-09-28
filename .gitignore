@@ -5,6 +5,7 @@ server/node_modules/
 
 # Production build artifacts
 dist/
+dist_installer/
 client/dist/
 build/
 
