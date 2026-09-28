@@ -497,6 +497,7 @@ export default function EditorView({
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(project.durationSec || 20);
   const [isMuted, setIsMuted] = useState(false);
+  const [soundEffectsEnabled, setSoundEffectsEnabled] = useState(true);
   const [activeTransitionVisual, setActiveTransitionVisual] = useState(null);
   const transitionTimerRef = useRef(null);
 
@@ -585,7 +586,6 @@ export default function EditorView({
   const [highlightColor, setHighlightColor] = useState(project.highlightColor || '#C5F955');
   const [fontScale, setFontScale] = useState(project.fontScale || 95);
   const [avatarSpeed, setAvatarSpeed] = useState(1.0);
-  const [soundEffectsEnabled, setSoundEffectsEnabled] = useState(true);
   const [avatarFraming, setAvatarFraming] = useState({
     splitBoxTop: 0,
     frameTime: 0,

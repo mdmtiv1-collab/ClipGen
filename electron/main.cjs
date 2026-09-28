@@ -27,18 +27,12 @@ async function startInternalServer() {
 
   console.log('[ClipGen Desktop] Iniciando servidor backend...');
   try {
-    let serverScript;
-    if (app.isPackaged) {
-      serverScript = path.join(process.resourcesPath, 'app.asar.unpacked', 'server', 'index.js');
-    } else {
-      serverScript = path.join(__dirname, '..', 'server', 'index.js');
-    }
-
+    const serverScript = path.join(__dirname, '..', 'server', 'index.js');
     console.log('[ClipGen Desktop] Carregando backend em:', serverScript);
     require(serverScript);
   } catch (err) {
     console.error('[ClipGen Desktop] Erro ao carregar servidor interno:', err);
-    dialog.showErrorBox('Erro ao Iniciar o Servidor do ClipGen', `Falha ao inicializar o motor local:\n${err.message}`);
+    dialog.showErrorBox('Erro ao Iniciar o Servidor do ClipGen', `Falha ao inicializar o motor local:\n${err.stack || err.message}`);
     return false;
   }
 
@@ -80,6 +74,10 @@ function createMainWindow() {
   });
 
   mainWindow.loadURL(`http://127.0.0.1:${PORT}`);
+
+  mainWindow.webContents.on('console-message', (event, level, message, line, sourceId) => {
+    console.log(`[Renderer] [L${level}] ${message} (${sourceId}:${line})`);
+  });
 
   mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
     console.warn('[ClipGen Desktop] Falha ao carregar página. Tentando novamente...', errorCode, errorDescription);

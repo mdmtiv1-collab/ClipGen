@@ -2,12 +2,8 @@ const fs = require('fs');
 const path = require('path');
 const { exec } = require('child_process');
 
-const DB_FILE = path.join(__dirname, '..', 'storage', 'projects.json');
-const THUMBS_DIR = path.join(__dirname, '..', 'storage', 'uploads', 'thumbnails');
-
-if (!fs.existsSync(THUMBS_DIR)) {
-  fs.mkdirSync(THUMBS_DIR, { recursive: true });
-}
+const { PROJECTS_FILE, THUMBS_DIR } = require('./storage_config');
+const DB_FILE = PROJECTS_FILE;
 
 function loadProjects() {
   if (!fs.existsSync(DB_FILE)) {
