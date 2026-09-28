@@ -83,7 +83,7 @@ export default function App() {
 
   return (
     <div
-      className={`${activeTab === 'editor' ? 'h-screen w-screen overflow-hidden' : 'min-h-screen'} bg-[#0e0c19] text-[#F5F5F0] flex selection:bg-[#C5F955] selection:text-[#111315] font-sans`}
+      className={`${activeTab === 'editor' ? 'h-screen w-screen overflow-hidden' : 'min-h-screen'} bg-[#111315] text-[#F5F5F0] flex selection:bg-[#C5F955] selection:text-[#111315] font-sans`}
     >
       {/* Sidebar with Brand Name & Live Theme Switcher */}
       {activeTab !== 'editor' && (
@@ -103,7 +103,7 @@ export default function App() {
       )}
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden bg-[#111315]">
         {!serverOnline && (
           <div className="bg-amber-500/10 border-b border-amber-500/20 px-6 py-2 text-center text-xs text-amber-300 font-semibold">
             Aviso: Servidor local não respondeu na porta 3001. Verifique se o backend está em execução.

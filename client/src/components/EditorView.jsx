@@ -583,6 +583,7 @@ export default function EditorView({
   const [globalFormat, setGlobalFormat] = useState(project.format || '9:16');
   const [enableSubtitles, setEnableSubtitles] = useState(true);
   const [globalSubtitleStyle, setGlobalSubtitleStyle] = useState(project.subtitleStyle || 'impacto');
+  const [subtitlesPositionGlobal, setSubtitlesPositionGlobal] = useState('automatica');
   const [highlightColor, setHighlightColor] = useState(project.highlightColor || '#C5F955');
   const [fontScale, setFontScale] = useState(project.fontScale || 95);
   const [avatarSpeed, setAvatarSpeed] = useState(1.0);

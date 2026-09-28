@@ -134,7 +134,7 @@ export default function ProjectDashboard({
   const reviewProjects = projects.filter(p => p.status === 'revisao');
 
   return (
-    <div className="w-full p-6 sm:p-8 space-y-6 select-none font-sans bg-[#111315] text-[#F5F5F0]">
+    <div className="w-full min-h-full p-6 sm:p-8 space-y-6 select-none font-sans bg-[#111315] text-[#F5F5F0]">
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
