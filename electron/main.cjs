@@ -49,13 +49,25 @@ async function startInternalServer() {
   return false;
 }
 
+process.on('uncaughtException', (err) => {
+  console.error('[ClipGen Desktop] Uncaught exception:', err);
+  try {
+    dialog.showErrorBox('Erro no ClipGen', `Ocorreu um erro no aplicativo:\n${err.stack || err.message}`);
+  } catch (e) {}
+});
+
+process.on('unhandledRejection', (reason) => {
+  console.error('[ClipGen Desktop] Unhandled rejection:', reason);
+});
+
 function createMainWindow() {
-  let iconPath = path.join(__dirname, 'clipgen.ico');
-  if (app.isPackaged) {
-    const unpackedIcon = path.join(process.resourcesPath, 'app.asar.unpacked', 'client', 'public', 'clipgen.ico');
-    const directIcon = path.join(__dirname, 'clipgen.ico');
-    iconPath = directIcon;
-  }
+  let iconPath = null;
+  try {
+    const candidate = path.join(__dirname, 'clipgen.ico');
+    if (fs.existsSync(candidate)) {
+      iconPath = candidate;
+    }
+  } catch (e) {}
 
   mainWindow = new BrowserWindow({
     width: 1440,
@@ -63,7 +75,7 @@ function createMainWindow() {
     minWidth: 1100,
     minHeight: 700,
     title: 'ClipGen - Criador Inteligente de Vídeos',
-    icon: iconPath,
+    ...(iconPath ? { icon: iconPath } : {}),
     backgroundColor: '#0a0b0e',
     autoHideMenuBar: true,
     show: true,
@@ -71,6 +83,11 @@ function createMainWindow() {
       nodeIntegration: false,
       contextIsolation: true
     }
+  });
+
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.show();
+    mainWindow.focus();
   });
 
   mainWindow.loadURL(`http://127.0.0.1:${PORT}`);
