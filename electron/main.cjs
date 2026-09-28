@@ -1,10 +1,8 @@
-const { app, BrowserWindow, shell } = require('electron');
+const { app, BrowserWindow, shell, dialog } = require('electron');
 const path = require('path');
 const http = require('http');
-const { fork } = require('child_process');
 
 let mainWindow = null;
-let serverProcess = null;
 const PORT = 3001;
 
 function isServerAlive() {
@@ -13,43 +11,57 @@ function isServerAlive() {
       resolve(true);
     });
     req.on('error', () => resolve(false));
-    req.setTimeout(800, () => {
+    req.setTimeout(600, () => {
       req.abort();
       resolve(false);
     });
   });
 }
 
-async function ensureBackendRunning() {
+async function startInternalServer() {
   const alive = await isServerAlive();
   if (alive) {
-    console.log('[ClipGen Desktop] Backend já está ativo na porta', PORT);
-    return;
+    console.log('[ClipGen Desktop] Servidor backend já ativo na porta', PORT);
+    return true;
   }
 
-  console.log('[ClipGen Desktop] Iniciando backend interno...');
-  const serverScript = path.join(__dirname, '..', 'server', 'index.js');
-  serverProcess = fork(serverScript, [], {
-    cwd: path.join(__dirname, '..', 'server'),
-    env: { ...process.env, PORT: PORT.toString(), NODE_ENV: 'production' },
-    silent: true
-  });
+  console.log('[ClipGen Desktop] Iniciando servidor backend...');
+  try {
+    let serverScript;
+    if (app.isPackaged) {
+      serverScript = path.join(process.resourcesPath, 'app.asar.unpacked', 'server', 'index.js');
+    } else {
+      serverScript = path.join(__dirname, '..', 'server', 'index.js');
+    }
 
-  serverProcess.on('error', (err) => {
-    console.error('[ClipGen Desktop] Erro ao iniciar backend:', err);
-  });
+    console.log('[ClipGen Desktop] Carregando backend em:', serverScript);
+    require(serverScript);
+  } catch (err) {
+    console.error('[ClipGen Desktop] Erro ao carregar servidor interno:', err);
+    dialog.showErrorBox('Erro ao Iniciar o Servidor do ClipGen', `Falha ao inicializar o motor local:\n${err.message}`);
+    return false;
+  }
 
-  for (let i = 0; i < 25; i++) {
-    await new Promise((r) => setTimeout(r, 300));
+  // Aguardar até o servidor responder
+  for (let i = 0; i < 30; i++) {
+    await new Promise((r) => setTimeout(r, 200));
     if (await isServerAlive()) {
-      console.log('[ClipGen Desktop] Backend online e pronto!');
-      return;
+      console.log('[ClipGen Desktop] Servidor backend pronto!');
+      return true;
     }
   }
+
+  dialog.showErrorBox('ClipGen - Tempo Limite', 'O servidor interno não respondeu a tempo.');
+  return false;
 }
 
 function createMainWindow() {
-  const iconPath = path.join(__dirname, '..', 'client', 'public', 'clipgen.ico');
+  let iconPath = path.join(__dirname, 'clipgen.ico');
+  if (app.isPackaged) {
+    const unpackedIcon = path.join(process.resourcesPath, 'app.asar.unpacked', 'client', 'public', 'clipgen.ico');
+    const directIcon = path.join(__dirname, 'clipgen.ico');
+    iconPath = directIcon;
+  }
 
   mainWindow = new BrowserWindow({
     width: 1440,
@@ -69,6 +81,15 @@ function createMainWindow() {
 
   mainWindow.loadURL(`http://127.0.0.1:${PORT}`);
 
+  mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
+    console.warn('[ClipGen Desktop] Falha ao carregar página. Tentando novamente...', errorCode, errorDescription);
+    setTimeout(() => {
+      if (mainWindow) {
+        mainWindow.loadURL(`http://127.0.0.1:${PORT}`);
+      }
+    }, 1000);
+  });
+
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     if (!url.startsWith(`http://127.0.0.1:${PORT}`) && !url.startsWith(`http://localhost:${PORT}`)) {
       shell.openExternal(url);
@@ -82,24 +103,27 @@ function createMainWindow() {
   });
 }
 
+if (process.platform === 'win32') {
+  app.setAppUserModelId('com.clipgen.studio');
+}
+
 const gotTheLock = app.requestSingleInstanceLock();
 if (!gotTheLock) {
   app.quit();
 } else {
-  if (process.platform === 'win32') {
-    app.setAppUserModelId('com.clipgen.studio');
-  }
-
   app.on('second-instance', () => {
     if (mainWindow) {
       if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.show();
       mainWindow.focus();
     }
   });
 
   app.whenReady().then(async () => {
-    await ensureBackendRunning();
-    createMainWindow();
+    const serverOk = await startInternalServer();
+    if (serverOk) {
+      createMainWindow();
+    }
 
     app.on('activate', () => {
       if (BrowserWindow.getAllWindows().length === 0) {
@@ -109,21 +133,8 @@ if (!gotTheLock) {
   });
 
   app.on('window-all-closed', () => {
-    if (serverProcess) {
-      try {
-        serverProcess.kill();
-      } catch (e) {}
-    }
     if (process.platform !== 'darwin') {
       app.quit();
-    }
-  });
-
-  app.on('before-quit', () => {
-    if (serverProcess) {
-      try {
-        serverProcess.kill();
-      } catch (e) {}
     }
   });
 }

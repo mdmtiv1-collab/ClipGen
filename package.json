@@ -30,6 +30,10 @@
     "extraMetadata": {
       "main": "electron/main.cjs"
     },
+    "asar": true,
+    "asarUnpack": [
+      "server/**/*"
+    ],
     "win": {
       "target": "nsis",
       "icon": "client/public/clipgen.ico"
