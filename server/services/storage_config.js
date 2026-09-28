@@ -78,7 +78,7 @@ module.exports = {
   PROJECTS_FILE,
   SETTINGS_FILE,
   LICENSE_FILE: path.join(STORAGE_DIR, 'license.json'),
-  MUSIC_DIR: path.join(ASSETS_DIR, 'music'),
-  TRANSITIONS_DIR: path.join(ASSETS_DIR, 'transitions'),
+  MUSIC_DIR: fs.existsSync(path.join(STORAGE_DIR, 'music')) ? path.join(STORAGE_DIR, 'music') : path.join(ASSETS_DIR, 'music'),
+  TRANSITIONS_DIR: fs.existsSync(path.join(STORAGE_DIR, 'transitions')) ? path.join(STORAGE_DIR, 'transitions') : path.join(ASSETS_DIR, 'transitions'),
   FONTS_DIR: path.join(ASSETS_DIR, 'fonts')
 };

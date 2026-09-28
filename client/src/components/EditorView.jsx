@@ -134,13 +134,35 @@ const SOUND_OPTIONS_LIST = [
 ];
 
 const SOUND_AUDIO_FILES = {
-  zoom_punch: '/storage/transitions/zoom-punch.mp3',
-  flash_branco: '/storage/transitions/whiteflash.mp3',
-  whip: '/storage/transitions/whip.mp3',
-  blur: '/storage/transitions/blur.mp3',
-  glitch: '/storage/transitions/glitch.mp3',
-  glare: '/storage/transitions/glitch.mp3'
+  zoom_punch: `${API_BASE}/storage/transitions/zoom-punch.mp3`,
+  flash_branco: `${API_BASE}/storage/transitions/whiteflash.mp3`,
+  whip: `${API_BASE}/storage/transitions/whip.mp3`,
+  blur: `${API_BASE}/storage/transitions/blur.mp3`,
+  glitch: `${API_BASE}/storage/transitions/glitch.mp3`,
+  glare: `${API_BASE}/storage/transitions/glitch.mp3`
 };
+
+const _mp3AudioBuffers = {};
+let _isPreloadingSounds = false;
+
+function preloadTransitionAudio() {
+  if (typeof window === 'undefined' || _isPreloadingSounds) return;
+  _isPreloadingSounds = true;
+  const ctx = getAudioContext();
+  if (!ctx) return;
+  Object.entries(SOUND_AUDIO_FILES).forEach(([key, url]) => {
+    fetch(url)
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.arrayBuffer();
+      })
+      .then(buf => ctx.decodeAudioData(buf))
+      .then(decoded => {
+        _mp3AudioBuffers[key] = decoded;
+      })
+      .catch(() => {});
+  });
+}
 
 const TRANSITION_SOUNDS = [
   { id: 'padrao', label: 'Padrão' },
@@ -462,9 +484,31 @@ function playTransitionSound(soundId, volume = 0.8, transType = 'zoom_punch') {
 
   if (!target || target === 'sem_som' || target === 'padrao') return;
 
-  const safeVol = Math.max(0.01, Math.min(1.0, volume > 1 ? volume / 100 : volume));
+  const safeVol = Math.max(0.0, Math.min(1.0, volume > 1 ? volume / 100 : volume));
+  if (safeVol <= 0) return;
 
-  // 1. Tentar áudio MP3 de /storage/transitions
+  // 1. Tentar áudio buffer decodificado em memória (latência 0ms instantânea no vácuo)
+  const ctx = getAudioContext();
+  if (ctx) {
+    if (ctx.state === 'suspended') {
+      ctx.resume().catch(() => {});
+    }
+    const mp3Buf = _mp3AudioBuffers[target];
+    if (mp3Buf) {
+      try {
+        const source = ctx.createBufferSource();
+        source.buffer = mp3Buf;
+        const gainNode = ctx.createGain();
+        gainNode.gain.setValueAtTime(safeVol, ctx.currentTime);
+        source.connect(gainNode);
+        gainNode.connect(ctx.destination);
+        source.start(0);
+        return;
+      } catch (e) {}
+    }
+  }
+
+  // 2. Se buffer ainda não carregou, tocar via new Audio com `${API_BASE}`
   const mp3Url = SOUND_AUDIO_FILES[target];
   if (mp3Url) {
     try {
@@ -501,12 +545,28 @@ export default function EditorView({
   const [activeTransitionVisual, setActiveTransitionVisual] = useState(null);
   const transitionTimerRef = useRef(null);
 
+  const [transitionGlobalVolume, setTransitionGlobalVolume] = useState(() => {
+    const firstWithVol = project.broll_segments?.find(s => s.transition?.volume !== undefined || s.transitionVolume !== undefined);
+    return firstWithVol ? (firstWithVol.transition?.volume ?? firstWithVol.transitionVolume ?? 50) : 50;
+  });
+  const transitionGlobalVolumeRef = useRef(transitionGlobalVolume);
+  useEffect(() => {
+    transitionGlobalVolumeRef.current = transitionGlobalVolume;
+  }, [transitionGlobalVolume]);
+
+  const [timelineZoom, setTimelineZoom] = useState(1.0);
+
+  useEffect(() => {
+    preloadTransitionAudio();
+  }, []);
+
   const triggerTransitionPreview = (type, sound, volume) => {
     let cleanType = type || 'corte_seco';
     if (cleanType === 'flare') cleanType = 'glare';
 
     if (soundEffectsEnabled) {
-      playTransitionSound(sound, volume ?? 35, cleanType);
+      const effVol = volume !== undefined ? volume : transitionGlobalVolumeRef.current;
+      playTransitionSound(sound, effVol, cleanType);
     }
 
     if (cleanType && cleanType !== 'corte_seco') {
@@ -518,7 +578,7 @@ export default function EditorView({
       });
       transitionTimerRef.current = setTimeout(() => {
         setActiveTransitionVisual(null);
-      }, 520);
+      }, 380);
     }
   };
 
@@ -597,7 +657,7 @@ export default function EditorView({
   const [isGeneratingHeadline, setIsGeneratingHeadline] = useState(false);
   const [isSoundDropdownOpen, setIsSoundDropdownOpen] = useState(false);
   const soundDropdownRef = useRef(null);
-  const [syncAllVolumeOnDrag, setSyncAllVolumeOnDrag] = useState(false);
+  const [syncAllVolumeOnDrag, setSyncAllVolumeOnDrag] = useState(true);
   const [soundFeedbackMsg, setSoundFeedbackMsg] = useState('');
 
   useEffect(() => {
@@ -718,6 +778,12 @@ export default function EditorView({
   const resizeStartXRef = useRef(0);
   const resizeOriginalDurationRef = useRef({ prevDur: 0, nextDur: 0 });
 
+  const getSceneColWidth = (seg) => {
+    const dur = Number(seg.duration || (seg.end - seg.start) || 3.0);
+    const pxPerSec = Math.max(16, Math.round(28 * (timelineZoom || 1.0)));
+    return Math.max(84, Math.round(dur * pxPerSec));
+  };
+
   const handleBoundaryMouseDown = (idx, e) => {
     e.stopPropagation();
     e.preventDefault();
@@ -731,9 +797,11 @@ export default function EditorView({
       nextDur: nextSeg.duration || (nextSeg.end - nextSeg.start)
     };
 
+    const pxPerSec = Math.max(16, Math.round(28 * (timelineZoom || 1.0)));
+
     const handleMouseMove = (moveEvent) => {
       const deltaPx = moveEvent.clientX - resizeStartXRef.current;
-      const deltaSec = parseFloat((deltaPx * 0.035).toFixed(1));
+      const deltaSec = parseFloat((deltaPx / pxPerSec).toFixed(1));
 
       const { prevDur, nextDur } = resizeOriginalDurationRef.current;
       const newPrev = Math.max(0.5, prevDur + deltaSec);
@@ -748,6 +816,43 @@ export default function EditorView({
           return updated;
         });
       }
+    };
+
+    const handleMouseUp = () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+      setResizingBoundaryIndex(null);
+      pushState();
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+  };
+
+  const handleLastBoundaryMouseDown = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    const lastIdx = segments.length - 1;
+    if (lastIdx < 0) return;
+    setResizingBoundaryIndex(lastIdx);
+    resizeStartXRef.current = e.clientX;
+    const curSeg = segments[lastIdx];
+    if (!curSeg) return;
+    const origDur = curSeg.duration || (curSeg.end - curSeg.start) || 3.0;
+
+    const pxPerSec = Math.max(16, Math.round(28 * (timelineZoom || 1.0)));
+
+    const handleMouseMove = (moveEvent) => {
+      const deltaPx = moveEvent.clientX - resizeStartXRef.current;
+      const deltaSec = parseFloat((deltaPx / pxPerSec).toFixed(1));
+      const newDur = Math.max(0.5, origDur + deltaSec);
+      setSegments(prev => {
+        const updated = prev.map(s => ({ ...s }));
+        updated[lastIdx].duration = parseFloat(newDur.toFixed(2));
+        updated[lastIdx].end = parseFloat((updated[lastIdx].start + newDur).toFixed(2));
+        return updated;
+      });
+      setDuration(parseFloat((curSeg.start + newDur).toFixed(2)));
     };
 
     const handleMouseUp = () => {
@@ -932,89 +1037,112 @@ export default function EditorView({
       ? 'avatar-overlay'
       : 'talking-head';
 
-  // Master Video Synchronization (STABLE - ATTACHES ONCE)
+  // Master Video Synchronization with 60fps requestAnimationFrame for frame-accurate zero-delay transitions
   useEffect(() => {
     const master = videoRef.current;
     if (!master) return;
+
+    let animId = null;
+
+    const tick = () => {
+      if (!master.paused && !master.ended) {
+        const t = master.currentTime;
+        setCurrentTime(t);
+
+        const curSegs = segmentsRef.current;
+        const curIdx = selectedSegIndexRef.current;
+        const curSeg = curSegs[curIdx] || curSegs[0];
+
+        // Loop within current scene if isSceneLoopMode is active
+        if (isSceneLoopModeRef.current && curSeg) {
+          if (t >= (curSeg.end - 0.08)) {
+            master.currentTime = curSeg.start;
+            setCurrentTime(curSeg.start);
+            animId = requestAnimationFrame(tick);
+            return;
+          }
+        }
+
+        // Frame-accurate scene detection (catches exact boundary on the frame)
+        const sceneIdx = curSegs.findIndex(s => t >= s.start && t < s.end);
+        if (sceneIdx !== -1 && sceneIdx !== selectedSegIndexRef.current) {
+          selectedSegIndexRef.current = sceneIdx;
+          setSelectedSegIndex(sceneIdx);
+
+          const nextSeg = curSegs[sceneIdx];
+          if (brollVideoRef.current && nextSeg?.broll?.url) {
+            const speed = nextSeg.brollSpeed || 1.0;
+            const offset = nextSeg.brollOffset || 0;
+            brollVideoRef.current.playbackRate = speed;
+            brollVideoRef.current.currentTime = offset;
+            if (!master.paused && brollVideoRef.current.paused) {
+              brollVideoRef.current.play().catch(() => {});
+            }
+          }
+
+          // Trigger transition sound and visual effect simultaneously on the exact frame!
+          if (sceneIdx > 0 && nextSeg) {
+            const transType = nextSeg.transition?.type || nextSeg.transitionType || 'corte_seco';
+            const defaultSound = TRANSITION_DEFAULT_SOUND[transType] || 'padrao';
+            const transSound = nextSeg.transition?.sound || nextSeg.transitionSound || defaultSound;
+            const transVol = nextSeg.transition?.volume ?? transitionGlobalVolumeRef.current ?? 50;
+            triggerTransitionPreview(transType, transSound, transVol);
+          }
+        } else if (brollVideoRef.current && curSeg?.broll?.url) {
+          const speed = curSeg.brollSpeed || 1.0;
+          if (brollVideoRef.current.playbackRate !== speed) {
+            brollVideoRef.current.playbackRate = speed;
+          }
+          if (!master.paused && brollVideoRef.current.paused) {
+            brollVideoRef.current.play().catch(() => {});
+          }
+          const segStart = curSeg.start || 0;
+          const brollDuration = brollVideoRef.current.duration || 10;
+          const offset = curSeg.brollOffset || 0;
+          const segElapsed = Math.max(0, t - segStart);
+          const expectedBrollTime = (offset + segElapsed * speed) % brollDuration;
+          if (Math.abs(brollVideoRef.current.currentTime - expectedBrollTime) > 1.5) {
+            brollVideoRef.current.currentTime = expectedBrollTime;
+          }
+        }
+
+        animId = requestAnimationFrame(tick);
+      }
+    };
 
     const handlePlay = () => {
       setIsPlaying(true);
       if (brollVideoRef.current) {
         brollVideoRef.current.play().catch(() => {});
       }
+      if (animId) cancelAnimationFrame(animId);
+      animId = requestAnimationFrame(tick);
     };
 
     const handlePause = () => {
       setIsPlaying(false);
+      if (animId) cancelAnimationFrame(animId);
       if (brollVideoRef.current) {
         brollVideoRef.current.pause();
       }
     };
 
     const handleTimeUpdate = () => {
-      const t = master.currentTime;
-      setCurrentTime(t);
-
-      const curSegs = segmentsRef.current;
-      const curIdx = selectedSegIndexRef.current;
-      const curSeg = curSegs[curIdx] || curSegs[0];
-
-      // Loop within current scene if isSceneLoopMode is active
-      if (isSceneLoopModeRef.current && curSeg) {
-        if (t >= (curSeg.end - 0.08)) {
-          master.currentTime = curSeg.start;
-          setCurrentTime(curSeg.start);
-          return;
-        }
-      }
-
-      // Auto-detect active scene from currentTime
-      const sceneIdx = curSegs.findIndex(s => t >= s.start && t < s.end);
-      if (sceneIdx !== -1 && sceneIdx !== selectedSegIndexRef.current) {
-        selectedSegIndexRef.current = sceneIdx;
-        setSelectedSegIndex(sceneIdx);
-        // On scene change: smoothly transition B-roll
-        const nextSeg = curSegs[sceneIdx];
-        if (brollVideoRef.current && nextSeg?.broll?.url) {
-          const speed = nextSeg.brollSpeed || 1.0;
-          const offset = nextSeg.brollOffset || 0;
-          brollVideoRef.current.playbackRate = speed;
-          brollVideoRef.current.currentTime = offset;
-          if (!master.paused) {
-            brollVideoRef.current.play().catch(() => {});
-          }
-        }
-        // Play transition sound and visual effect if scene > 0
-        if (sceneIdx > 0 && nextSeg) {
-          const transType = nextSeg.transition?.type || nextSeg.transitionType || 'corte_seco';
-          const defaultSound = TRANSITION_DEFAULT_SOUND[transType] || 'padrao';
-          const transSound = nextSeg.transition?.sound || nextSeg.transitionSound || defaultSound;
-          const transVol = nextSeg.transition?.volume ?? nextSeg.transitionVolume ?? 80;
-          triggerTransitionPreview(transType, transSound, transVol);
-        }
-      } else if (brollVideoRef.current && curSeg?.broll?.url) {
-        // Playing inside same scene: keep speed aligned and ensure it's playing
-        const speed = curSeg.brollSpeed || 1.0;
-        if (brollVideoRef.current.playbackRate !== speed) {
-          brollVideoRef.current.playbackRate = speed;
-        }
-        if (!master.paused && brollVideoRef.current.paused) {
-          brollVideoRef.current.play().catch(() => {});
-        }
-        // Only resync if catastrophic drift (> 1.5s) to avoid constant decoder seeking/stutter
-        const segStart = curSeg.start || 0;
-        const brollDuration = brollVideoRef.current.duration || 10;
-        const offset = curSeg.brollOffset || 0;
-        const segElapsed = Math.max(0, t - segStart);
-        const expectedBrollTime = (offset + segElapsed * speed) % brollDuration;
-        if (Math.abs(brollVideoRef.current.currentTime - expectedBrollTime) > 1.5) {
-          brollVideoRef.current.currentTime = expectedBrollTime;
+      if (master.paused) {
+        const t = master.currentTime;
+        setCurrentTime(t);
+        const curSegs = segmentsRef.current;
+        const sceneIdx = curSegs.findIndex(s => t >= s.start && t < s.end);
+        if (sceneIdx !== -1 && sceneIdx !== selectedSegIndexRef.current) {
+          selectedSegIndexRef.current = sceneIdx;
+          setSelectedSegIndex(sceneIdx);
         }
       }
     };
 
     const handleEnded = () => {
       setIsPlaying(false);
+      if (animId) cancelAnimationFrame(animId);
       if (brollVideoRef.current) brollVideoRef.current.pause();
     };
 
@@ -1024,6 +1152,7 @@ export default function EditorView({
     master.addEventListener('ended', handleEnded);
 
     return () => {
+      if (animId) cancelAnimationFrame(animId);
       master.removeEventListener('play', handlePlay);
       master.removeEventListener('pause', handlePause);
       master.removeEventListener('timeupdate', handleTimeUpdate);
@@ -2937,7 +3066,7 @@ export default function EditorView({
                             curSoundLabel = found ? found.label : `Padrão (${curTransDefault.label})`;
                           }
 
-                          const curVol = activeSegment?.transition?.volume ?? activeSegment?.transitionVolume ?? 35;
+                          const curVol = transitionGlobalVolume;
 
                           return (
                             <div className="space-y-2 pt-1">
@@ -3042,7 +3171,7 @@ export default function EditorView({
                                 </button>
                               </div>
 
-                              {/* Controle de Volume */}
+                              {/* Controle de Volume Global para Todas as Transições */}
                               <div className="flex items-center gap-2.5 pt-0.5">
                                 <span className="text-xs text-[#92978F] shrink-0 w-9">Volume</span>
                                 <input
@@ -3050,40 +3179,32 @@ export default function EditorView({
                                   min="0"
                                   max="100"
                                   step="1"
-                                  value={curVol}
+                                  value={transitionGlobalVolume}
                                   onChange={e => {
                                     const newVol = parseInt(e.target.value);
-                                    if (syncAllVolumeOnDrag) {
-                                      setSegments(prev => prev.map((s, idx) => {
-                                        if (idx === 0) return s;
-                                        return {
-                                          ...s,
-                                          transition: {
-                                            ...(s.transition || {}),
-                                            type: s.transition?.type || 'corte_seco',
-                                            sound: s.transition?.sound || 'padrao',
-                                            volume: newVol
-                                          }
-                                        };
-                                      }));
-                                    } else {
-                                      updateActiveSegment({
+                                    setTransitionGlobalVolume(newVol);
+                                    transitionGlobalVolumeRef.current = newVol;
+                                    setSegments(prev => prev.map((s, idx) => {
+                                      if (idx === 0) return s;
+                                      return {
+                                        ...s,
                                         transition: {
-                                          type: curTransType,
-                                          sound: curSoundVal,
+                                          ...(s.transition || {}),
+                                          type: s.transition?.type || 'corte_seco',
+                                          sound: s.transition?.sound || 'padrao',
                                           volume: newVol
                                         }
-                                      });
-                                    }
+                                      };
+                                    }));
                                   }}
-                                  className="flex-1 accent-[#a855f7] h-1.5 bg-[#21252B] rounded cursor-pointer"
+                                  className="flex-1 accent-[#C5F955] h-1.5 bg-[#21252B] rounded cursor-pointer"
                                 />
                                 <span className="text-xs font-mono text-[#F5F5F0] w-9 text-right shrink-0 font-medium">
-                                  {curVol}%
+                                  {transitionGlobalVolume}%
                                 </span>
                               </div>
 
-                              {/* Ações idênticas ao VibeCut (Imagem 1): Som padrão em todas as cenas | 35% em todas as cenas */}
+                              {/* Ações idênticas ao VibeCut: Som padrão em todas as cenas | 35% em todas as cenas */}
                               <div className="flex items-center justify-between text-[11px] pt-1 border-t border-[#21252B]/60 mt-1">
                                 <button
                                   type="button"
@@ -3097,7 +3218,7 @@ export default function EditorView({
                                             ...(s.transition || {}),
                                             type: s.transition?.type || 'corte_seco',
                                             sound: 'padrao',
-                                            volume: s.transition?.volume ?? curVol
+                                            volume: s.transition?.volume ?? transitionGlobalVolume
                                           }
                                         };
                                       });
@@ -3121,6 +3242,9 @@ export default function EditorView({
                                 <button
                                   type="button"
                                   onClick={() => {
+                                    const newVol = 35;
+                                    setTransitionGlobalVolume(newVol);
+                                    transitionGlobalVolumeRef.current = newVol;
                                     setSegments(prev => {
                                       const updated = prev.map((s, idx) => {
                                         if (idx === 0) return s;
@@ -3130,7 +3254,7 @@ export default function EditorView({
                                             ...(s.transition || {}),
                                             type: s.transition?.type || 'corte_seco',
                                             sound: s.transition?.sound || 'padrao',
-                                            volume: curVol
+                                            volume: newVol
                                           }
                                         };
                                       });
@@ -3144,24 +3268,17 @@ export default function EditorView({
                                 >
                                   {soundFeedbackMsg === 'volume_todas' ? (
                                     <span className="text-[#C5F955] font-semibold flex items-center gap-1">
-                                      <Check className="w-3 h-3" /> {curVol}% em todas
+                                      <Check className="w-3 h-3" /> 35% em todas
                                     </span>
                                   ) : (
-                                    `${curVol}% em todas as cenas`
+                                    '35% em todas as cenas'
                                   )}
                                 </button>
                               </div>
 
-                              {/* Opção de sincronização automática contínua */}
-                              <label className="flex items-center gap-1.5 text-[10px] text-[#92978F] hover:text-[#F5F5F0] cursor-pointer select-none pt-0.5">
-                                <input
-                                  type="checkbox"
-                                  checked={syncAllVolumeOnDrag}
-                                  onChange={e => setSyncAllVolumeOnDrag(e.target.checked)}
-                                  className="accent-[#a855f7] rounded cursor-pointer w-3 h-3"
-                                />
-                                <span>Sincronizar volume em todas as cenas ao mover slider</span>
-                              </label>
+                              <div className="text-[10px] text-[#92978F]/80 pt-0.5">
+                                <span>Volume aplicado automaticamente a todas as transições</span>
+                              </div>
                             </div>
                           );
                         })()}
@@ -4202,7 +4319,30 @@ export default function EditorView({
           <span className="font-semibold text-[#92978F]">
             Linha do Tempo · {segments.length} cenas ({duration ? duration.toFixed(1) : 0}s)
           </span>
-          <span className="shrink-0 font-mono text-[9px]">Ctrl / ⌘ + scroll para ajustar o zoom</span>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 bg-[#181B20] px-1.5 py-0.5 rounded border border-[#21252B]">
+              <button
+                type="button"
+                onClick={() => setTimelineZoom(z => Math.max(0.6, parseFloat((z - 0.15).toFixed(2))))}
+                className="hover:text-white px-1 font-bold cursor-pointer"
+                title="Diminuir zoom"
+              >
+                -
+              </button>
+              <span className="font-mono text-[9px] text-[#D1D5DB] w-7 text-center">
+                {Math.round(timelineZoom * 100)}%
+              </span>
+              <button
+                type="button"
+                onClick={() => setTimelineZoom(z => Math.min(2.5, parseFloat((z + 0.15).toFixed(2))))}
+                className="hover:text-white px-1 font-bold cursor-pointer"
+                title="Aumentar zoom"
+              >
+                +
+              </button>
+            </div>
+            <span className="shrink-0 font-mono text-[9px]">Ctrl / ⌘ + scroll</span>
+          </div>
         </div>
 
         {/* Horizontal Scene Columns - Cada cena fica EXATAMENTE embaixo da sua respectiva barra */}
@@ -4214,44 +4354,60 @@ export default function EditorView({
             const isSelected = selectedSegIndex === idx;
             const segMode = seg.displayMode || seg.type || 'dividida';
             const isLast = idx === segments.length - 1;
+            const segDur = Number(seg.duration || (seg.end - seg.start) || 3.0);
+            const colWidth = getSceneColWidth(seg);
 
             return (
               <div
                 key={seg.id || idx}
                 onClick={() => jumpToScene(idx)}
-                className="shrink-0 w-[84px] h-full flex flex-col justify-between cursor-pointer group select-none"
+                style={{
+                  width: `${colWidth}px`,
+                  minWidth: '84px'
+                }}
+                className="shrink-0 h-full flex flex-col items-center justify-between cursor-pointer group select-none relative"
               >
-                {/* BARRA SUPERIOR DESTA CENA (Exatamente em cima do card da cena) */}
-                <div className="relative w-full h-3 mb-1 flex items-center">
+                {/* BARRA SUPERIOR DESTA CENA (Ocupa 100% da largura da coluna) */}
+                <div className="relative w-full h-4 mb-1.5 flex items-center">
                   <div
-                    className={`w-full h-full rounded-xs flex items-center justify-center transition-colors border ${
+                    className={`w-full h-full rounded-xs flex items-center justify-between px-1.5 transition-colors border relative overflow-hidden ${
                       isSelected
-                        ? 'bg-[#C5F955] border-[#C5F955] text-black shadow-xs font-mono font-bold text-[7.5px]'
-                        : 'bg-[#181B20] border-[#21252B] hover:bg-[#232832] text-[#92978F] font-mono text-[7px]'
+                        ? 'bg-[#C5F955] border-[#C5F955] text-black shadow-xs font-mono font-bold text-[8px]'
+                        : 'bg-[#181B20] border-[#282C34] hover:bg-[#232832] text-[#92978F] font-mono text-[7.5px]'
                     }`}
-                    title={`Barra da Cena ${idx + 1} (${(seg.duration || (seg.end - seg.start) || 3.5).toFixed(1)}s)`}
+                    title={`Barra da Cena ${idx + 1} (${segDur.toFixed(1)}s)`}
                   >
-                    <span className="truncate px-0.5 select-none font-bold">
-                      {isSelected ? `Cena ${idx + 1}` : `${idx + 1}`}
+                    {/* Indicador de progresso sutil na cena ativa */}
+                    {isSelected && isPlaying && (
+                      <div
+                        className="absolute left-0 top-0 bottom-0 bg-black/15 pointer-events-none"
+                        style={{
+                          width: `${Math.max(0, Math.min(100, ((currentTime - seg.start) / Math.max(0.1, segDur)) * 100))}%`
+                        }}
+                      />
+                    )}
+                    <span className="truncate select-none font-bold z-10">
+                      Cena {idx + 1}
+                    </span>
+                    <span className={`text-[7px] font-mono shrink-0 z-10 ${isSelected ? 'text-black/80 font-bold' : 'text-[#92978F]/80'}`}>
+                      {segDur.toFixed(1)}s
                     </span>
                   </div>
 
                   {/* Separador arrastável entre barras para alterar duração da cena */}
-                  {!isLast && (
-                    <div
-                      onMouseDown={(e) => handleBoundaryMouseDown(idx, e)}
-                      onClick={(e) => e.stopPropagation()}
-                      className="absolute -right-1 top-0 bottom-0 w-2 z-30 cursor-col-resize opacity-0 group-hover:opacity-100 hover:opacity-100 flex items-center justify-center"
-                      title="Arraste para ajustar o tempo desta cena"
-                    >
-                      <div className="w-0.5 h-2.5 bg-white/80 rounded-full" />
-                    </div>
-                  )}
+                  <div
+                    onMouseDown={(e) => isLast ? handleLastBoundaryMouseDown(e) : handleBoundaryMouseDown(idx, e)}
+                    onClick={(e) => e.stopPropagation()}
+                    className="absolute -right-1.5 top-0 bottom-0 w-3 z-30 cursor-col-resize flex items-center justify-center opacity-60 hover:opacity-100 group-hover:opacity-100 transition-opacity"
+                    title={isLast ? "Arraste para ajustar o tempo final" : "Arraste para ajustar o tempo desta cena"}
+                  >
+                    <div className="w-1 h-3.5 bg-white/70 hover:bg-[#C5F955] rounded-full shadow-xs transition-colors" />
+                  </div>
                 </div>
 
-                {/* CARD DA CENA (Exatamente embaixo da sua respectiva barra) */}
+                {/* CARD DA CENA (Largura fixa 84px, sempre centralizado sob a barra) */}
                 <div
-                  className={`w-full flex-1 rounded-lg border transition-all p-1 flex flex-col justify-between ${
+                  className={`w-[84px] flex-1 rounded-lg border transition-all p-1 flex flex-col justify-between ${
                     isSelected
                       ? 'bg-[#181B20] border-2 border-[#C5F955] shadow-lg shadow-lime-950/20'
                       : 'bg-[#131519] border border-[#21252B] hover:border-[#333944]'
